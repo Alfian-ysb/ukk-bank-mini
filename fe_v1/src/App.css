@@ -1,0 +1,14 @@
+.table > thead > tr > th {
+    color: white;
+    font-weight: 600;
+    padding: .5rem 1rem;
+}
+.table > tbody > tr > td {
+    color: var(--color-dark);
+    font-weight: 400;
+    padding: .5rem 1rem;
+}
+
+.table > tbody > tr {
+    border-bottom: 1.25pt solid #bdbcbc;
+}
