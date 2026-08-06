@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\UserRole;
+use App\Enums\UserRoles;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,9 +15,9 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('username')->unique();
-            $table->string('officers_name');
+            $table->string('full_name')->nullable();
             $table->string('password');
-            $table->enum('role', array_column(UserRole::cases(), 'value'))->default(UserRole::NASABAH->value);
+            $table->enum('role', array_column(UserRoles::cases(), 'value'))->default(UserRoles::TELLER->value);
             $table->rememberToken();
             $table->timestamps();
         });

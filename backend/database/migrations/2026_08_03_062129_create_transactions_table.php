@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\TransactionType;
+use App\Enums\TransactionTypes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->dateTime('date');
-            $table->enum('transaction_type', array_column(TransactionType::cases(), 'value'));
+            $table->enum('transaction_type', array_column(TransactionTypes::cases(), 'value'));
             $table->decimal('nominal', 15, 2);
             $table->timestamps();
         });
