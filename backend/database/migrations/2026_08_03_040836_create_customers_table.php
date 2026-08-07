@@ -15,12 +15,13 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('account_number');
-            $table->string('nis');
+            $table->string('account_number')->unique();
+            $table->string('nis')->unique();
             $table->string('student_name');
             $table->string('class');
             $table->enum('status', array_column(Status::cases(), 'value'))->default(Status::ACTIVE->value);
-            $table->char('pin', 6);
+            $table->string('pin');
+            $table->integer('saldo')->default(0)->unsigned();
             $table->timestamps();
         });
     }
