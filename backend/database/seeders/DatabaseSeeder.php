@@ -36,12 +36,12 @@ class DatabaseSeeder extends Seeder
                 'password' => 'password',
                 'role' => UserRoles::TELLER->value,
             ],
-            [
-                'username' => 'customer',
-                'full_name' => 'Customer',
-                'password' => 'password',
-                'role' => UserRoles::CUSTOMER->value,
-            ],
+            // [
+            //     'username' => 'customer',
+            //     'full_name' => 'Customer',
+            //     'password' => 'password',
+            //     'role' => UserRoles::CUSTOMER->value,
+            // ],
         ];
 
         foreach ($users as $user) {

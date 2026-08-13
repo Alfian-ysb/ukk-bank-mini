@@ -23,14 +23,12 @@ class StoreCustomerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['required', 'string', 'unique:users,username'],
-            'full_name' => ['required', 'string'],
-            'account_number' => ['required', 'string', 'unique:customers,account_number'],
-            'password' => ['required', 'string', 'min:6'],
+            // 'account_number' => ['required', 'string', 'unique:customers,account_number'],
             'nis' => ['required', 'string', 'unique:customers,nis'],
             'student_name' => ['required', 'string'],
             'class' => ['required', 'string'],
             'pin' => ['required', 'string', 'size:6'],
+            'password' => ['required', 'string', 'min:6'],
         ];
     }
 }

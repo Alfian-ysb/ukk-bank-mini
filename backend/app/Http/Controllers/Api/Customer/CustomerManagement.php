@@ -3,21 +3,21 @@
 namespace App\Http\Controllers\Api\Customer;
 
 use App\Actions\CreateCustomerAction;
+use App\Actions\UpdateCustomerAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerRequest;
+use App\Http\Requests\UpdateCustomerRequest;
 use App\Http\Resources\CustomerResource;
 use App\Models\Customer;
-use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class CustomerManagement extends Controller
 {
     public function index()
     {
-        $customers = Customer::with('user')->get();
+        $customers = Customer::all();
         return response()->json([
             'status' => 'success',
             'data' => $customers,
@@ -32,10 +32,10 @@ class CustomerManagement extends Controller
                 'status' => 'success',
                 'data' => $customer,
             ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Customer not found',
+                'message' => $e->getMessage(),
             ], 404);
         }
     }
@@ -53,48 +53,39 @@ class CustomerManagement extends Controller
         ], 201);
     }
 
-    // public function create(Request $request){
-    //     $request->validate([
-    //         'username' => 'required|string|unique:users,username',
-    //         'full_name' => 'required|string',
-    //         'account_number' => 'required|string|unique:customers,account_number',
-    //         'nis' => 'required|string|unique:customers,nis',
-    //         'student_name' => 'required|string',
-    //         'class' => 'required|string',
-    //         'pin' => 'required|string|min:4|max:6',
-    //     ]);
+    public function update(UpdateCustomerRequest $updateCustomerRequest, $id){
+        try {
+            $customer = Customer::findOrFail($id);
+            $updateCustomerAction = new UpdateCustomerAction();
+            $updateCustomerAction->execute($customer, $updateCustomerRequest->validated());
 
-    //     DB::transaction(function () use ($request) {
-    //         $user = User::create([
-    //             'username' => $request->username,
-    //             'full_name' => $request->full_name,
-    //             'password' => bcrypt($request->pin),
-    //             'role' => 'customer',
-    //         ]);
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Customer updated successfully',
+                'data'    => new CustomerResource($customer),
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 404);
+        }
+    }
 
-    //         Customer::create([
-    //             'user_id' => $user->id,
-    //             'account_number' => $request->account_number,
-    //             'nis' => $request->nis,
-    //             'student_name' => $request->student_name,
-    //             'class' => $request->class,
-    //             'status' => 'active',
-    //             'pin' => bcrypt($request->pin),
-    //         ]);
-    //     });
+    public function delete($id){
+        try {
+            $customer = Customer::findOrFail($id);
+            $customer->delete();
 
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'message' => 'Customer created successfully',
-    //         'data' => [
-    //             'username' => $request->username,
-    //             'full_name' => $request->full_name,
-    //             'account_number' => $request->account_number,
-    //             'nis' => $request->nis,
-    //             'student_name' => $request->student_name,
-    //             'class' => $request->class,
-    //             'status' => 'active',
-    //         ],
-    //     ]);
-    // }
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Customer deleted successfully',
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 404);
+        }
+    }
 }

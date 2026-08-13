@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
-class Auth extends Controller
+class AuthStaffController extends Controller
 {
     // login
     public function Login(Request $request)
@@ -42,5 +42,16 @@ class Auth extends Controller
                 'message' => $e->getMessage()
             ], 422);
         }
+    }
+
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Logout berhasil',
+        ]);
     }
 }

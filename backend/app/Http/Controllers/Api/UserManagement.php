@@ -24,12 +24,12 @@ class UserManagement extends Controller
     }
 
     public function create(StoreStaffRequest $request, CreateStaffAction $action): JsonResponse{
-        $customer = $action->execute($request->validated());
+        $staff = $action->execute($request->validated());
 
         return response()->json([
             'status'  => 'success',
-            'message' => 'User created successfully',
-            'data'    => new StaffResource($customer),
+            'message' => 'Staff created successfully',
+            'data'    => new StaffResource($staff),
         ], 201);
     }
 

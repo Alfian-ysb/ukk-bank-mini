@@ -2,13 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Console\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable('user_id', 'account_number', 'nis', 'student_name', 'class', 'status', 'pin', 'saldo')]
-class Customer extends Model
+#[Fillable('user_id', 'account_number', 'nis', 'student_name', 'class', 'pin', 'password', 'status', 'saldo')]
+#[Hidden(['pin', 'password'])]
+class Customer extends Authenticatable
 {
-    public function user(){
-        return $this->belongsTo(User::class);
+    use HasApiTokens, HasFactory, Notifiable;
+
+    public function getAuthIdentifierName()
+    {
+        return $this->password;
     }
+    
 }

@@ -22,14 +22,7 @@ class CustomerResource extends JsonResource
             'class'          => $this->class,
             'status'         => $this->status,
             'created_at'     => $this->created_at?->toIso8601String(),
-            
-            'user' => $this->whenLoaded('user', function () {
-                return [
-                    'id'        => $this->user->id,
-                    'username'  => $this->user->username,
-                    'full_name' => $this->user->full_name,
-                ];
-            }),
+            'updated_at'     => $this->updated_at?->toIso8601String(),
         ];
         // return [
         //     'id' => $this->id,

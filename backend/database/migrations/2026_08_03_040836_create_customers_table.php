@@ -14,13 +14,14 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            // $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('account_number')->unique();
             $table->string('nis')->unique();
             $table->string('student_name');
             $table->string('class');
             $table->enum('status', array_column(Status::cases(), 'value'))->default(Status::ACTIVE->value);
             $table->string('pin');
+            $table->string('password');
             $table->integer('saldo')->default(0)->unsigned();
             $table->timestamps();
         });
