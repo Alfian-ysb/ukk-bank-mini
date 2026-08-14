@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Customer;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Actions\CreateCustomerAction;
 use App\Actions\UpdateCustomerAction;
@@ -20,7 +20,13 @@ class CustomerManagement extends Controller
         $customers = Customer::all();
         return response()->json([
             'status' => 'success',
-            'data' => $customers,
+            'data' => [
+                'account_number' => $customers->account_number,
+                'nis' => $customers->nis,
+                'student_name' => $customers->student_name,
+                'status' => $customers->status,
+                'balance' => $customers->balance,
+            ],
         ]);
     }
 

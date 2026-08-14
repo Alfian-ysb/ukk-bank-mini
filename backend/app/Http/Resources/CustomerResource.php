@@ -34,7 +34,7 @@ class CustomerResource extends JsonResource
         //     'student_name' => $this->customer?->student_name,
         //     'class' => $this->customer?->class,
         //     'status' => $this->customer?->status,
-        //     // 'saldo' => $this->customer?->saldo,
+        //     // 'balance' => $this->customer?->balance,
         //     'created_at' => $this->customer?->created_at?->toIso8601String(),
         // ];
     }

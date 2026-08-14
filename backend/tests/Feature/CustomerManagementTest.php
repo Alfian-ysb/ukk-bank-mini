@@ -20,7 +20,7 @@ class CustomerManagementTest extends TestCase
             'pin' => bcrypt('123456'),
             'password' => bcrypt('secret123'),
             'status' => 'active',
-            'saldo' => 0,
+            'balance' => 0,
         ]);
 
         $response = $this->getJson('/api/admin/customers');

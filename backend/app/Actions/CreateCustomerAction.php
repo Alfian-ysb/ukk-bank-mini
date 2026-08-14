@@ -35,7 +35,7 @@ class CreateCustomerAction
             'password' => bcrypt($data['password']),
             'status' => 'active',
             'pin' => bcrypt($data['pin']),
-            // 'saldo' => 0,
+            // 'balance' => 0,
         ]);
 
         // return $customer->load('user');

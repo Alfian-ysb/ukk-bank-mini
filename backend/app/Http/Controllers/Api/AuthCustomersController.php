@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Customer;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
@@ -67,6 +67,22 @@ class AuthCustomersController extends Controller
         return response()->json([
             'status'  => 'success',
             'message' => 'Logout berhasil',
+        ]);
+    }
+
+    public function profile(Request $request)
+    {
+        $customers = $request->user();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'id' => $customers->id,
+                'nis' => $customers->nis,
+                'student_name' => $customers->student_name,
+                'status' => $customers->status,
+                'balance' => $customers->balance,
+            ],
         ]);
     }
 }

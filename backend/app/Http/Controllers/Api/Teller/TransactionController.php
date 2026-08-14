@@ -54,7 +54,7 @@ class TransactionController extends Controller
         }
         DB::transaction(function () use ($customer, $request) {
             if ($request->input('transaction_type') === 'deposit') {
-                $customer->saldo += $request->input('amount');
+                $customer->balance += $request->input('amount');
                 $customer->save();
 
                 Transaction::create([
@@ -80,13 +80,13 @@ class TransactionController extends Controller
                 ]);
                 
             } else {
-                if ($customer->saldo - $request->input('amount') <= 10000) {
+                if ($customer->balance - $request->input('amount') <= 10000) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Saldo tidak mencukupi untuk melakukan penarikan',
+                        'message' => 'balance is insufficient to make a withdrawal',
                     ], 400);
                 }
-                $customer->saldo -= $request->input('amount');
+                $customer->balance -= $request->input('amount');
                 $customer->save();
 
                 Transaction::create([
@@ -118,7 +118,7 @@ class TransactionController extends Controller
             'data' => [
                 'transaction_type' => $request->input('transaction_type'),
                 'amount' => $request->input('amount'),
-                'customer_saldo' => $customer->saldo,
+                'customer_balance' => $customer->balance,
                 'transaction_date' => now(),
             ],
         ]);
