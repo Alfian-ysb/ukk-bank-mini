@@ -25,7 +25,8 @@ class UpdateCustomerRequest extends FormRequest
         return [
             'nis' => ['sometimes', 'string', 'unique:customers,nis,', $this->route('customer')],
             'student_name' => ['sometimes', 'string'],
-            'class' => ['sometimes', 'string'],
+            'major' => ['sometimes', 'string'],
+            'cohort_year' => ['sometimes', 'string'],
             'pin' => ['sometimes', 'string', 'size:6'],
             'password' => ['sometimes', 'string', 'min:6'],
         ];

@@ -13,8 +13,6 @@ Route::post('/customer/logout', [App\Http\Controllers\Api\AuthCustomersControlle
 Route::post('/staff/logout', [App\Http\Controllers\Api\AuthStaffController::class, 'logout']);
 
 
-// Route::prefix('staff')->middleware(['auth:sanctum', 'role:supervisor,admin,teller'])->group(function () {
-// });
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/staff', [App\Http\Controllers\Api\Admin\UserManagement::class, 'index']);

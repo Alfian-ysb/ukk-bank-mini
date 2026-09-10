@@ -17,16 +17,17 @@ class CustomerManagement extends Controller
 {
     public function index()
     {
-        $customers = Customer::all();
+// #[Fillable('user_id', 'account_number', 'nis', 'student_name', 'major', 'cohort_year', 'pin', 'password', 'status', 'balance')]
+        $customers = Customer::select([
+                'account_number',
+                'nis',
+                'student_name',
+                'status',
+                'balance'
+            ])->get();
         return response()->json([
             'status' => 'success',
-            'data' => [
-                'account_number' => $customers->account_number,
-                'nis' => $customers->nis,
-                'student_name' => $customers->student_name,
-                'status' => $customers->status,
-                'balance' => $customers->balance,
-            ],
+            'data' => $customers,
         ]);
     }
 
@@ -59,7 +60,8 @@ class CustomerManagement extends Controller
         ], 201);
     }
 
-    public function update(UpdateCustomerRequest $updateCustomerRequest, $id){
+    public function update(UpdateCustomerRequest $updateCustomerRequest, $id)
+    {
         try {
             $customer = Customer::findOrFail($id);
             $updateCustomerAction = new UpdateCustomerAction();
@@ -78,7 +80,8 @@ class CustomerManagement extends Controller
         }
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         try {
             $customer = Customer::findOrFail($id);
             $customer->delete();

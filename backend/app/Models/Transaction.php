@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['user_id', 'customer_id', 'date', 'transaction_type', 'nominal'])]
+#[Fillable(['user_id', 'customer_id', 'date', 'transaction_type', 'amount'])]
 class Transaction extends Model
 {
     public function user(){

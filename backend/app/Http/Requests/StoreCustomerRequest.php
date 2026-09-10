@@ -26,7 +26,8 @@ class StoreCustomerRequest extends FormRequest
             // 'account_number' => ['required', 'string', 'unique:customers,account_number'],
             'nis' => ['required', 'string', 'unique:customers,nis'],
             'student_name' => ['required', 'string'],
-            'class' => ['required', 'string'],
+            'major' => ['required', 'string'],
+            'cohort_year' => ['required', 'string'],
             'pin' => ['required', 'string', 'size:6'],
             'password' => ['required', 'string', 'min:6'],
         ];

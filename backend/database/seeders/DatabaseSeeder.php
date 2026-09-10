@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\UserRoles;
+use App\Models\Major;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -17,6 +18,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
         $users = [
             [
                 'username' => 'admin',
@@ -44,6 +46,22 @@ class DatabaseSeeder extends Seeder
             // ],
         ];
 
+        $majors = [
+            [
+                'major_name' => 'RPL',
+                'unique_code' => '01',
+            ],
+            [
+                'major_name' => 'TKJ',
+                'unique_code' => '02',
+            ],
+            [
+                'major_name' => 'DKV',
+                'unique_code' => '03',
+            ],
+
+        ];
+
         foreach ($users as $user) {
             User::updateOrCreate(
                 ['username' => $user['username']],
@@ -51,6 +69,15 @@ class DatabaseSeeder extends Seeder
                     'full_name' => $user['full_name'],
                     'password' => 'password',
                     'role' => $user['role'],
+                ]
+            );
+        }
+
+        foreach ($majors as $major) {
+            Major::updateOrCreate(
+                ['unique_code' => $major['unique_code']],
+                [
+                    'major_name' => $major['major_name'],
                 ]
             );
         }

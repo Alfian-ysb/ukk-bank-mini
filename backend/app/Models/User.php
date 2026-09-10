@@ -34,6 +34,10 @@ class User extends Authenticatable
     public function transactions(){
         return $this->hasMany(Transaction::class);
     }
+
+    public function dailyReports(){
+        return $this->hasMany(DailyReport::class, 'handled_by');
+    }
     
     
 }

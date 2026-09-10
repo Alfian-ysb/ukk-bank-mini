@@ -62,7 +62,7 @@ class TransactionController extends Controller
                     'user_id' => Auth::id(),
                     'transaction_type' => $request->input('transaction_type'),
                     'date' => now(),
-                    'nominal' => $request->input('amount'),
+                    'amount' => $request->input('amount'),
                 ]);
 
                 AccountingJournal::create([
@@ -94,7 +94,7 @@ class TransactionController extends Controller
                     'user_id' => Auth::id(),
                     'transaction_type' => $request->input('transaction_type'),
                     'date' => now(),
-                    'nominal' => $request->input('amount'),
+                    'amount' => $request->input('amount'),
                 ]);
 
                 AccountingJournal::create([
