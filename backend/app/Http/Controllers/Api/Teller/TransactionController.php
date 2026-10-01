@@ -123,4 +123,23 @@ class TransactionController extends Controller
             ],
         ]);
     }
+
+    public function initiateDailyReport(Request $request)
+    {
+        $date = $request->input('date', now()->toDateString());
+
+        $transactions = Transaction::whereDate('date', $date)->get();
+
+        if ($transactions->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No transactions found for the specified date',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $transactions,
+        ]);
+    }
 }

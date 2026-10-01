@@ -22,6 +22,9 @@ class CustomerManagement extends Controller
                 'account_number',
                 'nis',
                 'student_name',
+                'major',
+                'cohort_year',
+                'password',
                 'status',
                 'balance'
             ])->get();

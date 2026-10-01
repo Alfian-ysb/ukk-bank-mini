@@ -2,6 +2,7 @@
 
 namespace App\Actions;
 
+use App\Enums\MajorCodes;
 use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -12,20 +13,31 @@ class CreateCustomerAction
     /**
      * Create a new class instance.
      */
-    private function generateAccountNumber(): string
+    private function generateAccountNumber(array $data): string
     {
-        $year = date('Y');
-        $prefix = $year >= 7 ? $year : $year - 1;
-        $lastCustomer = Customer::orderBy('id', 'desc')->first();
-        $lastAccountNumber = $lastCustomer ? (int) substr($lastCustomer->account_number, 4) : 0;
-        $newAccountNumber = $lastAccountNumber + 1;
-        return $prefix . str_pad($newAccountNumber, 6, '0', STR_PAD_LEFT);
+        // Tahun ajaran + kode jurusan dari enum + NIS.
+        $major = $data['major'];
+        $majorCode = $major instanceof \BackedEnum ? $major->value : null;
+
+        if ($majorCode === null) {
+            $majorName = strtoupper((string) $major);
+            foreach (MajorCodes::cases() as $majorCase) {
+                if ($majorCase->name === $majorName) {
+                    $majorCode = $majorCase->value;
+                    break;
+                }
+            }
+        }
+
+        return (string) $data['cohort_year']
+            . (string) $majorCode
+            . (string) $data['nis'];
         
     }
 
     public function execute(array $data)
     {
-        $accountNumber = $this->generateAccountNumber();
+        $accountNumber = $this->generateAccountNumber($data);
 
         $customer = Customer::create([
             'account_number' => $accountNumber,

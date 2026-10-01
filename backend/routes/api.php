@@ -32,6 +32,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
 Route::prefix('teller')->middleware(['auth:sanctum', 'role:teller'])->group(function () {
     Route::post('/customer', [App\Http\Controllers\Api\Teller\TransactionController::class, 'GetCustomer']);
     Route::post('/customer/{id}/transaction', [App\Http\Controllers\Api\Teller\TransactionController::class, 'StoreTransaction']);
+    Route::post('/daily-report', [App\Http\Controllers\Api\Teller\TransactionController::class, 'initiateDailyReport']);
 });
 
 Route::prefix('supervisor')->middleware(['auth:sanctum', 'role:supervisor'])->group(function () {

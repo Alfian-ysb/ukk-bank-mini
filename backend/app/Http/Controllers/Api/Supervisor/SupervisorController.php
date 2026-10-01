@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api\Supervisor;
 
 use App\Http\Controllers\Controller;
 use App\Models\AccountingJournal;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class SupervisorController extends Controller
 {
-    public function accountingJournal(Request $request)
+    public function accountingJournal()
     {
+        // menggbil data user dan cust
         $journals = AccountingJournal::all();
         
         if (!$journals) {
@@ -26,7 +28,7 @@ class SupervisorController extends Controller
     }
 
     public function getAllTransactions(){
-        $transactions = AccountingJournal::all();
+        $transactions = Transaction::with(['customer', 'user'])->get();
 
         if ($transactions->isEmpty()) {
             return response()->json([
