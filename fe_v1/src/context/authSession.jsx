@@ -21,12 +21,10 @@ export const getRouteByRole = (role) => {
     switch (role) {
         case "admin":
             return "/admin/dashboard";
-        case "analyst":
-            return "/analyst/dashboard";
-        case "verifier":
-            return "/verifier/dashboard";
-        case "manager":
-            return "/manager/dashboard";
+        case "teller":
+            return "/teller/dashboard";
+        case "supervisor":
+            return "/supervisor/dashboard";
         case "applicant":
             return "/applicant/dashboard";
         default:
