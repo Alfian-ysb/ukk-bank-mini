@@ -21,8 +21,7 @@ return new class extends Migration
             $table->integer('final_balance')->unsigned();
             $table->integer('physical_balance')->unsigned();
             $table->enum('status', array_column(ReportStatus::cases(), 'value'))->default(ReportStatus::PENDING->value);
-            $table->foreignId('handled_by')->constrained('u
-            \']sers')->onDelete('restrict');
+            $table->foreignId('handled_by')->constrained('users')->onDelete('restrict');
             $table->timestamps();
         });
     }
