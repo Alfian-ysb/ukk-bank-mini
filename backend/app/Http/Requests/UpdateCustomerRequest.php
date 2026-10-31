@@ -23,7 +23,7 @@ class UpdateCustomerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nis' => ['sometimes', 'string', 'unique:customers,nis,', $this->route('customer')],
+            'nis' => ['sometimes', 'string', 'unique:customers,nis,' . $this->route('id')],
             'student_name' => ['sometimes', 'string'],
             'major' => ['sometimes', 'string'],
             'cohort_year' => ['sometimes', 'string'],

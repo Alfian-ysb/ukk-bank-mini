@@ -23,7 +23,7 @@ class AuthStaffController extends Controller
             if (!$user || !Hash::check($request->password, $user->password)) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'email atau password salah'
+                    'message' => 'username atau password salah'
                 ], 401);
             }
 

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained('customers')->onDelete('restrict');
             $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
+            $table->foreignId('shift_id')->nullable()->constrained('shifts')->onDelete('restrict');
             $table->dateTime('date');
             $table->enum('transaction_type', array_column(TransactionTypes::cases(), 'value'));
             $table->integer('amount')->unsigned();

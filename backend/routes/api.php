@@ -27,15 +27,24 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
     Route::post('/customers', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'create']);
     Route::patch('/customers/{id}', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'update']);
     Route::delete('/customers/{id}', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'delete']);
+    Route::get('/vault/balance', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'vaultBalance']);
+    Route::post('/vault/opening-balance', [App\Http\Controllers\Api\Admin\VaultController::class, 'setupOpeningBalance']);
 });
 
 Route::prefix('teller')->middleware(['auth:sanctum', 'role:teller'])->group(function () {
+    Route::get('/shifts/current', [App\Http\Controllers\Api\Teller\ShiftController::class, 'getCurrentShift']);
+    Route::post('/shifts/open', [App\Http\Controllers\Api\Teller\ShiftController::class, 'open']);
+    Route::post('/shifts/close', [App\Http\Controllers\Api\Teller\ShiftController::class, 'close']);
     Route::post('/customer', [App\Http\Controllers\Api\Teller\TransactionController::class, 'GetCustomer']);
     Route::post('/customer/{id}/transaction', [App\Http\Controllers\Api\Teller\TransactionController::class, 'StoreTransaction']);
     Route::post('/daily-report', [App\Http\Controllers\Api\Teller\TransactionController::class, 'initiateDailyReport']);
 });
 
 Route::prefix('supervisor')->middleware(['auth:sanctum', 'role:supervisor'])->group(function () {
+    Route::patch('/shifts/{shift}/approve', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'approve']);
+    Route::get('/shifts', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'getAllShifts']);
+    Route::get('/shifts/{shift}', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'ShiftDetails']);
+    Route::get('/vault/balance', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'vaultBalance']);
     Route::get('/customers', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'index']);
     Route::get('/transactions', [App\Http\Controllers\Api\Supervisor\SupervisorController::class, 'getAllTransactions']);
     Route::get('/journals', [App\Http\Controllers\Api\Supervisor\SupervisorController::class, 'accountingJournal']);

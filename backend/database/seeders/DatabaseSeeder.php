@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\UserRoles;
+use App\Models\Customer;
 use App\Models\Major;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -46,6 +47,36 @@ class DatabaseSeeder extends Seeder
             // ],
         ];
 
+        $customers = [
+            [
+                'account_number' => '2027011501',
+                'nis' => '1501',
+                'student_name' => 'John Doe',
+                'major' => 'DKV',
+                "cohort_year" => "2027",
+                'pin' => Hash::make('123456'),
+                'password' => Hash::make('password'),
+            ],
+            [
+                'account_number' => '2027011502',
+                'student_name' => 'Jane Smith',
+                'nis' => '1502',
+                'major' => 'TKJ',
+                'cohort_year' => '2027',
+                'pin' => Hash::make('123456'),
+                'password' => Hash::make('password'),
+            ],
+            [
+                'account_number' => '2027011503',
+                'student_name' => 'Alice Johnson',
+                'nis' => '1503',
+                'major' => 'RPL',
+                'cohort_year' => '2027',
+                'pin' => Hash::make('123456'),
+                'password' => Hash::make('password'),
+            ],
+        ];
+
         $majors = [
             [
                 'major_name' => 'RPL',
@@ -73,11 +104,26 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+
         foreach ($majors as $major) {
             Major::updateOrCreate(
                 ['unique_code' => $major['unique_code']],
                 [
                     'major_name' => $major['major_name'],
+                ]
+            );
+        }
+
+        foreach ($customers as $customer) {
+            Customer::updateOrCreate(
+                ['account_number' => $customer['account_number']],
+                [
+                    'student_name' => $customer['student_name'],
+                    'nis' => $customer['nis'],
+                    'major' => $customer['major'],
+                    'cohort_year' => $customer['cohort_year'],
+                    'pin' => $customer['pin'],
+                    'password' => $customer['password'],
                 ]
             );
         }
