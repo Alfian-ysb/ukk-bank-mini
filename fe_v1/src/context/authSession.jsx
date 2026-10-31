@@ -1,33 +1,49 @@
-import React from 'react'
-
-export const getStoredRole = () => {
-  return (sessionStorage.getItem('role') || "").toLowerCase();
+export function getStoredToken() {
+  return sessionStorage.getItem("token") || "";
 }
 
-export const getStoredToken = () => {
-    return sessionStorage.getItem('token') || "";
+export function getStoredUser() {
+  try {
+    return JSON.parse(sessionStorage.getItem("user") || "null");
+  } catch {
+    return null;
+  }
 }
 
-export const isLoggedIn = () => {
-    return Boolean(getStoredToken());
+export function getStoredRole() {
+  return String(getStoredUser()?.role || "").toLowerCase();
 }
 
-export const getRoleFromResponse = (payload, fallback = "applicant") => {
-    const roleValue = payload?.data?.role || fallback;
-    return String(roleValue).toLowerCase();
+export function isLoggedIn() {
+  return Boolean(getStoredToken() && getStoredUser());
 }
 
-export const getRouteByRole = (role) => {
-    switch (role) {
-        case "admin":
-            return "/admin/dashboard";
-        case "teller":
-            return "/teller/dashboard";
-        case "supervisor":
-            return "/supervisor/dashboard";
-        case "applicant":
-            return "/applicant/dashboard";
-        default:
-            return "/";
-    }
-} 
+export function saveSession(payload) {
+  const token = payload.access_token || payload.token;
+  const user = payload.user || payload.data;
+
+  if (!token || !user?.role) {
+    throw new Error("Response login tidak lengkap.");
+  }
+
+  sessionStorage.setItem("token", token);
+  sessionStorage.setItem("user", JSON.stringify(user));
+}
+
+export function clearSession() {
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("user");
+}
+
+export function getRouteByRole(role) {
+  switch (String(role).toLowerCase()) {
+    case "admin":
+      return "/admin/dashboard";
+    case "teller":
+      return "/teller/dashboard";
+    case "supervisor":
+      return "/supervisor/dashboard";
+    default:
+      return "/login";
+  }
+}
