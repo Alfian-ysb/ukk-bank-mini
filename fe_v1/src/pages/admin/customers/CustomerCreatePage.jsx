@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import DashboardLayout from "../../components/DashboardLayout";
-import AdminForm from "../../components/admin/AdminForm";
-import { post } from "../../api";
+import DashboardLayout from "../../../components/DashboardLayout";
+import AdminForm from "../../../components/admin/AdminForm";
+import { post } from "../../../api";
 
 const emptyForm = { nis: "", student_name: "", major: "", cohort_year: "", pin: "", password: "" };
 const fields = [

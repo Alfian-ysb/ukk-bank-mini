@@ -4,14 +4,14 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import VaultOpeningBalance from "./pages/admin/VaultOpeningBalance";
-import StaffManagementPage from "./pages/admin/StaffManagementPage";
-import CustomerManagementPage from "./pages/admin/CustomerManagementPage";
-import StaffCreatePage from "./pages/admin/StaffCreatePage";
-import StaffEditPage from "./pages/admin/StaffEditPage";
-import StaffDetailPage from "./pages/admin/StaffDetailPage";
-import CustomerCreatePage from "./pages/admin/CustomerCreatePage";
-import CustomerEditPage from "./pages/admin/CustomerEditPage";
-import CustomerDetailPage from "./pages/admin/CustomerDetailPage";
+import StaffManagementPage from "./pages/admin/staff/StaffManagementPage";
+import CustomerManagementPage from "./pages/admin/customers/CustomerManagementPage";
+import StaffCreatePage from "./pages/admin/staff/StaffCreatePage";
+import StaffEditPage from "./pages/admin/staff/StaffEditPage";
+import StaffDetailPage from "./pages/admin/staff/StaffDetailPage";
+import CustomerCreatePage from "./pages/admin/customers/CustomerCreatePage";
+import CustomerEditPage from "./pages/admin/customers/CustomerEditPage";
+import CustomerDetailPage from "./pages/admin/customers/CustomerDetailPage";
 import SupervisorDashboard from "./pages/supervisor/SupervisorDashboard";
 import VaultBalance from "./pages/supervisor/VaultBalance";
 import ShiftApproval from "./pages/supervisor/ShiftApproval";
@@ -26,6 +26,9 @@ import { getRouteByRole, getStoredRole, isLoggedIn } from "./context/authSession
 import AccountingJournals from "./pages/supervisor/AccountingJournals";
 import Transactions from "./pages/supervisor/Transactions";
 import AdminVaultBalance from "./pages/admin/AdminVaultBalance";
+import SettingsPage from "./pages/admin/SettingsPage";
+import AdminTransactions from "./pages/admin/AdminTransactions";
+import AdminAccountingJournals from "./pages/admin/AdminAccountingJournals";
 
 function App() {
   const home = isLoggedIn() ? getRouteByRole(getStoredRole()) : "/login";
@@ -47,8 +50,12 @@ function App() {
           <Route path="/admin/customers/create" element={<CustomerCreatePage />} />
           <Route path="/admin/customers/:id" element={<CustomerDetailPage />} />
           <Route path="/admin/customers/:id/edit" element={<CustomerEditPage />} />
-          <Route path="/admin/vault/opening-balance" element={<VaultOpeningBalance />} />
+
+          <Route path="/admin/transactions" element={<AdminTransactions />} />
+          <Route path="/admin/journals" element={<AdminAccountingJournals />} />
+          
           <Route path="/admin/vault" element={<AdminVaultBalance />} />
+          <Route path="/admin/settings" element={<SettingsPage />} />
         </Route>
         <Route element={<ProtectedRoute allowedRoles={["teller"]} />}>
           <Route path="/teller/dashboard" element={<TellerDashboard />} />

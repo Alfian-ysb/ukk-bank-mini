@@ -8,7 +8,7 @@ const AdminVaultBalance = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    get("/supervisor/vault/balance")
+    get("/admin/vault/balance")
       .then((response) => {
         setVault(response.data || null);
       })

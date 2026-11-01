@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import DashboardLayout from "../../components/DashboardLayout";
+import CustomerSearch from "../../components/teller/CustomerSearch";
+import CustomerSummary from "../../components/teller/CustomerSummary";
+import QrScannerModal from "../../components/teller/QrScannerModal";
+import TransactionForm from "../../components/teller/TransactionForm";
 import { post } from "../../api";
 
 const money = (value) => `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
@@ -13,37 +17,60 @@ function TransactionPage() {
     amount: "",
   });
   const [message, setMessage] = useState("");
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [isFindingCustomer, setIsFindingCustomer] = useState(false);
 
-  async function findCustomer(event) {
-    event.preventDefault();
+  async function findCustomer(accountNumberToFind = accountNumber) {
+    const normalizedAccountNumber = accountNumberToFind.trim();
+    if (!normalizedAccountNumber) {
+      setMessage("Nomor rekening wajib diisi.");
+      return;
+    }
+
+    setIsFindingCustomer(true);
     try {
-      setCustomer(
-        (await post("/teller/customer", { account_number: accountNumber }))
-          .data,
-      );
+      const response = await post("/teller/customer", {
+        account_number: normalizedAccountNumber,
+      });
+      setCustomer(response.data);
       setMessage("");
     } catch (error) {
+      setCustomer(null);
       setMessage(error.message);
+    } finally {
+      setIsFindingCustomer(false);
     }
+  }
+
+  function handleFindCustomer(event) {
+    event.preventDefault();
+    findCustomer();
+  }
+
+  function handleAccountDetected(scannedAccountNumber) {
+    setAccountNumber(scannedAccountNumber);
+    findCustomer(scannedAccountNumber);
+  }
+
+  function handleScannerError(error) {
+    setMessage(
+      error?.message ||
+        "Kamera tidak dapat digunakan. Izinkan akses kamera lalu coba lagi.",
+    );
   }
 
   async function saveTransaction(event) {
     event.preventDefault();
 
-    // 1. Ambil teks jenis transaksi untuk pesan konfirmasi
     const isDeposit = transaction.transaction_type === "deposit";
     const typeLabel = isDeposit ? "SETOR TUNAI (Deposit)" : "PENARIKAN TUNAI";
-    const formattedAmount = money(transaction.amount);
-
-    // 2. Tampilkan popup konfirmasi bawaan browser
     const isConfirmed = window.confirm(
       `Apakah Anda yakin ingin memproses transaksi berikut?\n\n` +
         `Nasabah: ${customer.student_name}\n` +
         `Jenis: ${typeLabel}\n` +
-        `Nominal: ${formattedAmount}`,
+        `Nominal: ${money(transaction.amount)}`,
     );
 
-    // Jika user klik "Batal", batalkan proses
     if (!isConfirmed) return;
 
     try {
@@ -71,66 +98,33 @@ function TransactionPage() {
           Kembali ke dashboard
         </Link>
       </p>
-      <section className="rounded bg-white p-4 w-full">
+      <section className="w-full rounded bg-white p-4">
         <h2 className="mb-3 text-lg font-semibold">Transaksi</h2>
-        <form onSubmit={findCustomer} className="flex w-full gap-4">
-          <input
-            className="rounded border p-2 w-full"
-            placeholder="Nomor rekening"
-            value={accountNumber}
-            onChange={(event) => setAccountNumber(event.target.value)}
+        <CustomerSearch
+          accountNumber={accountNumber}
+          isFindingCustomer={isFindingCustomer}
+          onAccountNumberChange={setAccountNumber}
+          onFind={handleFindCustomer}
+          onOpenScanner={() => {
+            setMessage("");
+            setIsScannerOpen(true);
+          }}
+        />
+        {isScannerOpen && (
+          <QrScannerModal
+            onClose={() => setIsScannerOpen(false)}
+            onError={handleScannerError}
+            onAccountDetected={handleAccountDetected}
           />
-          <button type="submit" className="w-2/10 rounded border px-3 cursor-pointer">
-            Cari nasabah
-          </button>
-        </form>
+        )}
         {customer && (
-          <div className="flex gap-4 mt-4">
-            <form className="space-y-2 flex-2 p-4 rounded border border-neutral-clay flex flex-col  items-end" onSubmit={saveTransaction}>
-            <p className="font-semibold text-lg w-full">
-              Formulir Transaksi:
-            </p>
-            <select
-              className="w-full rounded border p-2 cursor-pointer"
-              value={transaction.transaction_type}
-              onChange={(event) =>
-                setTransaction({
-                  ...transaction,
-                  transaction_type: event.target.value,
-                })
-              }
-            >
-              <option value="deposit">Deposit</option>
-              <option value="withdrawal">Penarikan</option>
-            </select>
-            <input
-              className="w-full rounded border p-2"
-              type="number"
-              min="10000"
-              placeholder="Jumlah"
-              required
-              value={transaction.amount}
-              onChange={(event) =>
-                setTransaction({ ...transaction, amount: event.target.value })
-              }
+          <div className="mt-4 flex gap-4">
+            <TransactionForm
+              transaction={transaction}
+              onChange={setTransaction}
+              onSubmit={saveTransaction}
             />
-            <button className="rounded cursor-pointer bg-primary px-3 py-2 text-white">
-              Simpan transaksi
-            </button>
-          </form>
-          <div className="flex-1 font-plus-jakarta-sans p-4 rounded border border-neutral-clay">
-              <div className="mb-4">
-                <p className="font-semibold">{customer.student_name}</p>
-                <p className="text-sm text-neutral-light-gray font-medium">NIS: {customer.nis}</p>
-                <p className="text-sm text-neutral-light-gray font-medium">Jurusan: {customer.major}</p>
-                <p className="text-sm text-neutral-light-gray font-medium">Angkatan: {customer.cohort_year}</p>
-                <p className="text-sm text-neutral-light-gray font-medium">Status: {customer.status}</p>
-              </div>
-              <div className="border-t border-neutral-clay py-2">
-                <p className="text-sm text-neutral-light-gray font-semibold">Nomor Rekening</p>
-                <p className="text-sm text-neutral-dark-gray font-bold">{customer.account_number}</p>
-              </div>
-          </div>
+            <CustomerSummary customer={customer} />
           </div>
         )}
       </section>

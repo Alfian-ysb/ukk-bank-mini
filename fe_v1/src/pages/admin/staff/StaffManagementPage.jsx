@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import DashboardLayout from "../../components/DashboardLayout";
-import AdminTable from "../../components/admin/AdminTable";
-import { get, remove as removeRequest } from "../../api";
-import Button from "../../components/Button";
+import DashboardLayout from "../../../components/DashboardLayout";
+import AdminTable from "../../../components/admin/AdminTable";
+import { get, remove as removeRequest } from "../../../api";
+import Button from "../../../components/Button";
 
 function StaffManagementPage() {
   const [staff, setStaff] = useState([]);

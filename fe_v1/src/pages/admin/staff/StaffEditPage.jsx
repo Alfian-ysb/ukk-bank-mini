@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import DashboardLayout from "../../components/DashboardLayout";
-import AdminForm from "../../components/admin/AdminForm";
-import { get, patch } from "../../api";
+import DashboardLayout from "../../../components/DashboardLayout";
+import AdminForm from "../../../components/admin/AdminForm";
+import { get, patch } from "../../../api";
 
 const emptyForm = { username: "", full_name: "", password: "", role: "" };
 const fields = [

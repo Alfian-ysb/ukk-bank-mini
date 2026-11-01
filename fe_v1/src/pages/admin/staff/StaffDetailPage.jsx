@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import DashboardLayout from "../../components/DashboardLayout";
-import { get } from "../../api";
-import Button from "../../components/Button";
+import DashboardLayout from "../../../components/DashboardLayout";
+import { get } from "../../../api";
+import Button from "../../../components/Button";
 
 function StaffDetailPage() {
   const { id } = useParams();

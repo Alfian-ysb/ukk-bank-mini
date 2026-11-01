@@ -46,6 +46,11 @@ function AdminDashboard() {
           title="Kelola Staff"
           text="Lihat data, uang masuk, dan uang keluar dari staff."
         />
+        <Shortcut
+          to="/admin/settings"
+          title="Pengaturan"
+          text="Lihat dan ubah pengaturan sistem."
+        />
       </div>
 
     </DashboardLayout>
