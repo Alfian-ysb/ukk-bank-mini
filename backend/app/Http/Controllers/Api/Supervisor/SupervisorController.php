@@ -11,8 +11,7 @@ class SupervisorController extends Controller
 {
     public function accountingJournal()
     {
-        // menggbil data user dan cust
-        $journals = AccountingJournal::all();
+        $journals = AccountingJournal::with(['transaction', 'transaction.customer', 'transaction.user'])->get();
         
         if (!$journals) {
             return response()->json([

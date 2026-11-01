@@ -11,10 +11,14 @@ Route::post('/staff/login', [App\Http\Controllers\Api\AuthStaffController::class
 Route::post('/customer/login', [App\Http\Controllers\Api\AuthCustomersController::class, 'login']);
 Route::post('/customer/logout', [App\Http\Controllers\Api\AuthCustomersController::class, 'logout']);
 Route::post('/staff/logout', [App\Http\Controllers\Api\AuthStaffController::class, 'logout']);
+Route::get('/settings', [App\Http\Controllers\Api\Admin\GeneralSettingController::class, 'index']);
 
 
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/settings', [App\Http\Controllers\Api\Admin\GeneralSettingController::class, 'index']);
+    Route::patch('/settings/{id}', [App\Http\Controllers\Api\Admin\GeneralSettingController::class, 'update']);
+
     Route::get('/staff', [App\Http\Controllers\Api\Admin\UserManagement::class, 'index']);
     Route::get('/staff/{id}', [App\Http\Controllers\Api\Admin\UserManagement::class, 'view']);
 
@@ -27,15 +31,29 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
     Route::post('/customers', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'create']);
     Route::patch('/customers/{id}', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'update']);
     Route::delete('/customers/{id}', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'delete']);
+   
+    Route::get('/vault/balance', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'vaultBalance']);
+    Route::get('/vault/opening-balance', [App\Http\Controllers\Api\Admin\VaultController::class, 'getOpeningBalance']);
+    Route::post('/vault/opening-balance', [App\Http\Controllers\Api\Admin\VaultController::class, 'setupOpeningBalance']);
+
+    Route::get('/transactions', [App\Http\Controllers\Api\Supervisor\SupervisorController::class, 'getAllTransactions']);
+    Route::get('/journals', [App\Http\Controllers\Api\Supervisor\SupervisorController::class, 'accountingJournal']);
 });
 
 Route::prefix('teller')->middleware(['auth:sanctum', 'role:teller'])->group(function () {
+    Route::get('/shifts/current', [App\Http\Controllers\Api\Teller\ShiftController::class, 'getCurrentShift']);
+    Route::post('/shifts/open', [App\Http\Controllers\Api\Teller\ShiftController::class, 'open']);
+    Route::post('/shifts/close', [App\Http\Controllers\Api\Teller\ShiftController::class, 'close']);
     Route::post('/customer', [App\Http\Controllers\Api\Teller\TransactionController::class, 'GetCustomer']);
     Route::post('/customer/{id}/transaction', [App\Http\Controllers\Api\Teller\TransactionController::class, 'StoreTransaction']);
     Route::post('/daily-report', [App\Http\Controllers\Api\Teller\TransactionController::class, 'initiateDailyReport']);
 });
 
 Route::prefix('supervisor')->middleware(['auth:sanctum', 'role:supervisor'])->group(function () {
+    Route::patch('/shifts/{shift}/approve', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'approve']);
+    Route::get('/shifts', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'getAllShifts']);
+    Route::get('/shifts/{shift}', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'ShiftDetails']);
+    Route::get('/vault/balance', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'vaultBalance']);
     Route::get('/customers', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'index']);
     Route::get('/transactions', [App\Http\Controllers\Api\Supervisor\SupervisorController::class, 'getAllTransactions']);
     Route::get('/journals', [App\Http\Controllers\Api\Supervisor\SupervisorController::class, 'accountingJournal']);
@@ -44,4 +62,5 @@ Route::prefix('supervisor')->middleware(['auth:sanctum', 'role:supervisor'])->gr
 Route::prefix('customer')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/profile', [App\Http\Controllers\Api\AuthCustomersController::class, 'profile']);
     Route::get('/history', [App\Http\Controllers\Api\Customer\CustomerController::class, 'history']);
+    Route::get('/history/latest', [App\Http\Controllers\Api\Customer\CustomerController::class, 'latestHistory']);
 });

@@ -19,6 +19,7 @@ class CustomerManagement extends Controller
     {
 // #[Fillable('user_id', 'account_number', 'nis', 'student_name', 'major', 'cohort_year', 'pin', 'password', 'status', 'balance')]
         $customers = Customer::select([
+                'id',
                 'account_number',
                 'nis',
                 'student_name',

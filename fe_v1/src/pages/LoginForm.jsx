@@ -1,83 +1,102 @@
-import React, { useState } from "react";
-import Button from "../components/Button";
-import { useNavigate } from "react-router-dom";
-import { getRouteByRole, getStoredRole } from "../context/authSession";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { post } from "../api";
+import { getRouteByRole, saveSession } from "../context/authSession";
 
-const LoginForm = () => {
-  const [formData, setFormData] = useState({
-    email : "",
-    password : "",
-  });
+function LoginForm() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [form, setForm] = useState({ username: "", password: "" });
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+  function change(event) {
+    setForm({ ...form, [event.target.name]: event.target.value });
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formData)
-      })
+  async function submit(event) {
+    event.preventDefault();
+    setMessage("");
+    setLoading(true);
 
-      const data = await response.json();
-      if (response.ok) {
-        sessionStorage.setItem("token", data.token);
-        sessionStorage.setItem("role", data.data.role);
-        sessionStorage.setItem("isLoggedIn", true);
-        navigate(getRouteByRole(getStoredRole()));
-      }
-      console.log("Login successful:", data);
+    try {
+      const response = await post("/staff/login", form);
+      saveSession(response);
+      navigate(
+        location.state?.from?.pathname ||
+          getRouteByRole(response.user?.role || response.data?.role),
+      );
     } catch (error) {
-      console.error("Login error:", error);
+      setMessage(error.message);
+    } finally {
+      setLoading(false);
     }
   }
-  
+
   return (
-    <div className="w-full max-w-xl">
+    <form className="w-full max-w-xl" onSubmit={submit}>
       <div className="mb-8 sm:mb-10 text-center lg:text-start">
-        <h1 className="font-inter text-2xl font-bold text-gray-700 sm:text-3xl">Masuk Ke Akun Anda</h1>
-        <p className="mt-1 text-sm text-gray-600 sm:text-base">Silakan masuk ke akun Anda untuk melanjutkan.</p>
+        <h1 className="font-inter text-2xl font-bold text-gray-700 sm:text-3xl">
+          Login Staff
+        </h1>
+        <p className="mt-1 text-sm text-gray-600 sm:text-base">
+          Gunakan username dan password staff.
+        </p>
       </div>
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+
+      <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700" htmlFor="email">email:</label>
+          <label
+            className="text-sm font-medium text-gray-700"
+            htmlFor="username"
+          >
+            Username:
+          </label>
           <input
-            type="email"
-            id="email"
-            placeholder="Masukkan email"
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Masukkan username"
             className="bg-neutral-100 border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-dark"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
+            value={form.username}
+            onChange={change}
+            required
           />
         </div>
+
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700" htmlFor="password">Password:</label>
+          <label
+            className="text-sm font-medium text-gray-700"
+            htmlFor="password"
+          >
+            Password:
+          </label>
           <input
             type="password"
             id="password"
+            name="password"
             placeholder="Masukkan password"
             className="bg-neutral-100 border border-gray-300 rounded-md py-2 px-4 focus:outline-none focus:ring-2 focus:ring-dark"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
+            value={form.password}
+            onChange={change}
+            required
           />
         </div>
+
+        {message && <p className="text-sm text-red-600">{message}</p>}
+
         <div className="mt-8 w-full sm:mt-10">
-          <Button text="Masuk" theme="primary" customClass={'py-3'}/>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-md bg-primary py-3 px-4 text-white font-medium hover:opacity-90 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-dark"
+          >
+            {loading ? "Memproses..." : "Masuk"}
+          </button>
         </div>
-      </form>
-    </div>
+      </div>
+    </form>
   );
-};
+}
 
 export default LoginForm;

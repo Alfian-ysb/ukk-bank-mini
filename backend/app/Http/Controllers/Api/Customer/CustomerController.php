@@ -20,4 +20,19 @@ class CustomerController extends Controller
             'data' => $history
         ]);
     }
+
+    public function latestHistory(){
+        
+        // mengambil 5 transaksi terakhir dari nasabah yang sedang login
+        $customer = Auth::user();
+        $latestTransactions = Transaction::where('customer_id', $customer->id)
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => $latestTransactions
+        ]);
+    }
 }
