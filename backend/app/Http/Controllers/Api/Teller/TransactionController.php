@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Enums\ShiftStatus;
 use App\Models\AccountingJournal;
 use App\Models\Customer;
+use App\Models\General;
 use App\Models\Shift;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
@@ -33,6 +34,7 @@ class TransactionController extends Controller
     }
     public function StoreTransaction(Request $request, $id)
     {
+        $minimumBalance = General::where('name', 'minimum_balance')->first()->value ?? 10000;
         $request->validate([
             'transaction_type' => 'required|in:deposit,withdrawal',
             'amount' => 'required|numeric|min:10000',
@@ -67,11 +69,11 @@ class TransactionController extends Controller
 
         if (
             $request->input('transaction_type') === 'withdrawal'
-            && $customer->balance - $request->input('amount') <= 10000
+            && $customer->balance - $request->input('amount') <= $minimumBalance
         ) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'balance is insufficient to make a withdrawal',
+                'message' => 'Saldo tidak mencukupi untuk melakukan penarikan. Saldo minimum harus tetap terjaga.',
             ], 400);
         }
 

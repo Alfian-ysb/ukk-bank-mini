@@ -35,4 +35,54 @@ class CustomerController extends Controller
             'data' => $latestTransactions
         ]);
     }
+
+    public function changePin(Request $request)
+    {
+        $request->validate([
+            'old_pin' => 'required|string',
+            'new_pin' => 'required|string|min:4|max:6',
+        ]);
+
+        $customer = $request->user();
+
+        if (!password_verify($request->old_pin, $customer->pin)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Old PIN is incorrect'
+            ], 400);
+        }
+
+        $customer->pin = bcrypt($request->new_pin);
+        $customer->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'PIN changed successfully'
+        ]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'old_password' => 'required|string',
+            'new_password' => 'required|string|min:6',
+        ]);
+
+        $customer = $request->user();
+
+        if (!password_verify($request->old_password, $customer->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Old password is incorrect'
+            ], 400);
+        }
+
+        $customer->password = bcrypt($request->new_password);
+        $customer->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password changed successfully'
+        ]);
+    }
 }

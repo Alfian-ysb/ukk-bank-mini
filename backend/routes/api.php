@@ -63,4 +63,7 @@ Route::prefix('customer')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/profile', [App\Http\Controllers\Api\AuthCustomersController::class, 'profile']);
     Route::get('/history', [App\Http\Controllers\Api\Customer\CustomerController::class, 'history']);
     Route::get('/history/latest', [App\Http\Controllers\Api\Customer\CustomerController::class, 'latestHistory']);
+
+    Route::post('/change-pin', [App\Http\Controllers\Api\Customer\CustomerController::class, 'changePin']);
+    Route::post('/change-password', [App\Http\Controllers\Api\Customer\CustomerController::class, 'changePassword']);
 });
