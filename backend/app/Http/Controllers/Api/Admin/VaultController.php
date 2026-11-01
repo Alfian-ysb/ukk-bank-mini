@@ -49,4 +49,28 @@ class VaultController extends Controller
             ],
         ], 201);
     }
+
+    public function getOpeningBalance()
+    {
+        $transfer = CashTransfer::where('reference', 'main-vault-opening-balance')->first();
+
+        if (!$transfer) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Saldo awal Brankas Utama belum diset.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'location' => 'Brankas Utama',
+                'amount' => $transfer->amount,
+                'from_location' => $transfer->from_location,
+                'to_location' => $transfer->to_location,
+                'transferred_by' => $transfer->transferred_by,
+                'created_at' => $transfer->created_at,
+            ],
+        ]);
+    }
 }

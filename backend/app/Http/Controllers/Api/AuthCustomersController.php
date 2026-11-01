@@ -78,9 +78,12 @@ class AuthCustomersController extends Controller
             'status' => 'success',
             'data' => [
                 'id' => $customers->id,
+                'account_number' => $customers->account_number,
+                'major' => $customers->major,
+                'cohort_year' => $customers->cohort_year,
+                'status' => $customers->status,
                 'nis' => $customers->nis,
                 'student_name' => $customers->student_name,
-                'status' => $customers->status,
                 'balance' => $customers->balance,
             ],
         ]);

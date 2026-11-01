@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\UserRoles;
 use App\Models\Customer;
+use App\Models\General;
 use App\Models\Major;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -19,6 +20,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $generals = [
+            [
+                'name' => 'bank_name',
+                'value' => 'Bank Mini SMK Negeri 1',
+            ],
+            [
+                'name' => 'bank_address',
+                'value' => 'Jl. Parangtritis No.KM.11, Dukuh, Sabdodadi, Kec. Bantul, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55715',
+            ],
+            [
+                'name' => 'minimum_balance',
+                'value' => '10000',
+            ],
+            [
+                'name' => 'bank_contact',
+                'value' => '+62 123 4567 890',
+            ],
+        ];
 
         $users = [
             [
@@ -125,6 +144,13 @@ class DatabaseSeeder extends Seeder
                     'pin' => $customer['pin'],
                     'password' => $customer['password'],
                 ]
+            );
+        }
+
+        foreach ($generals as $general) {
+            General::updateOrCreate(
+                ['name' => $general['name']],
+                ['value' => $general['value']]
             );
         }
     }
