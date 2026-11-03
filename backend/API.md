@@ -266,6 +266,12 @@ Status yang mungkin dikembalikan:
 | `expired` | Melewati waktu kedaluwarsa |
 | `completed` | Saldo, transaksi, dan jurnal sudah berhasil dibuat |
 
+Verifikasi PIN dibatasi maksimal 3 percobaan untuk setiap permintaan transaksi.
+Percobaan PIN yang salah menambah `verification_attempts`; setelah percobaan
+ketiga, status menjadi `rejected`, transaksi dibatalkan, dan saldo tidak
+berubah. Percobaan pertama dan kedua mengembalikan `422`, sedangkan percobaan
+ketiga mengembalikan `409` dengan pesan pembatalan.
+
 PIN tidak pernah dikirim melalui FCM. Jika `fcm_token` kosong, request tetap
 dibuat `pending`. Jika pengiriman FCM gagal, request dihapus dan API
 mengembalikan `503`; tidak ada saldo atau transaksi final yang berubah.

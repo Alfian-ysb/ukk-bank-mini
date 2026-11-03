@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'transaction_type',
     'amount',
     'status',
+    'verification_attempts',
     'expires_at',
     'approved_at',
     'rejected_at',
@@ -25,6 +26,7 @@ class TransactionRequest extends Model
     {
         return [
             'amount' => 'integer',
+            'verification_attempts' => 'integer',
             'status' => TransactionRequestStatus::class,
             'expires_at' => 'datetime',
             'approved_at' => 'datetime',

@@ -42,10 +42,32 @@ class ShiftController extends Controller
     public function open(OpenShiftRequest $request)
     {
         // $date = $request->input('shift_date', now()->toDateString());
+        $summary = CashTransfer::query()
+            ->selectRaw("
+                COALESCE(SUM(
+                    CASE
+                        WHEN to_location = ? THEN amount
+                        ELSE 0
+                    END
+                ), 0) as total_in,
+                COALESCE(SUM(
+                    CASE
+                        WHEN from_location = ? THEN amount
+                        ELSE 0
+                    END
+                ), 0) as total_out
+            ", ['Brankas Utama', 'Brankas Utama'])
+            ->first();
+
+        $totalIn = (int) $summary->total_in;
+        $totalOut = (int) $summary->total_out;
+        $availableBalance = $totalIn - $totalOut;
+        
         $tellerId = Auth::id();
         
         $date = now()->toDateString();
         $alreadyExists = Shift::where('opened_by', $tellerId)->whereDate('shift_date', $date)->exists();
+               
         if ($alreadyExists) {
             return response()->json([
                 'status' => 'error',
@@ -53,9 +75,16 @@ class ShiftController extends Controller
             ], 409);
         }
 
-        $shift = DB::transaction(function () use ($request, $date) {
+        $shift = DB::transaction(function () use ($request, $date, $availableBalance) {
             $denominations = $request->input('opening_denominations');
             $openingBalance = $this->calculateDenominations($denominations);
+            if ($openingBalance > $availableBalance) {
+                throw ValidationException::withMessages([
+                    'opening_denominations' => [
+                        'Saldo pembukaan melebihi saldo brankas utama.'
+                    ],
+                ]);
+            }
 
             $shift = Shift::create([
                 'shift_date' => $date,

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('status', array_column(Status::cases(), 'value'))->default(Status::ACTIVE->value);
             $table->string('pin');
             $table->string('password');
+            $table->string('fcm_token')->nullable();
             $table->integer('balance')->default(0)->unsigned();
             $table->timestamps();
         });

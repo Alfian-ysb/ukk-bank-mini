@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedInteger('amount');
             $table->enum('status', array_column(TransactionRequestStatus::cases(), 'value'))
                 ->default(TransactionRequestStatus::PENDING->value);
+            $table->unsignedTinyInteger('verification_attempts')->default(0);
             $table->timestamp('expires_at');
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('rejected_at')->nullable();

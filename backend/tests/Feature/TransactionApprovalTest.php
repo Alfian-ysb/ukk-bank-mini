@@ -58,7 +58,52 @@ class TransactionApprovalTest extends TestCase
         );
 
         $response->assertStatus(422);
-        $this->assertDatabaseHas('transaction_requests', ['id' => $request->id, 'status' => 'pending']);
+        $this->assertDatabaseHas('transaction_requests', [
+            'id' => $request->id,
+            'status' => 'pending',
+            'verification_attempts' => 1,
+        ]);
+        $this->assertDatabaseCount('transactions', 0);
+    }
+
+    public function test_transaction_is_cancelled_after_three_wrong_pins(): void
+    {
+        $teller = $this->createUser('teller');
+        $customer = $this->createCustomer();
+        $shift = $this->createShift($teller);
+        $request = \App\Models\TransactionRequest::create([
+            'customer_id' => $customer->id,
+            'user_id' => $teller->id,
+            'shift_id' => $shift->id,
+            'transaction_type' => 'deposit',
+            'amount' => 100000,
+            'status' => 'pending',
+            'expires_at' => now()->addMinute(),
+        ]);
+
+        foreach (range(1, 2) as $attempt) {
+            $this->actingAs($customer, 'sanctum')
+                ->postJson(
+                    "/api/customer/transaction-requests/{$request->id}/approve",
+                    ['pin' => '000000'],
+                )
+                ->assertStatus(422)
+                ->assertJsonPath('errors.pin.0', "PIN tidak valid. Sisa percobaan: ".(3 - $attempt).".");
+        }
+
+        $this->actingAs($customer, 'sanctum')
+            ->postJson(
+                "/api/customer/transaction-requests/{$request->id}/approve",
+                ['pin' => '000000'],
+            )
+            ->assertStatus(409)
+            ->assertJsonPath('message', 'Transaksi dibatalkan karena PIN salah 3 kali.');
+
+        $this->assertDatabaseHas('transaction_requests', [
+            'id' => $request->id,
+            'status' => 'rejected',
+            'verification_attempts' => 3,
+        ]);
         $this->assertDatabaseCount('transactions', 0);
     }
 

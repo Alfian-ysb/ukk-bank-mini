@@ -16,6 +16,8 @@ use RuntimeException;
 
 class TransactionApprovalService
 {
+    private const MAX_VERIFICATION_ATTEMPTS = 3;
+
     public function __construct(
         private readonly FirebaseMessagingService $messaging,
     ) {
@@ -36,7 +38,9 @@ class TransactionApprovalService
 
     public function approve(TransactionRequest $request, string $pin): TransactionRequest
     {
-        return DB::transaction(function () use ($request, $pin) {
+        $verificationFailure = null;
+
+        $completed = DB::transaction(function () use ($request, $pin, &$verificationFailure) {
             $request = TransactionRequest::query()
                 ->whereKey($request->id)
                 ->lockForUpdate()
@@ -56,9 +60,28 @@ class TransactionApprovalService
                 ->firstOrFail();
 
             if (! Hash::check($pin, $customer->pin)) {
-                throw ValidationException::withMessages([
-                    'pin' => 'PIN tidak valid.',
+                $attempts = $request->verification_attempts + 1;
+                $request->update([
+                    'verification_attempts' => $attempts,
+                    ...($attempts >= self::MAX_VERIFICATION_ATTEMPTS
+                        ? [
+                            'status' => TransactionRequestStatus::REJECTED,
+                            'rejected_at' => now(),
+                        ]
+                        : []),
                 ]);
+
+                if ($attempts >= self::MAX_VERIFICATION_ATTEMPTS) {
+                    $verificationFailure = ValidationException::withMessages([
+                        'request' => 'Transaksi dibatalkan karena PIN salah 3 kali.',
+                    ]);
+                } else {
+                    $verificationFailure = ValidationException::withMessages([
+                        'pin' => "PIN tidak valid. Sisa percobaan: ".(self::MAX_VERIFICATION_ATTEMPTS - $attempts).".",
+                    ]);
+                }
+
+                return null;
             }
 
             $shift = $request->shift()->lockForUpdate()->firstOrFail();
@@ -105,6 +128,12 @@ class TransactionApprovalService
 
             return $request->fresh(['customer']);
         });
+
+        if ($verificationFailure instanceof ValidationException) {
+            throw $verificationFailure;
+        }
+
+        return $completed;
     }
 
     public function reject(TransactionRequest $request): TransactionRequest

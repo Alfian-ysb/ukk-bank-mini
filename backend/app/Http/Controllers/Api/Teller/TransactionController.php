@@ -61,7 +61,7 @@ class TransactionController extends Controller
         if (! $shift) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Tidak ada shift open untuk hari ini.',
+                'message' => 'Tidak ada shift open untuk hari ini. Silakan buka shift terlebih dahulu sebelum melakukan transaksi.',
             ], 409);
         }
 
@@ -131,7 +131,7 @@ class TransactionController extends Controller
                 'transaction_type' => $transactionRequest->transaction_type,
                 'amount' => $transactionRequest->amount,
                 'status' => $transactionRequest->status->value,
-                'customer_balance' => $transactionRequest->customer->balance, // ✅ Tambahkan ini
+                'customer_balance' => $transactionRequest->customer->balance,
                 'expires_at' => $transactionRequest->expires_at,
                 'approved_at' => $transactionRequest->approved_at,
                 'rejected_at' => $transactionRequest->rejected_at,

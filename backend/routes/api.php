@@ -13,10 +13,6 @@ Route::post('/customer/logout', [App\Http\Controllers\Api\AuthCustomersControlle
 Route::post('/staff/logout', [App\Http\Controllers\Api\AuthStaffController::class, 'logout']);
 Route::get('/settings', [App\Http\Controllers\Api\Admin\GeneralSettingController::class, 'index']);
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/settings', [App\Http\Controllers\Api\Admin\GeneralSettingController::class, 'index']);
-});
-
 Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/settings', [App\Http\Controllers\Api\Admin\GeneralSettingController::class, 'index']);
     Route::patch('/settings/{id}', [App\Http\Controllers\Api\Admin\GeneralSettingController::class, 'update']);

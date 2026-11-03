@@ -23,7 +23,7 @@ class CustomerController extends Controller
     {
         $customer = $request->user()->id;
 
-        $history = Transaction::where('customer_id', $customer)->get();
+        $history = Transaction::where('customer_id', $customer)->orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'status' => 'success',
@@ -104,7 +104,8 @@ class CustomerController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Permintaan transaksi sudah diproses, kedaluwarsa, atau tidak dapat diproses.',
+                'message' => $exception->errors()['request'][0]
+                    ?? 'Permintaan transaksi sudah diproses, kedaluwarsa, atau tidak dapat diproses.',
                 'errors' => $exception->errors(),
             ], 409);
         }
@@ -204,6 +205,7 @@ class CustomerController extends Controller
             'request_id' => $transactionRequest->id,
             'transaction_type' => $transactionRequest->transaction_type,
             'amount' => $transactionRequest->amount,
+            'verification_attempts' => $transactionRequest->verification_attempts,
             'status' => $transactionRequest->status instanceof TransactionRequestStatus
                 ? $transactionRequest->status->value
                 : $transactionRequest->status,
