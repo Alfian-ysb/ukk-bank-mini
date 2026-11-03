@@ -39,7 +39,7 @@ function CreateCustomerPage() {
     <DashboardLayout title="Tambah Nasabah">
       <p className="mb-4">
         <Link className="underline" to="/admin/dashboard">
-          Kembali ke dashboard
+          Kembali
         </Link>
       </p>
 

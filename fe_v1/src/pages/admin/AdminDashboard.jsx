@@ -3,32 +3,62 @@ import { Link } from "react-router-dom";
 import DashboardLayout from "../../components/DashboardLayout";
 import { get } from "../../api";
 
+const money = (value) => `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
+
 function AdminDashboard() {
-  const [staff, setStaff] = useState([]);
-  const [customers, setCustomers] = useState([]);
+  const [vault, setVault] = useState(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    let active = true;
-    Promise.all([get("/admin/staff"), get("/admin/customers")])
-      .then(([staffResponse, customerResponse]) => {
-        if (active) {
-          setStaff(staffResponse.data || []);
-          setCustomers(customerResponse.data || []);
-        }
+    get("/admin/vault/balance")
+      .then((response) => {
+        setVault(response.data || null);
       })
       .catch((error) => {
-        if (active) setMessage(error.message);
+        setMessage(error.message);
       });
-
-    return () => {
-      active = false;
-    };
   }, []);
 
   return (
     <DashboardLayout title="Dashboard Admin">
       {message && <p className="mb-4 text-red-600">{message}</p>}
+      <div>
+        {message && (
+          <p className="mb-4 text-sm font-medium text-red-600">{message}</p>
+        )}
+
+        {vault ? (
+          <section className="rounded-lg bg-white p-5 shadow-sm">
+            <h2 className="mb-4 text-lg font-semibold text-gray-700">
+              {vault.location}
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="rounded-md border bg-gray-50 p-4">
+                <p className="text-sm text-gray-500">Saldo Saat Ini</p>
+                <p className="text-xl font-bold text-gray-800">
+                  {money(vault.balance)}
+                </p>
+              </div>
+              <div className="rounded-md border bg-green-50 p-4">
+                <p className="text-sm text-green-600">Total Masuk</p>
+                <p className="text-xl font-bold text-green-700">
+                  {money(vault.total_in)}
+                </p>
+              </div>
+              <div className="rounded-md border bg-red-50 p-4">
+                <p className="text-sm text-red-600">Total Keluar</p>
+                <p className="text-xl font-bold text-red-700">
+                  {money(vault.total_out)}
+                </p>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className="rounded-lg bg-white p-5 shadow-sm">
+            <p className="text-sm text-gray-500">Memuat data vault...</p>
+          </section>
+        )}
+      </div>
       <div className="grid gap-4 md:grid-cols-2">
         <Shortcut
           to="/admin/vault"

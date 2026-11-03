@@ -66,7 +66,7 @@ const ShiftActionForms = ({
                     className="w-full rounded border border-slate-200 px-3.5 py-2 text-sm text-slate-800 focus:border-slate-800 focus:outline-none"
                     placeholder="Contoh: XI RPL 1"
                     value={staff.className}
-                    onChange={(event) => updateStaff(index, "className", event.target.value)}
+                    onChange={(event) => updateStaff(index, "className", event.target.value.toUpperCase())}
                   />
                 </div>
                 {assignedStaff.length > 1 && (

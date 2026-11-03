@@ -32,10 +32,27 @@ function CustomerEditPage() {
 
   async function submit(event) {
     event.preventDefault();
+
+    // Konfirmasi sebelum menyimpan data
+    const isConfirmed = window.confirm("Apakah Anda yakin ingin menyimpan perubahan data nasabah ini?");
+    if (!isConfirmed) return;
+
     setError("");
     setMessage("");
+
+    // Salin objek form untuk memanipulasi payload
+    const payload = { ...form };
+
+    // Hapus pin & password dari payload jika nilainya kosong
+    if (!payload.pin || payload.pin.trim() === "") {
+      delete payload.pin;
+    }
+    if (!payload.password || payload.password.trim() === "") {
+      delete payload.password;
+    }
+
     try {
-      const response = await patch(`/admin/customers/${id}`, form);
+      const response = await patch(`/admin/customers/${id}`, payload);
       setMessage(response.message || "Nasabah berhasil diperbarui.");
     } catch (requestError) {
       setError(requestError.message);
@@ -44,10 +61,23 @@ function CustomerEditPage() {
 
   return (
     <DashboardLayout title="Edit Nasabah">
-      <p className="mb-4"><Link className="underline" to="/admin/customers">Kembali ke daftar</Link></p>
+      <p className="mb-4">
+        <Link className="underline" to="/admin/customers">
+          Kembali ke daftar
+        </Link>
+      </p>
       <div className="max-w-xl">
-        <AdminForm title="Edit nasabah" fields={fields} values={form} onChange={change} onSubmit={submit}
-          error={error} message={message} submitLabel="Simpan perubahan" />
+        <AdminForm
+          title="Edit nasabah"
+          fields={fields}
+          values={form}
+          onChange={change}
+          onCancel={() => window.history.back()}
+          onSubmit={submit}
+          error={error}
+          message={message}
+          submitLabel="Simpan perubahan"
+        />
       </div>
     </DashboardLayout>
   );

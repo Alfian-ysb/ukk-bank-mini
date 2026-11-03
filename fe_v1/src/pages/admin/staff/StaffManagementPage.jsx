@@ -8,17 +8,23 @@ import Button from "../../../components/Button";
 function StaffManagementPage() {
   const [staff, setStaff] = useState([]);
   const [error, setError] = useState("");
+  
+  const [searchQuery, setSearchQuery] = useState("");
+
   const navigate = useNavigate();
 
   async function loadStaff() {
-    const response = await get("/admin/staff");
-    setStaff(response.data || []);
+    try {
+      setError("");
+      const response = await get("/admin/staff");
+      setStaff(response.data || []);
+    } catch (requestError) {
+      setError(requestError.message);
+    }
   }
 
   useEffect(() => {
-    get("/admin/staff")
-      .then((response) => setStaff(response.data || []))
-      .catch((requestError) => setError(requestError.message));
+    loadStaff();
   }, []);
 
   async function deleteStaff(id) {
@@ -31,7 +37,16 @@ function StaffManagementPage() {
     }
   }
 
-  const rows = staff.map((item) => [
+  const filteredStaff = staff.filter((item) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      item.username?.toLowerCase().includes(query) ||
+      item.full_name?.toLowerCase().includes(query) ||
+      item.role?.toLowerCase().includes(query)
+    );
+  });
+
+  const rows = filteredStaff.map((item) => [
     item.username,
     item.full_name,
     item.role,
@@ -44,15 +59,25 @@ function StaffManagementPage() {
 
   return (
     <DashboardLayout title="Lihat Staff">
-      <p className="mb-4"><Link className="underline" to="/admin/dashboard">Kembali ke dashboard</Link></p>
+      <h1 className="text-2xl font-bold">Daftar Staff</h1>
       {error && <p className="mb-4 text-red-600">{error}</p>}
-      <Button text="Tambah Staff" onClick={() => navigate("/admin/staff/create")} customClass={'my-4'}/>
+      
+      <div className="flex justify-between items-center my-4 gap-4">
+        <input
+          type="text"
+          placeholder="Cari staff..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="flex-6 border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <Button customClass="flex-1" text="Tambah Staff" onClick={() => navigate("/admin/staff/create")} />
+      </div>
       
       <AdminTable
         title="Daftar staff"
         headers={["Username", "Nama", "Role", "Aksi"]}
         rows={rows}
-        emptyMessage="Belum ada staff."
+        emptyMessage={searchQuery ? "Staff tidak ditemukan." : "Belum ada staff."}
       />
     </DashboardLayout>
   );

@@ -46,7 +46,6 @@ function App() {
           <Route path="/admin/staff/:id" element={<StaffDetailPage />} />
           <Route path="/admin/staff/:id/edit" element={<StaffEditPage />} />
           <Route path="/admin/customers" element={<CustomerManagementPage />} />
-          <Route path="/admin/customers/view" element={<CustomerManagementPage />} />
           <Route path="/admin/customers/create" element={<CustomerCreatePage />} />
           <Route path="/admin/customers/:id" element={<CustomerDetailPage />} />
           <Route path="/admin/customers/:id/edit" element={<CustomerEditPage />} />

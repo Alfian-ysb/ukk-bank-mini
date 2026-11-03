@@ -36,7 +36,7 @@ const DashboardLayout = ({ children, title }) => {
       return [
         { name: "Dashboard", path: "/admin/dashboard" },
         { name: "Staff", path: "/admin/staff/view" },
-        { name: "Nasabah", path: "/admin/customers/view" },
+        { name: "Nasabah", path: "/admin/customers" },
         { name: "Settings", path: "/admin/settings" },
         { name: "Transaksi", path: "/admin/transactions" },
         { name: "Jurnal", path: "/admin/journals" },
