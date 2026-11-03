@@ -23,6 +23,11 @@ function CustomerSummary({ customer }) {
         <p className="text-sm font-bold text-neutral-dark-gray">
           {customer.account_number}
         </p>
+        {customer.balance !== undefined && (
+          <p className="mt-2 text-sm font-semibold text-neutral-dark-gray">
+            Saldo: Rp {Number(customer.balance || 0).toLocaleString("id-ID")}
+          </p>
+        )}
       </div>
     </div>
   );

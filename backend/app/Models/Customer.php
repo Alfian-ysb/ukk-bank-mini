@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable('user_id', 'account_number', 'nis', 'student_name', 'major', 'cohort_year', 'pin', 'password', 'status', 'balance')]
+#[Fillable('user_id', 'account_number', 'nis', 'student_name', 'major', 'cohort_year', 'pin', 'password', 'status', 'fcm_token', 'balance')]
 #[Hidden(['pin', 'password'])]
 class Customer extends Authenticatable
 {
@@ -18,7 +18,7 @@ class Customer extends Authenticatable
 
     public function getAuthIdentifierName()
     {
-        return $this->password;
+        return 'id';
     }
     
 }   

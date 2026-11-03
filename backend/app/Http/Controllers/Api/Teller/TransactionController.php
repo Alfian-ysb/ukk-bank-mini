@@ -2,25 +2,30 @@
 
 namespace App\Http\Controllers\Api\Teller;
 
-use App\Http\Controllers\Controller;
 use App\Enums\ShiftStatus;
-use App\Models\AccountingJournal;
+use App\Enums\TransactionRequestStatus;
+use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\General;
 use App\Models\Shift;
-use App\Models\Transaction;
+use App\Models\TransactionRequest;
+use App\Services\TransactionApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class TransactionController extends Controller
 {
+    public function __construct(
+        private readonly TransactionApprovalService $approvalService,
+    ) {}
+
     public function GetCustomer(Request $request)
     {
         $accountNumber = $request->input('account_number');
         $customer = Customer::where('account_number', $accountNumber)->first();
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Customer not found',
@@ -32,35 +37,28 @@ class TransactionController extends Controller
             'data' => $customer,
         ]);
     }
-    public function StoreTransaction(Request $request, $id)
+
+    public function StoreTransaction(Request $request, int $id)
     {
-        $minimumBalance = General::where('name', 'minimum_balance')->first()->value ?? 10000;
-        $request->validate([
-            'transaction_type' => 'required|in:deposit,withdrawal',
-            'amount' => 'required|numeric|min:10000',
-            // "pin" => "required|digits:6",
+        $validated = $request->validate([
+            'transaction_type' => ['required', 'in:deposit,withdrawal'],
+            'amount' => ['required', 'integer', 'min:10000'],
         ]);
 
         $customer = Customer::find($id);
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Customer not found',
             ], 404);
         }
 
-        // if (!password_verify($request->input('pin'), $customer->pin)) {
-        //     return response()->json([
-        //         'status' => 'error',
-        //         'message' => 'Invalid PIN',
-        //     ], 401);
-        // }
         $shift = Shift::where('status', ShiftStatus::OPEN)
             ->whereDate('shift_date', now()->toDateString())
             ->first();
 
-        if (!$shift) {
+        if (! $shift) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Tidak ada shift open untuk hari ini.',
@@ -68,84 +66,76 @@ class TransactionController extends Controller
         }
 
         if (
-            $request->input('transaction_type') === 'withdrawal'
-            && $customer->balance - $request->input('amount') <= $minimumBalance
+            $validated['transaction_type'] === 'withdrawal'
+            && $customer->balance - $validated['amount'] <= (int) (General::where('name', 'minimum_balance')->value('value') ?? 10000)
         ) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Saldo tidak mencukupi untuk melakukan penarikan. Saldo minimum harus tetap terjaga.',
-            ], 400);
+            ], 409);
         }
 
-        DB::transaction(function () use ($customer, $request, $shift) {
-            $shift = Shift::whereKey($shift->id)
-                ->where('status', ShiftStatus::OPEN)
-                ->lockForUpdate()
-                ->firstOrFail();
+        $transactionRequest = TransactionRequest::create([
+            'customer_id' => $customer->id,
+            'user_id' => Auth::id(),
+            'shift_id' => $shift->id,
+            'transaction_type' => $validated['transaction_type'],
+            'amount' => $validated['amount'],
+            'status' => TransactionRequestStatus::PENDING,
+            'expires_at' => now()->addMinutes(2),
+        ])->load('customer');
 
-            if ($request->input('transaction_type') === 'deposit') {
-                $customer->balance += $request->input('amount');
-                $customer->save();
+        try {
+            $this->approvalService->sendApprovalNotification($transactionRequest);
+        } catch (RuntimeException $exception) {
+            $transactionRequest->delete();
 
-                $transaction = Transaction::create([
-                    'customer_id' => $customer->id,
-                    'user_id' => Auth::id(),
-                    'shift_id' => $shift->id,
-                    'transaction_type' => $request->input('transaction_type'),
-                    'date' => now(),
-                    'amount' => $request->input('amount'),
-                ]);
-
-                AccountingJournal::create([
-                    'transaction_id' => $transaction->id,
-                    'account_code' => '101',
-                    'position' => 'debit',
-                    'amount' => $request->input('amount'),
-                ]);
-
-                AccountingJournal::create([
-                    'transaction_id' => $transaction->id,
-                    'account_code' => '201',
-                    'position' => 'credit',
-                    'amount' => $request->input('amount'),
-                ]);
-                
-            } else {
-                $customer->balance -= $request->input('amount');
-                $customer->save();
-
-                $transaction = Transaction::create([
-                    'customer_id' => $customer->id,
-                    'user_id' => Auth::id(),
-                    'shift_id' => $shift->id,
-                    'transaction_type' => $request->input('transaction_type'),
-                    'date' => now(),
-                    'amount' => $request->input('amount'),
-                ]);
-
-                AccountingJournal::create([
-                    'transaction_id' => $transaction->id,
-                    'account_code' => '201',
-                    'position' => 'debit',
-                    'amount' => $request->input('amount'),
-                ]);
-                AccountingJournal::create([
-                    'transaction_id' => $transaction->id,
-                    'account_code' => '101',
-                    'position' => 'credit',
-                    'amount' => $request->input('amount'),
-                ]);
-            }
-        });
+            return response()->json([
+                'status' => 'error',
+                'message' => $exception->getMessage(),
+            ], 503);
+        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Transaction successful',
+            'message' => 'Permintaan transaksi menunggu persetujuan nasabah.',
             'data' => [
-                'transaction_type' => $request->input('transaction_type'),
-                'amount' => $request->input('amount'),
-                'customer_balance' => $customer->balance,
-                'transaction_date' => now(),
+                'request_id' => $transactionRequest->id,
+                'transaction_type' => $transactionRequest->transaction_type,
+                'amount' => $transactionRequest->amount,
+                'status' => $transactionRequest->status->value,
+                'status_url' => "/api/teller/transaction-requests/{$transactionRequest->id}",
+                'expires_at' => $transactionRequest->expires_at,
+            ],
+        ], 202);
+    }
+
+    public function transactionRequestStatus(Request $request, TransactionRequest $transactionRequest)
+    {
+        if ($transactionRequest->user_id !== Auth::id()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Permintaan transaksi tidak ditemukan.',
+            ], 404);
+        }
+
+        $this->approvalService->expireIfNeeded($transactionRequest);
+
+        // Muat relasi customer untuk mengambil saldo terbaru
+        $transactionRequest->load('customer');
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'request_id' => $transactionRequest->id,
+                'transaction_type' => $transactionRequest->transaction_type,
+                'amount' => $transactionRequest->amount,
+                'status' => $transactionRequest->status->value,
+                'customer_balance' => $transactionRequest->customer->balance, // ✅ Tambahkan ini
+                'expires_at' => $transactionRequest->expires_at,
+                'approved_at' => $transactionRequest->approved_at,
+                'rejected_at' => $transactionRequest->rejected_at,
+                'completed_at' => $transactionRequest->completed_at,
             ],
         ]);
     }
@@ -159,10 +149,10 @@ class TransactionController extends Controller
 
         $shift = Shift::with([
             'denominations',
-            'transactions' => fn ($query) => $query->with(['customer', 'user'])->latest('date'),
+            'transactions' => fn($query) => $query->with(['customer', 'user'])->latest('date'),
         ])->whereDate('shift_date', $date)->first();
 
-        if (!$shift) {
+        if (! $shift) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Report shift tidak ditemukan untuk tanggal tersebut.',
@@ -191,5 +181,4 @@ class TransactionController extends Controller
             ],
         ]);
     }
-
 }

@@ -14,7 +14,8 @@ export async function request(path, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}/api${path}`, {
+  const apiPath = path.startsWith("/api/") ? path.slice(4) : path;
+  const response = await fetch(`${API_URL}/api${apiPath}`, {
     ...options,
     headers,
   });
@@ -24,7 +25,9 @@ export async function request(path, options = {}) {
     const validationMessage = payload.errors
       ? Object.values(payload.errors).flat().join(" ")
       : "";
-    const error = new Error(validationMessage || payload.message || "Request gagal.");
+    const error = new Error(
+      validationMessage || payload.message || "Request gagal.",
+    );
     error.status = response.status;
     throw error;
   }

@@ -192,6 +192,24 @@ Response `200`:
 }
 ```
 
+### Simpan token notifikasi Firebase
+
+```http
+POST /customer/fcm-token
+```
+
+Auth: `auth:sanctum`.
+
+Request body:
+
+```json
+{
+  "fcm_token": "token-dari-firebase-cloud-messaging"
+}
+```
+
+Endpoint ini dipanggil aplikasi Flutter setelah login dan setiap kali token FCM berubah.
+
 ### Riwayat transaksi customer
 
 ```http
@@ -472,7 +490,6 @@ Response `200`:
 }
 ```
 
-
 ## 4. Endpoint teller
 
 Semua endpoint pada bagian ini menggunakan:
@@ -683,37 +700,28 @@ Jika saldo cocok, response `200`:
 ```json
 {
   "status": "success",
-  "message": "Shift berhasil ditutup dan draft laporan harian dibuat.",
+  "message": "Shift berhasil ditutup dan laporan harian tersimpan pada shift.",
   "data": {
-    "shift": {
-      "id": 4,
-      "status": "closed",
-      "opening_balance": 900000,
-      "closing_digital_balance": 950000,
-      "closing_physical_balance": 950000,
-      "difference": 0,
-      "closed_by": 2
-    },
-    "daily_report": {
-      "id": 7,
-      "shift_id": 4,
-      "report_date": "2026-10-30",
-      "initial_balance": 900000,
-      "total_deposits": 200000,
-      "total_withdrawals": 150000,
-      "final_balance": 950000,
-      "physical_balance": 950000,
-      "status": "pending"
-    }
+    "id": 4,
+    "status": "closed",
+    "opening_balance": 900000,
+    "total_deposits": 200000,
+    "total_withdrawals": 150000,
+    "closing_digital_balance": 950000,
+    "closing_physical_balance": 950000,
+    "difference": 0,
+    "closed_by": 2
   }
 }
 ```
 
-## 4.5 Data transaksi berdasarkan tanggal
+## 4.5 Lihat report harian teller
 
 ```http
 POST /teller/daily-report
 ```
+
+Auth: `auth:sanctum` dan `role:teller`.
 
 Request body opsional:
 
@@ -723,30 +731,66 @@ Request body opsional:
 }
 ```
 
-Jika `date` tidak dikirim, sistem menggunakan tanggal hari ini.
+Jika `date` tidak dikirim, sistem menggunakan tanggal hari ini. Report diambil
+langsung dari data `shifts`.
 
 Response `200`:
 
 ```json
 {
   "status": "success",
-  "data": [
-    {
-      "id": 10,
-      "transaction_type": "deposit",
-      "amount": 100000,
-      "date": "2026-10-30 09:00:00"
-    }
-  ]
+  "data": {
+    "shift_date": "2026-10-30",
+    "status": "closed",
+    "opening_balance": 900000,
+    "total_deposits": 200000,
+    "total_withdrawals": 150000,
+    "closing_digital_balance": 950000,
+    "closing_physical_balance": 950000,
+    "difference": 0,
+    "assigned_staff": [2, 3, 4],
+    "denominations": [],
+    "transactions": []
+  }
 }
 ```
 
+Jika shift pada tanggal tersebut tidak ditemukan, response `404`.
+
 ## 5. Endpoint supervisor
+
+### Lihat saldo Brankas Utama
+
+```http
+GET /supervisor/vault/balance
+```
+
+Auth: `auth:sanctum` dan `role:supervisor`.
+
+Saldo dihitung dari seluruh mutasi `cash_transfers`:
+
+```text
+saldo brankas = total masuk - total keluar
+```
+
+Response `200`:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "location": "Brankas Utama",
+    "total_in": 1300000,
+    "total_out": 1000000,
+    "balance": 300000
+  }
+}
+```
 
 ### Approve shift
 
 ```http
-POST /supervisor/shifts/{shift}/approve
+PATCH /supervisor/shifts/{shift}/approve
 ```
 
 Auth:
@@ -784,6 +828,38 @@ Response `200`:
 ```
 
 Jika shift belum `closed`, response `422`.
+
+### Daftar shift dan laporan harian
+
+```http
+GET /supervisor/shifts
+```
+
+Auth: `auth:sanctum` dan `role:supervisor`.
+
+Laporan harian sekarang merupakan data pada tabel `shifts`, sehingga response berisi
+saldo, total transaksi, status, dan rincian denominasi shift.
+
+Response `200`:
+
+```json
+{
+  "status": "success",
+  "data": [
+    {
+      "id": 4,
+      "shift_date": "2026-10-30",
+      "status": "approved",
+      "opening_balance": 900000,
+      "total_deposits": 200000,
+      "total_withdrawals": 150000,
+      "closing_digital_balance": 950000,
+      "closing_physical_balance": 950000,
+      "difference": 0
+    }
+  ]
+}
+```
 
 ### Daftar transaksi
 
@@ -859,6 +935,6 @@ Teller login
   -> POST /teller/shifts/open
   -> POST /teller/customer/{id}/transaction
   -> POST /teller/shifts/close
-  -> Supervisor POST /supervisor/shifts/{shift}/approve
+  -> Supervisor PATCH /supervisor/shifts/{shift}/approve
   -> Kas dicatat berpindah dari Loket ke Brankas Utama
 ```

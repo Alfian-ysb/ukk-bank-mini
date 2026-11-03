@@ -13,7 +13,9 @@ Route::post('/customer/logout', [App\Http\Controllers\Api\AuthCustomersControlle
 Route::post('/staff/logout', [App\Http\Controllers\Api\AuthStaffController::class, 'logout']);
 Route::get('/settings', [App\Http\Controllers\Api\Admin\GeneralSettingController::class, 'index']);
 
-
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/settings', [App\Http\Controllers\Api\Admin\GeneralSettingController::class, 'index']);
+});
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/settings', [App\Http\Controllers\Api\Admin\GeneralSettingController::class, 'index']);
@@ -46,6 +48,7 @@ Route::prefix('teller')->middleware(['auth:sanctum', 'role:teller'])->group(func
     Route::post('/shifts/close', [App\Http\Controllers\Api\Teller\ShiftController::class, 'close']);
     Route::post('/customer', [App\Http\Controllers\Api\Teller\TransactionController::class, 'GetCustomer']);
     Route::post('/customer/{id}/transaction', [App\Http\Controllers\Api\Teller\TransactionController::class, 'StoreTransaction']);
+    Route::get('/transaction-requests/{transactionRequest}', [App\Http\Controllers\Api\Teller\TransactionController::class, 'transactionRequestStatus']);
     Route::post('/daily-report', [App\Http\Controllers\Api\Teller\TransactionController::class, 'initiateDailyReport']);
 });
 
@@ -63,6 +66,10 @@ Route::prefix('customer')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/profile', [App\Http\Controllers\Api\AuthCustomersController::class, 'profile']);
     Route::get('/history', [App\Http\Controllers\Api\Customer\CustomerController::class, 'history']);
     Route::get('/history/latest', [App\Http\Controllers\Api\Customer\CustomerController::class, 'latestHistory']);
+    Route::post('/fcm-token', [App\Http\Controllers\Api\Customer\CustomerController::class, 'updateFcmToken']);
+    Route::get('/transaction-requests/{transactionRequest}', [App\Http\Controllers\Api\Customer\CustomerController::class, 'transactionRequest']);
+    Route::post('/transaction-requests/{transactionRequest}/approve', [App\Http\Controllers\Api\Customer\CustomerController::class, 'approveTransactionRequest']);
+    Route::post('/transaction-requests/{transactionRequest}/reject', [App\Http\Controllers\Api\Customer\CustomerController::class, 'rejectTransactionRequest']);
 
     Route::post('/change-pin', [App\Http\Controllers\Api\Customer\CustomerController::class, 'changePin']);
     Route::post('/change-password', [App\Http\Controllers\Api\Customer\CustomerController::class, 'changePassword']);
