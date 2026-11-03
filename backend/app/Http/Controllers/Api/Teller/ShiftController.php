@@ -22,7 +22,7 @@ class ShiftController extends Controller
 {
     public function getCurrentShift()
     {
-        $shift = Shift::where('status', ShiftStatus::OPEN)
+        $shift = Shift::where('opened_by', Auth::id())->where('status', ShiftStatus::OPEN)
             ->whereDate('shift_date', now()->toDateString())
             ->with(['denominations', 'cashTransfers'])
             ->first();
@@ -42,9 +42,10 @@ class ShiftController extends Controller
     public function open(OpenShiftRequest $request)
     {
         // $date = $request->input('shift_date', now()->toDateString());
-
+        $tellerId = Auth::id();
+        
         $date = now()->toDateString();
-        $alreadyExists = Shift::whereDate('shift_date', $date)->exists();
+        $alreadyExists = Shift::where('opened_by', $tellerId)->whereDate('shift_date', $date)->exists();
         if ($alreadyExists) {
             return response()->json([
                 'status' => 'error',
@@ -87,7 +88,8 @@ class ShiftController extends Controller
     {
         try {
             $shift = DB::transaction(function () use ($request) {
-                $shift = Shift::where('status', ShiftStatus::OPEN)
+                $shift = Shift::where('opened_by', Auth::id())
+                    ->where('status', ShiftStatus::OPEN)
                     ->whereDate('shift_date', now()->toDateString())
                     ->lockForUpdate()
                     ->firstOrFail();
