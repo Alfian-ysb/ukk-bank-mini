@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { get, post } from "../../api";
+import CurrencyInput from "react-currency-input-field";
 
 function VaultOpeningBalanceForm() {
   const [balance, setBalance] = useState("");
@@ -11,7 +12,7 @@ function VaultOpeningBalanceForm() {
   const [isChecking, setIsChecking] = useState(true);
   const [isAlreadySetup, setIsAlreadySetup] = useState(false);
 
-  useEffect(() => {
+  const getOpeningBalance = async () => {
     get("/admin/vault/opening-balance")
       .then((response) => {
         setIsAlreadySetup(true);
@@ -28,6 +29,10 @@ function VaultOpeningBalanceForm() {
         }
       })
       .finally(() => setIsChecking(false));
+  }
+
+  useEffect(() => {
+    getOpeningBalance();
   }, []);
 
   async function submit(event) {
@@ -64,6 +69,8 @@ function VaultOpeningBalanceForm() {
     } finally {
       setIsSaving(false);
     }
+
+    getOpeningBalance();
   }
 
   return (
@@ -81,12 +88,8 @@ function VaultOpeningBalanceForm() {
       </div>
       <label className="block text-sm font-medium text-neutral-dark-gray">
         Saldo awal
-        {isAlreadySetup ? (
-          <p className="mt-1 w-full rounded border p-2">
-            Rp{hasBalance}
-          </p>
-        ) : (
-          <input
+        
+          {/* <input
           className="mt-1 w-full rounded border p-2"
           type="number"
           min="1"
@@ -94,7 +97,35 @@ function VaultOpeningBalanceForm() {
           value={balance}
           onChange={(event) => setBalance(event.target.value)}
           required
-        />
+          <p className="mt-1 w-full rounded border p-2">Rp {hasBalance}</p>
+        /> */}
+        {isAlreadySetup ? (
+          <CurrencyInput
+            className="mt-1 w-full rounded border p-2"
+            id="amount"
+            name="nominal"
+            placeholder={hasBalance}
+            defaultValue={0}
+            intlConfig={{ locale: "id-ID", currency: "IDR" }}
+            decimalsLimit={0}
+            value={hasBalance}
+            disabled
+          />
+        ) : (
+          <CurrencyInput
+            className="mt-1 w-full rounded border p-2"
+            id="amount"
+            name="nominal"
+            placeholder="Jumlah"
+            defaultValue={0}
+            intlConfig={{ locale: "id-ID", currency: "IDR" }}
+            decimalsLimit={0}
+            value={balance}
+            onValueChange={(value) => {
+              const numericValue = parseInt(value || "0", 10);
+              setBalance(numericValue);
+            }}
+          />
         )}
       </label>
       {error && <p className="text-sm text-red-600">{error}</p>}

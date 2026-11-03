@@ -7,7 +7,7 @@ const settingLabels = {
   bank_name: "Nama bank",
   bank_address: "Alamat bank",
   batas_saldo_minimal: "Batas saldo minimal",
-  bank_contact: "Kontak bank",
+  bank_contact: "Kontak bank (621234567890)",
 };
 
 function SettingsPage() {

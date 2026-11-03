@@ -237,6 +237,51 @@ Response `200`:
 }
 ```
 
+### Persetujuan transaksi nasabah
+
+Transaksi teller sekarang dibuat sebagai `pending`. Saldo dan transaksi final
+baru dibuat setelah nasabah menyetujui dengan PIN.
+
+```http
+GET /customer/transaction-requests/{request_id}
+POST /customer/transaction-requests/{request_id}/approve
+POST /customer/transaction-requests/{request_id}/reject
+```
+
+Persetujuan:
+
+```json
+{
+  "pin": "123456"
+}
+```
+
+Status yang mungkin dikembalikan:
+
+| Status | Keterangan |
+|---|---|
+| `pending` | Menunggu persetujuan nasabah |
+| `approved` | Persetujuan sudah dicatat saat proses finalisasi |
+| `rejected` | Ditolak nasabah |
+| `expired` | Melewati waktu kedaluwarsa |
+| `completed` | Saldo, transaksi, dan jurnal sudah berhasil dibuat |
+
+Verifikasi PIN dibatasi maksimal 3 percobaan untuk setiap permintaan transaksi.
+Percobaan PIN yang salah menambah `verification_attempts`; setelah percobaan
+ketiga, status menjadi `rejected`, transaksi dibatalkan, dan saldo tidak
+berubah. Percobaan pertama dan kedua mengembalikan `422`, sedangkan percobaan
+ketiga mengembalikan `409` dengan pesan pembatalan.
+
+PIN tidak pernah dikirim melalui FCM. Jika `fcm_token` kosong, request tetap
+dibuat `pending`. Jika pengiriman FCM gagal, request dihapus dan API
+mengembalikan `503`; tidak ada saldo atau transaksi final yang berubah.
+
+Teller dapat memeriksa status:
+
+```http
+GET /teller/transaction-requests/{request_id}
+```
+
 ## 3. Endpoint admin
 
 Semua endpoint pada bagian ini menggunakan:
@@ -608,8 +653,7 @@ Request body:
 ```json
 {
   "transaction_type": "deposit",
-  "amount": 100000,
-  "pin": "123456"
+  "amount": 100000
 }
 ```
 
@@ -617,24 +661,28 @@ Aturan:
 
 - `transaction_type`: `deposit` atau `withdrawal`.
 - `amount` minimal `10000`.
-- `pin` harus 6 digit.
 - Harus ada shift dengan status `open`.
 - Untuk withdrawal, saldo customer harus mencukupi.
+- PIN tidak dikirim oleh teller.
 
-Response `200`:
+Response `202`:
 
 ```json
 {
   "status": "success",
-  "message": "Transaction successful",
+  "message": "Permintaan transaksi menunggu persetujuan nasabah.",
   "data": {
+    "request_id": 12,
     "transaction_type": "deposit",
     "amount": 100000,
-    "customer_balance": 600000,
-    "transaction_date": "2026-10-30T09:00:00+07:00"
+    "status": "pending",
+    "expires_at": "2026-11-02T09:31:00+07:00"
   }
 }
 ```
+
+Saldo dan transaksi final belum berubah pada response ini. Teller memeriksa
+status melalui `GET /teller/transaction-requests/{request_id}`.
 
 ## 4.4 Tutup shift dan kas
 
