@@ -77,7 +77,13 @@ const AccountingJournals = () => {
               <span className="font-semibold text-slate-800">
                 {formatRupiah(item.amount)}
               </span>,
-              item.transaction?.user?.full_name || item.transaction?.user?.username || "-",
+              <ul>
+                {item.transaction?.shift?.assigned_staff?.map((staff) => (
+                  <li key={staff} className="font-semibold text-sm">
+                    {staff}
+                  </li>
+                )) || "-"}
+              </ul>,
             ])}
           />
         ) : (

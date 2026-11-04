@@ -59,7 +59,7 @@ function AdminDashboard() {
           </section>
         )}
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 mt-4">
         <Shortcut
           to="/admin/vault"
           title="Saldo Brankas"

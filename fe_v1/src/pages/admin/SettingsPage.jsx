@@ -2,20 +2,21 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/DashboardLayout";
 import VaultOpeningBalanceForm from "../../components/admin/VaultOpeningBalanceForm";
 import { get, patch } from "../../api";
+import CurrencyInput from "react-currency-input-field";
 
 const settingLabels = {
   bank_name: "Nama bank",
   bank_address: "Alamat bank",
-  batas_saldo_minimal: "Batas saldo minimal",
+  minimum_balance: "Batas saldo minimal",
   bank_contact: "Kontak bank (621234567890)",
 };
 
-// Helper untuk format nomor ke 62xxxxxxxxxx
+
 function formatPhoneNumber(value) {
-  // 1. Hapus semua karakter selain angka
+
   let cleaned = value.replace(/\D/g, "");
 
-  // 2. Jika diawali '0', ubah menjadi '62'
+
   if (cleaned.startsWith("0")) {
     cleaned = "62" + cleaned.slice(1);
   }
@@ -57,6 +58,15 @@ function SettingsPage() {
     setError("");
     setMessage("");
     setSavingId(setting.id);
+
+    const isConfirmed = window.confirm(
+      `Apakah Anda yakin ingin menyimpan perubahan untuk pengaturan "${settingLabels[setting.name] || setting.name}"?`,
+    );
+
+    if (!isConfirmed) {
+      setSavingId(null);
+      return;
+    }
 
     try {
       const response = await patch(`/admin/settings/${setting.id}`, {
@@ -132,24 +142,30 @@ function SettingsPage() {
                             id={`setting-${setting.id}`}
                             value={setting.value}
                             onChange={(event) =>
-                              changeValue(setting.id, event.target.value, setting.name)
+                              changeValue(
+                                setting.id,
+                                event.target.value,
+                                setting.name,
+                              )
                             }
                             className="w-full rounded border p-2"
                             required
                           ></textarea>
                         );
-                      case "batas_saldo_minimal":
+                      case "minimum_balance":
                         return (
-                          <input
-                            type="number"
-                            name={setting.name}
+                          <CurrencyInput
+                            className="mt-1 w-full rounded border p-2"
                             id={`setting-${setting.id}`}
+                            name={setting.name}
+                            placeholder="Saldo minimal"
+                            defaultValue={0}
+                            intlConfig={{ locale: "id-ID", currency: "IDR" }}
+                            decimalsLimit={0}
                             value={setting.value}
-                            onChange={(event) =>
-                              changeValue(setting.id, event.target.value, setting.name)
-                            }
-                            className="w-full rounded border p-2"
-                            required
+                            onValueChange={(event) => {
+                               changeValue(setting.id, event, setting.name);
+                            }}
                           />
                         );
                       case "bank_contact":
@@ -160,7 +176,11 @@ function SettingsPage() {
                             id={`setting-${setting.id}`}
                             value={setting.value}
                             onChange={(event) =>
-                              changeValue(setting.id, event.target.value, setting.name)
+                              changeValue(
+                                setting.id,
+                                event.target.value,
+                                setting.name,
+                              )
                             }
                             placeholder="628123456789"
                             className="w-full rounded border p-2"
@@ -175,7 +195,11 @@ function SettingsPage() {
                             id={`setting-${setting.id}`}
                             value={setting.value}
                             onChange={(event) =>
-                              changeValue(setting.id, event.target.value, setting.name)
+                              changeValue(
+                                setting.id,
+                                event.target.value,
+                                setting.name,
+                              )
                             }
                             className="w-full rounded border p-2"
                             required

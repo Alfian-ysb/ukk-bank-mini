@@ -58,7 +58,7 @@ function SupervisorDashboard() {
           </section>
         )}
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 mt-4">
         <Shortcut
           to="/supervisor/shifts"
           title="Laporan Harian"

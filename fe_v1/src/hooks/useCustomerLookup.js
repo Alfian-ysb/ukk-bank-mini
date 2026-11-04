@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { post } from "../api";
+import { useCallback, useState } from "react";
+import { get, post } from "../api";
 import { getErrorMessage } from "../pages/teller/transactionUtils";
+import { useNavigate } from "react-router-dom";
 
 function useCustomerLookup() {
   const [accountNumber, setAccountNumber] = useState("");
+  const navigate = useNavigate();
   const [customer, setCustomer] = useState(null);
   const [message, setMessage] = useState("");
   const [isFindingCustomer, setIsFindingCustomer] = useState(false);
@@ -20,7 +22,9 @@ function useCustomerLookup() {
       const response = await post("/teller/customer", {
         account_number: normalizedAccountNumber,
       });
-      setCustomer(response.data);
+
+      navigate("/teller/transaction/" + response.data.id);
+
       setMessage("");
     } catch (error) {
       setCustomer(null);
@@ -29,6 +33,27 @@ function useCustomerLookup() {
       setIsFindingCustomer(false);
     }
   }
+
+  const findCustomerById = useCallback(async (customerId) => {
+    if (!customerId) {
+      setMessage("ID nasabah tidak valid.");
+      return;
+    }
+
+    setIsFindingCustomer(true);
+    try {
+      const response = await get("/teller/customer/" + customerId);
+
+      setCustomer(response.data);
+
+      setMessage("");
+    } catch (error) {
+      setCustomer(null);
+      setMessage(getErrorMessage(error));
+    } finally {
+      setIsFindingCustomer(false);
+    }
+  }, []);
 
   return {
     accountNumber,
@@ -39,6 +64,7 @@ function useCustomerLookup() {
     setCustomer,
     setMessage,
     findCustomer,
+    findCustomerById,
   };
 }
 

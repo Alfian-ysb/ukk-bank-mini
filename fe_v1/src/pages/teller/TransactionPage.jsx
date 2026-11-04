@@ -1,9 +1,7 @@
-import { useCallback, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import DashboardLayout from "../../components/DashboardLayout";
-import CustomerSearch from "../../components/teller/CustomerSearch";
 import CustomerSummary from "../../components/teller/CustomerSummary";
-import QrScannerModal from "../../components/teller/QrScannerModal";
 import TransactionForm from "../../components/teller/TransactionForm";
 import TransactionStatus from "../../components/teller/TransactionStatus";
 import { ACTIVE_STATUSES } from "./transactionUtils";
@@ -12,22 +10,24 @@ import useTransactionStatus from "../../hooks/useTransactionStatus";
 import useTransactionSubmission from "../../hooks/useTransactionSubmission";
 
 function TransactionPage() {
-  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const {custId} = useParams();
   const [transaction, setTransaction] = useState({
     transaction_type: "deposit",
     amount: "",
   });
   const [transactionError, setTransactionError] = useState("");
   const {
-    accountNumber,
     customer,
     message,
-    isFindingCustomer,
-    setAccountNumber,
     setCustomer,
     setMessage,
-    findCustomer,
+    findCustomerById,
   } = useCustomerLookup();
+
+  useEffect(() => {
+    findCustomerById(custId);
+  }, [custId, findCustomerById]);
+
   const {
     status: transactionStatus,
     message: transactionStatusMessage,
@@ -45,24 +45,6 @@ function TransactionPage() {
       [setCustomer],
     ),
   });
-
-  function handleFindCustomer(event) {
-    event.preventDefault();
-    findCustomer();
-  }
-
-  function handleAccountDetected(scannedAccountNumber) {
-    setAccountNumber(scannedAccountNumber);
-    findCustomer(scannedAccountNumber);
-  }
-
-  function handleScannerError(error) {
-    setMessage(
-      error?.message ||
-        "Kamera tidak dapat digunakan. Izinkan akses kamera lalu coba lagi.",
-    );
-  }
-
   const saveTransaction = useTransactionSubmission({
     customer,
     transaction,
@@ -112,26 +94,6 @@ function TransactionPage() {
             </button>
           </div>
         )}
-
-        <CustomerSearch
-          accountNumber={accountNumber}
-          isFindingCustomer={isFindingCustomer}
-          onAccountNumberChange={setAccountNumber}
-          onFind={handleFindCustomer}
-          onOpenScanner={() => {
-            setMessage("");
-            setIsScannerOpen(true);
-          }}
-        />
-
-        {isScannerOpen && (
-          <QrScannerModal
-            onClose={() => setIsScannerOpen(false)}
-            onError={handleScannerError}
-            onAccountDetected={handleAccountDetected}
-          />
-        )}
-
         {customer && (
           <div className="mt-4 flex flex-col gap-4 md:flex-row">
             <TransactionForm

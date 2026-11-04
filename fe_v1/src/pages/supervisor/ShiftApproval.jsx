@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const ShiftApproval = () => {
   const [shifts, setShifts] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState("all"); // State untuk filter status
+  const [selectedStatus, setSelectedStatus] = useState("all"); 
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
@@ -24,7 +24,6 @@ const ShiftApproval = () => {
     fetchShifts();
   }, []);
 
-  // Filter data shift berdasarkan status yang dipilih
   const filteredShifts = shifts.filter((shift) => {
     if (selectedStatus === "all") return true;
     return shift.status?.toLowerCase() === selectedStatus.toLowerCase();

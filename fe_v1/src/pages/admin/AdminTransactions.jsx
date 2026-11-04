@@ -35,7 +35,7 @@ const AdminTransactions = () => {
 
       <section className="rounded-lg bg-white p-5 shadow-sm">
         <h2 className="mb-3 text-2xl font-plus-jakarta-sans font-semibold text-gray-700">
-          Riwayat Transaksi Jurnal
+          Riwayat Transaksi
         </h2>
         {transactions.length > 0 ? (
           <Table
@@ -61,7 +61,13 @@ const AdminTransactions = () => {
               <span className="font-semibold text-slate-800">
                 {formatRupiah(item.amount)}
               </span>,
-              item.user?.full_name || item.user?.username || "-",
+              <ul>
+                {item.shift?.assigned_staff?.map((staff) => (
+                  <li key={staff} className="font-semibold text-sm">
+                    {staff}
+                  </li>
+                )) || "-"}
+              </ul>,
             ])}
           />
         ) : (

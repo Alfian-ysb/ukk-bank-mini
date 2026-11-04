@@ -29,6 +29,7 @@ import AdminVaultBalance from "./pages/admin/AdminVaultBalance";
 import SettingsPage from "./pages/admin/SettingsPage";
 import AdminTransactions from "./pages/admin/AdminTransactions";
 import AdminAccountingJournals from "./pages/admin/AdminAccountingJournals";
+import SearchCustomerPage from "./pages/teller/SearchCustomerPage";
 
 function App() {
   const home = isLoggedIn() ? getRouteByRole(getStoredRole()) : "/login";
@@ -59,7 +60,8 @@ function App() {
         <Route element={<ProtectedRoute allowedRoles={["teller"]} />}>
           <Route path="/teller/dashboard" element={<TellerDashboard />} />
           <Route path="/teller/shift" element={<ShiftPage />} />
-          <Route path="/teller/transaction" element={<TransactionPage />} />
+          <Route path="/teller/transaction/:custId" element={<TransactionPage />} />
+          <Route path="/teller/transaction/" element={<SearchCustomerPage />} />
           <Route path="/teller/report" element={<ReportPage />} />
         </Route>
         <Route element={<ProtectedRoute allowedRoles={["supervisor"]} />}>
