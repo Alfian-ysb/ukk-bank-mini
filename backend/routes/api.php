@@ -39,7 +39,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
 });
 
 Route::prefix('teller')->middleware(['auth:sanctum', 'role:teller'])->group(function () {
-    Route::get('/shifts/current', [App\Http\Controllers\Api\Teller\ShiftController::class, 'getCurrentShift']);
+    Route::get('/shifts/current', [App\Http\Controllers\Api\Teller\ShiftController::class, 'getOpenedShift']);
     Route::post('/shifts/open', [App\Http\Controllers\Api\Teller\ShiftController::class, 'open']);
     Route::post('/shifts/close', [App\Http\Controllers\Api\Teller\ShiftController::class, 'close']);
     Route::post('/customer', [App\Http\Controllers\Api\Teller\TransactionController::class, 'GetCustomer']);

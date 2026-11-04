@@ -4,9 +4,6 @@ namespace App\Actions;
 
 use App\Enums\MajorCodes;
 use App\Models\Customer;
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Str;
 
 class CreateCustomerAction
 {

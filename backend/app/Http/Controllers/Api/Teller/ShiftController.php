@@ -20,10 +20,10 @@ use Throwable;
 
 class ShiftController extends Controller
 {
-    public function getCurrentShift()
+    public function getOpenedShift()
     {
         $shift = Shift::where('opened_by', Auth::id())->where('status', ShiftStatus::OPEN)
-            ->whereDate('shift_date', now()->toDateString())
+            // ->whereDate('shift_date', now()->toDateString())
             ->with(['denominations', 'cashTransfers'])
             ->first();
 
@@ -119,7 +119,7 @@ class ShiftController extends Controller
             $shift = DB::transaction(function () use ($request) {
                 $shift = Shift::where('opened_by', Auth::id())
                     ->where('status', ShiftStatus::OPEN)
-                    ->whereDate('shift_date', now()->toDateString())
+                    // ->whereDate('shift_date', now()->toDateString())
                     ->lockForUpdate()
                     ->firstOrFail();
 
