@@ -5,11 +5,18 @@ import AdminForm from "../../../components/admin/AdminForm";
 import { get, patch } from "../../../api";
 
 const emptyForm = { nis: "", student_name: "", major: "", cohort_year: "", pin: "", password: "" };
+
+const status = [
+  { value: "active", label: "Aktif" },
+  { value: "inactive", label: "Nonaktif" },
+  { value: "blocked", label: "Diblokir" },
+];
 const fields = [
   { name: "nis", label: "NIS", required: true },
   { name: "student_name", label: "Nama siswa", required: true },
   { name: "major", label: "Jurusan", required: true },
   { name: "cohort_year", label: "Tahun angkatan", required: true },
+  { name: "status", type: "select", label: "Status", required: true, options: status },
   { name: "pin", label: "PIN", type: "password", required: false, minLength: 6, maxLength: 6 },
   { name: "password", label: "Password", type: "password", required: false, minLength: 6 },
 ];

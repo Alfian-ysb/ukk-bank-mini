@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "../../../components/DashboardLayout";
 import { get } from "../../../api";
 import Button from "../../../components/Button";
@@ -8,6 +8,7 @@ function CustomerDetailPage() {
   const { id } = useParams();
   const [customer, setCustomer] = useState(null);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     get(`/admin/customers/${id}`)

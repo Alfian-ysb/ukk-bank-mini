@@ -11,6 +11,7 @@ const REQUEST_TIMEOUT = 120000;
 
 function useTransactionStatus({ onCustomerBalanceChange }) {
   const [status, setStatus] = useState("");
+  const [transactionId, setTransactionId] = useState(null);
   const [message, setMessage] = useState("");
   const [statusEndpoint, setStatusEndpoint] = useState("");
   const transactionStartedAt = useRef(0);

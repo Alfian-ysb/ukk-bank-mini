@@ -9,6 +9,7 @@ const settingLabels = {
   bank_address: "Alamat bank",
   minimum_balance: "Batas saldo minimal",
   bank_contact: "Kontak bank (621234567890)",
+  minimum_withdrawal: "Batas penarikan minimal",
 };
 
 
@@ -185,6 +186,22 @@ function SettingsPage() {
                             placeholder="628123456789"
                             className="w-full rounded border p-2"
                             required
+                          />
+                        );
+                      case "minimum_withdrawal":
+                        return (
+                          <CurrencyInput
+                            className="mt-1 w-full rounded border p-2"
+                            id={`setting-${setting.id}`}
+                            name={setting.name}
+                            placeholder="Batas penarikan minimal"
+                            defaultValue={0}
+                            intlConfig={{ locale: "id-ID", currency: "IDR" }}
+                            decimalsLimit={0}
+                            value={setting.value}
+                            onValueChange={(event) => {
+                               changeValue(setting.id, event, setting.name);
+                            }}
                           />
                         );
                       default:

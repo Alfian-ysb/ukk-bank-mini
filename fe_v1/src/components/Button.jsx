@@ -13,7 +13,7 @@ const Button = ({ text, onClick, theme, customClass, disabled }) => {
     white:
       "rounded-xl bg-white px-6 py-3 font-poppins text-sm font-semibold text-[#063d34] transition hover:-translate-y-0.5 hover:shadow-lg cursor-pointer",
     outline:
-      "rounded outline outline-primary/70 bg-white/20 px-4 py-2 font-poppins text-sm font-semibold text-neutral-700 transition hover:bg-white/30 cursor-pointer",
+      "rounded outline outline-primary/70 bg-white/20 px-4 py-2 font-poppins text-sm font-semibold text-neutral-700 transition hover:bg-primary/10 cursor-pointer",
   };
 
   return (

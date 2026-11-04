@@ -27,17 +27,6 @@ function TransactionForm({
         <option value="deposit">Deposit</option>
         <option value="withdrawal">Penarikan</option>
       </select>
-      {/* <input
-        className="w-full rounded border p-2"
-        type="number"
-        min="10000"
-        placeholder="Jumlah"
-        required
-        value={transaction.amount}
-        onChange={(event) =>
-          onChange({ ...transaction, amount: event.target.value })
-        }
-      /> */}
       <CurrencyInput
         className="w-full rounded border p-2"
         id="amount"
@@ -57,7 +46,7 @@ function TransactionForm({
         disabled={disabled}
         className="cursor-pointer rounded bg-primary px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {disabled ? "Memproses..." : "Simpan transaksi"}
+        {disabled ? "Memproses..." : "Lanjutkan transaksi"}
       </button>
       {error && (
         <div

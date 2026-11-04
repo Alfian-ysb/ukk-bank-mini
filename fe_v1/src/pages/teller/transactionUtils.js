@@ -6,7 +6,7 @@ export const TRANSACTION_STATUSES = [
   "completed",
 ];
 
-export const ACTIVE_STATUSES = ["pending", "approved"];
+export const ACTIVE_STATUSES = ["pending", "approved", "completed"];
 
 export function money(value) {
   return `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
@@ -42,7 +42,7 @@ export function getErrorMessage(error) {
     case 401:
       return "Sesi staff tidak valid atau sudah berakhir. Silakan login kembali.";
     case 403:
-      return "Anda tidak memiliki izin untuk melakukan transaksi ini.";
+      return error.message || "Anda tidak memiliki izin untuk melakukan transaksi ini.";
     case 404:
       return "Nasabah atau transaksi tidak ditemukan.";
     case 409:
