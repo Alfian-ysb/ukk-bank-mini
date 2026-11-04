@@ -12,6 +12,7 @@ use App\Models\TransactionRequest;
 use App\Services\TransactionApprovalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
 class TransactionController extends Controller
@@ -60,8 +61,19 @@ class TransactionController extends Controller
     {
         $validated = $request->validate([
             'transaction_type' => ['required', 'in:deposit,withdrawal'],
-            'amount' => ['required', 'integer', 'min:10000'],
+            'amount' => ['required', 'integer', 'min:'.(General::where('name', 'minimum_withdrawal')->value('value') ?? 10000)],
+        ], [
+            'amount.min' => 'Jumlah penarikan harus lebih besar dari jumlah minimum penarikan yang ditetapkan senilai Rp' . (General::where('name', 'minimum_withdrawal')->value('value') ?? 10000) . '.',
         ]);
+
+        $checkStatus = Customer::where('id', $id)->value('status');
+
+        if ($checkStatus !== 'active') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Rekening nasabah tidak aktif. Transaksi tidak dapat diproses.',
+            ], 403);
+        }
 
         $customer = Customer::find($id);
 
@@ -83,6 +95,7 @@ class TransactionController extends Controller
             ], 409);
         }
 
+        
         if (
             $validated['transaction_type'] === 'withdrawal'
             && $customer->balance - $validated['amount'] <= (int) (General::where('name', 'minimum_balance')->value('value') ?? 10000)
@@ -102,6 +115,32 @@ class TransactionController extends Controller
             'status' => TransactionRequestStatus::PENDING,
             'expires_at' => now()->addMinutes(2),
         ])->load('customer');
+
+        if ($transactionRequest->transaction_type === 'deposit') {
+            try {
+                $completed = $this->approvalService->approve($transactionRequest);
+            } catch (ValidationException $exception) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $exception->errors()['request'][0]
+                        ?? 'Setoran tidak dapat diproses.',
+                    'errors' => $exception->errors(),
+                ], 409);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Setoran berhasil diproses.',
+                'data' => [
+                    'request_id' => $completed->id,
+                    'transaction_type' => $completed->transaction_type,
+                    'amount' => $completed->amount,
+                    'status' => $completed->status->value,
+                    'customer_balance' => $completed->customer->balance,
+                    'completed_at' => $completed->completed_at,
+                ],
+            ]);
+        }
 
         try {
             $this->approvalService->sendApprovalNotification($transactionRequest);

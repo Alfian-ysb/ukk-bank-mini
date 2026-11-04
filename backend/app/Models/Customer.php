@@ -28,5 +28,10 @@ class Customer extends Authenticatable
     {
         return 'id';
     }
+
+    public function changePinRequests()
+    {
+        return $this->hasMany(changePinRequest::class);
+    }
     
 }   

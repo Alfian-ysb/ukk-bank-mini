@@ -239,8 +239,9 @@ Response `200`:
 
 ### Persetujuan transaksi nasabah
 
-Transaksi teller sekarang dibuat sebagai `pending`. Saldo dan transaksi final
-baru dibuat setelah nasabah menyetujui dengan PIN.
+Penarikan teller dibuat sebagai `pending` dan saldo baru berubah setelah
+nasabah menyetujui dengan PIN. Setoran langsung diproses oleh backend tanpa
+notifikasi dan tanpa approval nasabah.
 
 ```http
 GET /customer/transaction-requests/{request_id}
@@ -248,13 +249,16 @@ POST /customer/transaction-requests/{request_id}/approve
 POST /customer/transaction-requests/{request_id}/reject
 ```
 
-Persetujuan:
+Endpoint persetujuan hanya digunakan untuk penarikan:
 
 ```json
 {
   "pin": "123456"
 }
 ```
+
+Setoran tidak membuat approval request yang menunggu nasabah; endpoint teller
+langsung mengembalikan status `completed`.
 
 Status yang mungkin dikembalikan:
 
@@ -266,7 +270,7 @@ Status yang mungkin dikembalikan:
 | `expired` | Melewati waktu kedaluwarsa |
 | `completed` | Saldo, transaksi, dan jurnal sudah berhasil dibuat |
 
-Verifikasi PIN dibatasi maksimal 3 percobaan untuk setiap permintaan transaksi.
+Verifikasi PIN penarikan dibatasi maksimal 3 percobaan untuk setiap permintaan transaksi.
 Percobaan PIN yang salah menambah `verification_attempts`; setelah percobaan
 ketiga, status menjadi `rejected`, transaksi dibatalkan, dan saldo tidak
 berubah. Percobaan pertama dan kedua mengembalikan `422`, sedangkan percobaan

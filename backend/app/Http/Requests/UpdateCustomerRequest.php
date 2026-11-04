@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\Status;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,6 +26,7 @@ class UpdateCustomerRequest extends FormRequest
         return [
             'nis' => ['sometimes', 'string', 'unique:customers,nis,' . $this->route('id')],
             'student_name' => ['sometimes', 'string'],
+            'status' => ['sometimes', 'in:' . implode(',', array_column(Status::cases(), 'value'))],
             'major' => ['sometimes', 'string'],
             'cohort_year' => ['sometimes', 'string'],
             'pin' => ['sometimes', 'string', 'size:6'],

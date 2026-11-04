@@ -37,6 +37,10 @@ class DatabaseSeeder extends Seeder
                 'name' => 'bank_contact',
                 'value' => '621234567890',
             ],
+            [
+                'name' => 'minimum_withdrawal',
+                'value' => '10000',
+            ]
         ];
 
         $users = [

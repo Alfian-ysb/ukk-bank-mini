@@ -5,48 +5,44 @@ namespace Tests\Feature;
 use App\Models\Customer;
 use App\Models\Shift;
 use App\Models\User;
-use App\Services\FirebaseMessagingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery;
 use Tests\TestCase;
 
 class TransactionApprovalTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_teller_creates_pending_request_without_final_transaction(): void
+    public function test_teller_processes_deposit_without_customer_approval(): void
     {
         $teller = $this->createUser('teller');
         $customer = $this->createCustomer();
         $this->createShift($teller);
-
-        $messaging = Mockery::mock(FirebaseMessagingService::class);
-        $messaging->shouldReceive('sendToToken')->once()->andReturn('messages/1');
-        $this->app->instance(FirebaseMessagingService::class, $messaging);
 
         $response = $this->actingAs($teller, 'sanctum')->postJson(
             "/api/teller/customer/{$customer->id}/transaction",
             ['transaction_type' => 'deposit', 'amount' => 100000],
         );
 
-        $response->assertStatus(202)->assertJsonPath('data.status', 'pending');
-        $this->assertDatabaseCount('transactions', 0);
+        $response->assertOk()
+            ->assertJsonPath('data.status', 'completed')
+            ->assertJsonPath('data.customer_balance', 100000);
+        $this->assertDatabaseCount('transactions', 1);
         $this->assertDatabaseHas('transaction_requests', [
             'customer_id' => $customer->id,
-            'status' => 'pending',
+            'status' => 'completed',
         ]);
     }
 
     public function test_wrong_pin_does_not_complete_request(): void
     {
         $teller = $this->createUser('teller');
-        $customer = $this->createCustomer();
+        $customer = $this->createCustomer(200000);
         $shift = $this->createShift($teller);
         $request = \App\Models\TransactionRequest::create([
             'customer_id' => $customer->id,
             'user_id' => $teller->id,
             'shift_id' => $shift->id,
-            'transaction_type' => 'deposit',
+            'transaction_type' => 'withdrawal',
             'amount' => 100000,
             'status' => 'pending',
             'expires_at' => now()->addMinute(),
@@ -69,13 +65,13 @@ class TransactionApprovalTest extends TestCase
     public function test_transaction_is_cancelled_after_three_wrong_pins(): void
     {
         $teller = $this->createUser('teller');
-        $customer = $this->createCustomer();
+        $customer = $this->createCustomer(200000);
         $shift = $this->createShift($teller);
         $request = \App\Models\TransactionRequest::create([
             'customer_id' => $customer->id,
             'user_id' => $teller->id,
             'shift_id' => $shift->id,
-            'transaction_type' => 'deposit',
+            'transaction_type' => 'withdrawal',
             'amount' => 100000,
             'status' => 'pending',
             'expires_at' => now()->addMinute(),
@@ -107,7 +103,7 @@ class TransactionApprovalTest extends TestCase
         $this->assertDatabaseCount('transactions', 0);
     }
 
-    public function test_correct_pin_completes_request_once(): void
+    public function test_deposit_completes_without_pin(): void
     {
         $teller = $this->createUser('teller');
         $customer = $this->createCustomer();
@@ -124,7 +120,7 @@ class TransactionApprovalTest extends TestCase
 
         $response = $this->actingAs($customer, 'sanctum')->postJson(
             "/api/customer/transaction-requests/{$request->id}/approve",
-            ['pin' => '123456'],
+            [],
         );
 
         $response->assertOk()->assertJsonPath('data.status', 'completed');
@@ -143,7 +139,7 @@ class TransactionApprovalTest extends TestCase
         ]);
     }
 
-    private function createCustomer(): Customer
+    private function createCustomer(int $balance = 0): Customer
     {
         return Customer::create([
             'account_number' => fake()->unique()->numerify('2026######'),
@@ -152,7 +148,7 @@ class TransactionApprovalTest extends TestCase
             'pin' => bcrypt('123456'),
             'password' => bcrypt('password'),
             'status' => 'active',
-            'balance' => 0,
+            'balance' => $balance,
         ]);
     }
 

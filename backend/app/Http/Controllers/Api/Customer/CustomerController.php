@@ -91,12 +91,16 @@ class CustomerController extends Controller
             return $this->transactionRequestNotFound();
         }
 
+        $pinRules = $transactionRequest->transaction_type === 'withdrawal'
+            ? ['required', 'string', 'digits:6']
+            : ['sometimes', 'string', 'digits:6'];
+
         $validated = $request->validate([
-            'pin' => ['required', 'string', 'digits:6'],
+            'pin' => $pinRules,
         ]);
 
         try {
-            $completed = $this->approvalService->approve($transactionRequest, $validated['pin']);
+            $completed = $this->approvalService->approve($transactionRequest, $validated['pin'] ?? null);
         } catch (ValidationException $exception) {
             if ($exception->errors()['pin'] ?? false) {
                 throw $exception;

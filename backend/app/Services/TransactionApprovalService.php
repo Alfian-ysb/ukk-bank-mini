@@ -36,7 +36,7 @@ class TransactionApprovalService
         return $request;
     }
 
-    public function approve(TransactionRequest $request, string $pin): TransactionRequest
+    public function approve(TransactionRequest $request, ?string $pin = null): TransactionRequest
     {
         $verificationFailure = null;
 
@@ -59,7 +59,10 @@ class TransactionApprovalService
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if (! Hash::check($pin, $customer->pin)) {
+            if (
+                $request->transaction_type === 'withdrawal'
+                && ($pin === null || ! Hash::check($pin, $customer->pin))
+            ) {
                 $attempts = $request->verification_attempts + 1;
                 $request->update([
                     'verification_attempts' => $attempts,

@@ -55,7 +55,7 @@ Route::prefix('supervisor')->middleware(['auth:sanctum', 'role:supervisor'])->gr
     Route::get('/shifts/{shift}', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'ShiftDetails']);
     Route::get('/vault/balance', [App\Http\Controllers\Api\Supervisor\ShiftApprovalController::class, 'vaultBalance']);
     Route::get('/customers', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'index']);
-    Route::get('/transactions', [App\Http\Controllers\Api\Supervisor\SupervisorController::class, 'getAllTransactions']);
+    Route::post('/transactions', [App\Http\Controllers\Api\Supervisor\SupervisorController::class, 'getAllTransactions']);
     Route::get('/journals', [App\Http\Controllers\Api\Supervisor\SupervisorController::class, 'accountingJournal']);
 });
 

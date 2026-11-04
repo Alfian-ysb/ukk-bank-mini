@@ -36,4 +36,9 @@ class User extends Authenticatable
         return $this->hasMany(Transaction::class);
     }
 
+    public function changePinRequests()
+    {
+        return $this->hasMany(changePinRequest::class);
+    }
+
 }
