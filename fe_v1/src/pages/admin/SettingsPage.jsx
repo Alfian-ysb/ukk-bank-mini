@@ -10,6 +10,19 @@ const settingLabels = {
   bank_contact: "Kontak bank (621234567890)",
 };
 
+// Helper untuk format nomor ke 62xxxxxxxxxx
+function formatPhoneNumber(value) {
+  // 1. Hapus semua karakter selain angka
+  let cleaned = value.replace(/\D/g, "");
+
+  // 2. Jika diawali '0', ubah menjadi '62'
+  if (cleaned.startsWith("0")) {
+    cleaned = "62" + cleaned.slice(1);
+  }
+
+  return cleaned;
+}
+
 function SettingsPage() {
   const [settings, setSettings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,10 +37,17 @@ function SettingsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  function changeValue(id, value) {
+  function changeValue(id, value, settingName) {
+    let formattedValue = value;
+
+    // Terapkan auto-koreksi hanya untuk bank_contact
+    if (settingName === "bank_contact") {
+      formattedValue = formatPhoneNumber(value);
+    }
+
     setSettings((currentSettings) =>
       currentSettings.map((setting) =>
-        setting.id === id ? { ...setting, value } : setting,
+        setting.id === id ? { ...setting, value: formattedValue } : setting,
       ),
     );
   }
@@ -105,20 +125,68 @@ function SettingsPage() {
                 <div className="flex flex-col gap-3 sm:flex-row">
                   {(() => {
                     switch (setting.name) {
-                        case "bank_address":
-                            return <textarea name={setting.name} id={`setting-${setting.id}`} value={setting.value} onChange={(event) => changeValue(setting.id, event.target.value)} className="w-full rounded border p-2" required></textarea>
-                        case "batas_saldo_minimal":
-                            return <input type="number" name={setting.name} id={`setting-${setting.id}`} value={setting.value} onChange={(event) => changeValue(setting.id, event.target.value)} className="w-full rounded border p-2" required />
-                        case "bank_contact":
-                            return <input type="tel" name={setting.name} id={`setting-${setting.id}`} value={setting.value} onChange={(event) => changeValue(setting.id, event.target.value)} className="w-full rounded border p-2" required />
-                        default:
-                            return <input type="text" name={setting.name} id={`setting-${setting.id}`} value={setting.value} onChange={(event) => changeValue(setting.id, event.target.value)} className="w-full rounded border p-2" required />
+                      case "bank_address":
+                        return (
+                          <textarea
+                            name={setting.name}
+                            id={`setting-${setting.id}`}
+                            value={setting.value}
+                            onChange={(event) =>
+                              changeValue(setting.id, event.target.value, setting.name)
+                            }
+                            className="w-full rounded border p-2"
+                            required
+                          ></textarea>
+                        );
+                      case "batas_saldo_minimal":
+                        return (
+                          <input
+                            type="number"
+                            name={setting.name}
+                            id={`setting-${setting.id}`}
+                            value={setting.value}
+                            onChange={(event) =>
+                              changeValue(setting.id, event.target.value, setting.name)
+                            }
+                            className="w-full rounded border p-2"
+                            required
+                          />
+                        );
+                      case "bank_contact":
+                        return (
+                          <input
+                            type="tel"
+                            name={setting.name}
+                            id={`setting-${setting.id}`}
+                            value={setting.value}
+                            onChange={(event) =>
+                              changeValue(setting.id, event.target.value, setting.name)
+                            }
+                            placeholder="628123456789"
+                            className="w-full rounded border p-2"
+                            required
+                          />
+                        );
+                      default:
+                        return (
+                          <input
+                            type="text"
+                            name={setting.name}
+                            id={`setting-${setting.id}`}
+                            value={setting.value}
+                            onChange={(event) =>
+                              changeValue(setting.id, event.target.value, setting.name)
+                            }
+                            className="w-full rounded border p-2"
+                            required
+                          />
+                        );
                     }
                   })()}
                   <button
                     type="submit"
                     disabled={savingId === setting.id}
-                    className="rounded bg-primary px-4 py-2 h-fit text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    className="h-fit rounded bg-primary px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {savingId === setting.id ? "Menyimpan..." : "Simpan"}
                   </button>

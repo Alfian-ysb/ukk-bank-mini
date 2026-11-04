@@ -8,7 +8,13 @@ const emptyForm = { username: "", full_name: "", password: "", role: "" };
 const fields = [
   { name: "username", label: "Username", required: true },
   { name: "full_name", label: "Nama lengkap", required: true },
-  { name: "password", label: "Password", type: "password", required: true, minLength: 6 },
+  {
+    name: "password",
+    label: "Password",
+    type: "password",
+    required: true,
+    minLength: 6,
+  },
   {
     name: "role",
     label: "Role",
@@ -28,11 +34,22 @@ function StaffCreatePage() {
   const [message, setMessage] = useState("");
 
   function change(event) {
-    setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
+    setForm((current) => ({
+      ...current,
+      [event.target.name]: event.target.value,
+    }));
   }
 
   async function submit(event) {
     event.preventDefault();
+
+    const isConfirmed = window.confirm(
+      "Apakah Anda yakin ingin menambahkan staff ini?",
+    );
+    if (!isConfirmed) {
+      return;
+    }
+
     setError("");
     setMessage("");
     try {
@@ -46,10 +63,22 @@ function StaffCreatePage() {
 
   return (
     <DashboardLayout title="Tambah Staff">
-      <p className="mb-4"><Link className="underline" to="/admin/staff">Kembali ke daftar</Link></p>
+      <p className="mb-4">
+        <Link className="underline" to="/admin/staff">
+          Kembali ke daftar
+        </Link>
+      </p>
       <div className="max-w-xl mx-auto">
-        <AdminForm title="Tambah staff" fields={fields} values={form} onChange={change} onSubmit={submit}
-          error={error} message={message} submitLabel="Tambah staff" />
+        <AdminForm
+          title="Tambah staff"
+          fields={fields}
+          values={form}
+          onChange={change}
+          onSubmit={submit}
+          error={error}
+          message={message}
+          submitLabel="Tambah staff"
+        />
       </div>
     </DashboardLayout>
   );

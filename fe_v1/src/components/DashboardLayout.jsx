@@ -19,6 +19,14 @@ const DashboardLayout = ({ children, title }) => {
     navigate("/login");
   }
 
+  const getAppDetails = async () => {
+    try {
+      
+    } catch (error) {
+      
+    }
+  }
+
   const logout = async () => {
     try {
       await post("/staff/logout");

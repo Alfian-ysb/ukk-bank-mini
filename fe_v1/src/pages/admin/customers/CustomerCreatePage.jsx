@@ -48,17 +48,24 @@ function CustomerCreatePage() {
   }
 
   async function submit(event) {
-    event.preventDefault();
-    setError("");
-    setMessage("");
-    try {
-      const response = await post("/admin/customers", form);
-      setMessage(response.message || "Nasabah berhasil ditambahkan.");
-      setForm(emptyForm);
-    } catch (requestError) {
-      setError(requestError.message);
-    }
+  event.preventDefault();
+  
+  const isConfirmed = window.confirm("Apakah Anda yakin ingin menambahkan nasabah ini?");
+  if (!isConfirmed) {
+    return; 
   }
+
+  setError("");
+  setMessage("");
+  
+  try {
+    const response = await post("/admin/customers", form);
+    setMessage(response.message || "Nasabah berhasil ditambahkan.");
+    setForm(emptyForm);
+  } catch (requestError) {
+    setError(requestError.message);
+  }
+}
 
   return (
     <DashboardLayout title="Tambah Nasabah">
