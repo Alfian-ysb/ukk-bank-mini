@@ -38,6 +38,24 @@ class TransactionController extends Controller
         ]);
     }
 
+    public function getCustomerById(int $id)
+    {
+        $customer = Customer::find($id);
+
+        if (! $customer) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Customer not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $customer,
+        ]);
+    }
+
+
     public function StoreTransaction(Request $request, int $id)
     {
         $validated = $request->validate([

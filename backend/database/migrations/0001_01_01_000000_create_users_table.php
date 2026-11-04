@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('role', array_column(StaffRoles::cases(), 'value'))->default(StaffRoles::TELLER->value);
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

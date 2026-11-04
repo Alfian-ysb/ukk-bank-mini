@@ -6,7 +6,7 @@ use Illuminate\Console\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -14,7 +14,15 @@ use Laravel\Sanctum\HasApiTokens;
 #[Hidden(['pin', 'password'])]
 class Customer extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+            'pin'      => 'hashed',
+        ];
+    }
 
     public function getAuthIdentifierName()
     {

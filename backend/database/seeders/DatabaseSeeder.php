@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'name' => 'bank_contact',
-                'value' => '+62 123 4567 890',
+                'value' => '621234567890',
             ],
         ];
 

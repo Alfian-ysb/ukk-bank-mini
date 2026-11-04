@@ -43,6 +43,7 @@ Route::prefix('teller')->middleware(['auth:sanctum', 'role:teller'])->group(func
     Route::post('/shifts/open', [App\Http\Controllers\Api\Teller\ShiftController::class, 'open']);
     Route::post('/shifts/close', [App\Http\Controllers\Api\Teller\ShiftController::class, 'close']);
     Route::post('/customer', [App\Http\Controllers\Api\Teller\TransactionController::class, 'GetCustomer']);
+    Route::get('/customer/{id}', [App\Http\Controllers\Api\Teller\TransactionController::class, 'getCustomerById']);
     Route::post('/customer/{id}/transaction', [App\Http\Controllers\Api\Teller\TransactionController::class, 'StoreTransaction']);
     Route::get('/transaction-requests/{transactionRequest}', [App\Http\Controllers\Api\Teller\TransactionController::class, 'transactionRequestStatus']);
     Route::post('/daily-report', [App\Http\Controllers\Api\Teller\TransactionController::class, 'initiateDailyReport']);

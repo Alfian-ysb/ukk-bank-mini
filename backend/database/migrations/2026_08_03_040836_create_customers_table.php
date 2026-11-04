@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('fcm_token')->nullable();
             $table->integer('balance')->default(0)->unsigned();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -11,7 +11,7 @@ class SupervisorController extends Controller
 {
     public function accountingJournal()
     {
-        $journals = AccountingJournal::with(['transaction', 'transaction.customer', 'transaction.user'])->get();
+        $journals = AccountingJournal::with(['transaction', 'transaction.customer', 'transaction.user', 'transaction.shift'])->latest()->get();
         
         if (!$journals) {
             return response()->json([
@@ -27,7 +27,7 @@ class SupervisorController extends Controller
     }
 
     public function getAllTransactions(){
-        $transactions = Transaction::with(['customer', 'user'])->get();
+        $transactions = Transaction::with(['customer', 'user', 'shift'])->latest()->get();
 
         if ($transactions->isEmpty()) {
             return response()->json([
