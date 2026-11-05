@@ -61,10 +61,21 @@ class TransactionController extends Controller
     {
         $validated = $request->validate([
             'transaction_type' => ['required', 'in:deposit,withdrawal'],
-            'amount' => ['required', 'integer', 'min:'.(General::where('name', 'minimum_withdrawal')->value('value') ?? 10000)],
+            'amount' => ['required', 'integer', 'min:' . (General::where('name', 'minimum_withdrawal')->value('value') ?? 10000)],
         ], [
             'amount.min' => 'Jumlah penarikan harus lebih besar dari jumlah minimum penarikan yang ditetapkan senilai Rp' . (General::where('name', 'minimum_withdrawal')->value('value') ?? 10000) . '.',
         ]);
+
+        $shift = Shift::where('status', ShiftStatus::OPEN)
+            ->whereDate('shift_date', now()->toDateString())
+            ->first();
+
+        if (! $shift) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tidak ada shift open untuk hari ini. Silakan buka shift terlebih dahulu sebelum melakukan transaksi.',
+            ], 409);
+        }
 
         $checkStatus = Customer::where('id', $id)->value('status');
 
@@ -84,18 +95,9 @@ class TransactionController extends Controller
             ], 404);
         }
 
-        $shift = Shift::where('status', ShiftStatus::OPEN)
-            ->whereDate('shift_date', now()->toDateString())
-            ->first();
 
-        if (! $shift) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Tidak ada shift open untuk hari ini. Silakan buka shift terlebih dahulu sebelum melakukan transaksi.',
-            ], 409);
-        }
 
-        
+
         if (
             $validated['transaction_type'] === 'withdrawal'
             && $customer->balance - $validated['amount'] <= (int) (General::where('name', 'minimum_balance')->value('value') ?? 10000)

@@ -17,6 +17,7 @@ return new class extends Migration
             // $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
             $table->string('account_number')->unique();
             $table->string('nis')->unique();
+            $table->string('email')->unique()->nullable();
             $table->string('student_name');
             $table->string('major')->nullable();
             $table->string('cohort_year')->nullable();

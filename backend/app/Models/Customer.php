@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable('user_id', 'account_number', 'nis', 'student_name', 'major', 'cohort_year', 'pin', 'password', 'status', 'fcm_token', 'balance')]
+#[Fillable('user_id', 'account_number', 'email','nis', 'student_name', 'major', 'cohort_year', 'pin', 'password', 'status', 'fcm_token', 'balance')]
 #[Hidden(['pin', 'password'])]
 class Customer extends Authenticatable
 {

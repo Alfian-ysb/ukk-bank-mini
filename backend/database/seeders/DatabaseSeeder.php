@@ -74,6 +74,7 @@ class DatabaseSeeder extends Seeder
             [
                 'account_number' => '2027011501',
                 'nis' => '1501',
+                'email' => 'ayofasb@gmail.com',
                 'student_name' => 'John Doe',
                 'major' => 'DKV',
                 "cohort_year" => "2027",
@@ -83,17 +84,9 @@ class DatabaseSeeder extends Seeder
             [
                 'account_number' => '2027011502',
                 'student_name' => 'Jane Smith',
+                'email' => 'kurageyoruu@gmail.com',
                 'nis' => '1502',
                 'major' => 'TKJ',
-                'cohort_year' => '2027',
-                'pin' => Hash::make('123456'),
-                'password' => Hash::make('password'),
-            ],
-            [
-                'account_number' => '2027011503',
-                'student_name' => 'Alice Johnson',
-                'nis' => '1503',
-                'major' => 'RPL',
                 'cohort_year' => '2027',
                 'pin' => Hash::make('123456'),
                 'password' => Hash::make('password'),
@@ -138,16 +131,22 @@ class DatabaseSeeder extends Seeder
         }
 
         foreach ($customers as $customer) {
+            $customerValues = [
+                'student_name' => $customer['student_name'],
+                'nis' => $customer['nis'],
+                'major' => $customer['major'],
+                'cohort_year' => $customer['cohort_year'],
+                'pin' => $customer['pin'],
+                'password' => $customer['password'],
+            ];
+
+            if (array_key_exists('email', $customer)) {
+                $customerValues['email'] = $customer['email'];
+            }
+
             Customer::updateOrCreate(
                 ['account_number' => $customer['account_number']],
-                [
-                    'student_name' => $customer['student_name'],
-                    'nis' => $customer['nis'],
-                    'major' => $customer['major'],
-                    'cohort_year' => $customer['cohort_year'],
-                    'pin' => $customer['pin'],
-                    'password' => $customer['password'],
-                ]
+                $customerValues,
             );
         }
 
