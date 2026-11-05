@@ -20,7 +20,7 @@ const DenominationTable = ({ title, items = [], showTotal = false }) => {
   const totalAmount = items.reduce((acc, curr) => acc + (curr.amount || 0), 0);
 
   return (
-    <div className="rounded border border-slate-100 bg-white p-6 shadow-sm">
+    <div className="rounded-lg border border-slate-100 bg-white p-6 shadow-sm">
       {title && <h3 className="mb-4 text-sm font-bold text-slate-800">{title}</h3>}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm text-slate-600">

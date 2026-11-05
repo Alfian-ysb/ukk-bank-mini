@@ -41,11 +41,11 @@ const SearchCustomerPage = () => {
 
   return (
     <DashboardLayout>
-      <section className="w-full rounded bg-white p-4 shadow-sm">
+      <section className="w-full rounded-lg bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-lg font-semibold">Transaksi</h2>
 
         {message && (
-          <div className="mb-4 flex items-center justify-between rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             <span>{message}</span>
             <button
               type="button"

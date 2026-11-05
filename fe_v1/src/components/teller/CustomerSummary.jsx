@@ -1,6 +1,6 @@
 function CustomerSummary({ customer }) {
   return (
-    <div className="flex-1 rounded border border-neutral-clay p-4 font-plus-jakarta-sans">
+    <div className="flex-1 rounded-lg border border-neutral-clay p-4 font-plus-jakarta-sans">
       <div className="mb-4">
         <p className="font-bold text-2xl">{customer.student_name}</p>
         <div className="flex gap-4">

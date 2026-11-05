@@ -21,6 +21,7 @@ function CustomerDetailPage() {
         { label: "Nama siswa", value: customer.student_name },
         { label: "NIS", value: customer.nis },
         { label: "No. rekening", value: customer.account_number },
+        { label: "Email", value: customer.email },
         { label: "Jurusan", value: customer.major },
         { label: "Tahun angkatan", value: customer.cohort_year },
         { label: "Status", value: customer.status },
@@ -64,7 +65,7 @@ function CustomerDetailPage() {
           <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-[4px_4px_12px_rgba(0,0,0,0.05)] sm:p-7">
             <header className="mb-6">
               <h2 className="text-base font-semibold text-slate-900">
-                Account Information
+                Informasi Akun
               </h2>
               <p className="mt-1 text-xs text-slate-500">
                 Informasi ini berisi data pribadi dan rekening nasabah.

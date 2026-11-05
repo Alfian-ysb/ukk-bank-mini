@@ -67,10 +67,10 @@ function StaffEditPage() {
         >
           <header className="mb-6">
             <h2 className="text-base font-semibold text-slate-900">
-              Account Information
+              Informasi Akun
             </h2>
             <p className="mt-1 text-xs text-slate-500">
-              Perbarui informasi akun dan akses staff.
+              Perbarui Informasi Akun dan akses staff.
             </p>
           </header>
 

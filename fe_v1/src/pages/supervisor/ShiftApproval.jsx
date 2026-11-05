@@ -49,7 +49,7 @@ const ShiftApproval = () => {
               id="status-filter"
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="rounded border-2 border-primary cursor-pointer bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs focus:border-slate-500 focus:outline-none"
+              className="rounded-lg border-2 border-primary cursor-pointer bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs focus:border-slate-500 focus:outline-none"
             >
               <option value="all">Semua Status</option>
               <option value="open">Open</option>

@@ -19,7 +19,7 @@ function TransactionStatus({ status, message }) {
 
   return (
     <div
-      className={`mt-4 rounded border p-4 text-sm ${
+      className={`mt-4 rounded-lg border p-4 text-sm ${
         STATUS_STYLES[status] || STATUS_STYLES.pending
       }`}
       role="status"

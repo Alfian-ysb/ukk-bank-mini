@@ -9,7 +9,7 @@ const CurrentShiftDetails = ({ shift }) => {
   );
 
   return (
-    <div className="rounded border border-slate-200 bg-white p-6 shadow-xs space-y-5">
+    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs space-y-5">
       {/* Header Shift Status */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div>

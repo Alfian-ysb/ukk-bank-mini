@@ -14,6 +14,15 @@ export function getStoredRole() {
   return String(getStoredUser()?.role || "").toLowerCase();
 }
 
+export function getStoredBankName() {
+  return sessionStorage.getItem("bank_name") || "";
+}
+
+export function setStoredBankName(bankName) {
+  sessionStorage.setItem("bank_name", bankName);
+  window.dispatchEvent(new Event("bank-name-updated"));
+}
+
 export function isLoggedIn() {
   return Boolean(getStoredToken() && getStoredUser());
 }
@@ -33,6 +42,7 @@ export function saveSession(payload) {
 export function clearSession() {
   sessionStorage.removeItem("token");
   sessionStorage.removeItem("user");
+  sessionStorage.removeItem("bank_name");
 }
 
 export function getRouteByRole(role) {

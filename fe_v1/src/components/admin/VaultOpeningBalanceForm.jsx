@@ -90,18 +90,18 @@ function VaultOpeningBalanceForm() {
         Saldo awal
         
           {/* <input
-          className="mt-1 w-full rounded border p-2"
+          className="mt-1 w-full rounded-lg border p-2"
           type="number"
           min="1"
           placeholder="Contoh: 2500000"
           value={balance}
           onChange={(event) => setBalance(event.target.value)}
           required
-          <p className="mt-1 w-full rounded border p-2">Rp {hasBalance}</p>
+          <p className="mt-1 w-full rounded-lg border p-2">Rp {hasBalance}</p>
         /> */}
         {isAlreadySetup ? (
           <CurrencyInput
-            className="mt-1 w-full rounded border p-2"
+            className="mt-1 w-full rounded-lg border p-2"
             id="amount"
             name="nominal"
             placeholder={hasBalance}
@@ -113,7 +113,7 @@ function VaultOpeningBalanceForm() {
           />
         ) : (
           <CurrencyInput
-            className="mt-1 w-full rounded border p-2"
+            className="mt-1 w-full rounded-lg border p-2"
             id="amount"
             name="nominal"
             placeholder="Jumlah"
@@ -133,7 +133,7 @@ function VaultOpeningBalanceForm() {
       <button
         type="submit"
         disabled={isChecking || isSaving || isAlreadySetup}
-        className="cursor-pointer rounded bg-primary px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
+        className="cursor-pointer rounded-lg bg-primary px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isChecking
           ? "Memeriksa..."

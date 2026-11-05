@@ -87,7 +87,7 @@ const ApprovalDetail = () => {
   if (!data) {
     return (
       <DashboardLayout title="Detail Laporan">
-        <div className="rounded border border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
+        <div className="rounded-lg border border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
           Data laporan tidak ditemukan.
         </div>
       </DashboardLayout>

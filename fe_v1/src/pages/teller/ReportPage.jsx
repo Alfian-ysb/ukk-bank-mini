@@ -47,7 +47,7 @@ function ReportPage() {
         </div>
 
         {/* Form Filter Tanggal */}
-        <div className="rounded border border-slate-200 bg-white p-5 shadow-xs">
+        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
           <h2 className="mb-3 text-sm font-bold text-slate-900">
             Laporan Transaksi Harian
           </h2>
@@ -73,7 +73,7 @@ function ReportPage() {
         {report && (
           <div className="space-y-4">
             {/* Informasi Header & Ringkasan */}
-            <div className="rounded border border-slate-200 bg-white p-6 shadow-xs space-y-5">
+            <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
                 <div>
                   <span className="text-sm font-bold uppercase tracking-widest text-neutral-light-gray">
@@ -151,7 +151,7 @@ function ReportPage() {
             {/* Denominasi Uang */}
             <div className="grid gap-4 md:grid-cols-2">
               {/* Denominasi Awal */}
-              <div className="rounded border border-slate-200 bg-white p-5 shadow-xs">
+              <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
                 <h3 className="mb-3 text-sm font-bold text-slate-800">
                   Rincian Uang Fisik (Saldo Awal)
                 </h3>
@@ -184,7 +184,7 @@ function ReportPage() {
               </div>
 
               {/* Denominasi Akhir (jika ada) */}
-              <div className="rounded border border-slate-200 bg-white p-5 shadow-xs">
+              <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
                 <h3 className="mb-3 text-sm font-bold text-slate-800">
                   Rincian Uang Fisik (Saldo Akhir)
                 </h3>
@@ -218,7 +218,7 @@ function ReportPage() {
             </div>
 
             {/* Tabel Transaksi */}
-            <div className="rounded border border-slate-200 bg-white p-5 shadow-xs">
+            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-xs">
               <h3 className="mb-3 text-sm font-bold text-slate-800">
                 Daftar Transaksi Harian
               </h3>

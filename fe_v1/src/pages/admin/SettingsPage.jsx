@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/DashboardLayout";
 import VaultOpeningBalanceForm from "../../components/admin/VaultOpeningBalanceForm";
 import { get, patch } from "../../api";
+import { setStoredBankName } from "../../context/authSession";
 import CurrencyInput from "react-currency-input-field";
+import Button from "../../components/Button";
 
 const settingLabels = {
   bank_name: "Nama bank",
@@ -12,11 +14,8 @@ const settingLabels = {
   minimum_withdrawal: "Batas penarikan minimal",
 };
 
-
 function formatPhoneNumber(value) {
-
-  let cleaned = value.replace(/\D/g, "");
-
+  let cleaned = (value || "").replace(/\D/g, "");
 
   if (cleaned.startsWith("0")) {
     cleaned = "62" + cleaned.slice(1);
@@ -28,7 +27,7 @@ function formatPhoneNumber(value) {
 function SettingsPage() {
   const [settings, setSettings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [savingId, setSavingId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -54,43 +53,50 @@ function SettingsPage() {
     );
   }
 
-  async function saveSetting(event, setting) {
+  async function saveAllSettings(event) {
     event.preventDefault();
     setError("");
     setMessage("");
-    setSavingId(setting.id);
 
     const isConfirmed = window.confirm(
-      `Apakah Anda yakin ingin menyimpan perubahan untuk pengaturan "${settingLabels[setting.name] || setting.name}"?`,
+      "Apakah Anda yakin ingin menyimpan semua perubahan pengaturan bank?",
     );
 
-    if (!isConfirmed) {
-      setSavingId(null);
-      return;
-    }
+    if (!isConfirmed) return;
+
+    setIsSaving(true);
 
     try {
-      const response = await patch(`/admin/settings/${setting.id}`, {
-        value: setting.value,
-      });
-      setSettings((currentSettings) =>
-        currentSettings.map((currentSetting) =>
-          currentSetting.id === setting.id
-            ? { ...currentSetting, ...response.data }
-            : currentSetting,
-        ),
+      // Kirim request patch secara paralel untuk seluruh pengaturan
+      const patchPromises = settings.map((setting) =>
+        patch(`/admin/settings/${setting.id}`, {
+          value: setting.value,
+        }),
       );
-      setMessage(response.message || "Pengaturan berhasil diperbarui.");
+
+      const responses = await Promise.all(patchPromises);
+
+      // Update state lokal berdasarkan respons API
+      const updatedSettings = settings.map((setting, index) => {
+        const resData = responses[index]?.data;
+        if (setting.name === "bank_name") {
+          setStoredBankName(resData?.value ?? setting.value);
+        }
+        return resData ? { ...setting, ...resData } : setting;
+      });
+
+      setSettings(updatedSettings);
+      setMessage("Semua pengaturan berhasil diperbarui.");
     } catch (requestError) {
-      setError(requestError.message);
+      setError(requestError.message || "Gagal menyimpan beberapa pengaturan.");
     } finally {
-      setSavingId(null);
+      setIsSaving(false);
     }
   }
 
   return (
     <DashboardLayout title="Settings">
-      <section className="max-w-3xl rounded-lg bg-white p-5 shadow-sm font-inter">
+      <section className="max-w-3xl mx-auto mt-4 rounded-lg bg-white p-5 shadow-sm font-inter">
         <div className="mb-5">
           <h2 className="text-lg font-semibold text-neutral-dark-gray">
             Pengaturan bank
@@ -101,12 +107,12 @@ function SettingsPage() {
         </div>
 
         {error && (
-          <p className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <p className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             {error}
           </p>
         )}
         {message && (
-          <p className="mb-4 rounded border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+          <p className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
             {message}
           </p>
         )}
@@ -120,12 +126,11 @@ function SettingsPage() {
             Belum ada pengaturan.
           </p>
         ) : (
-          <div className="space-y-4">
+          <form onSubmit={saveAllSettings} className="space-y-4">
             {settings.map((setting) => (
-              <form
+              <div
                 key={setting.id}
-                onSubmit={(event) => saveSetting(event, setting)}
-                className="rounded border border-neutral-clay p-4"
+                className="rounded-lg border border-neutral-clay p-4"
               >
                 <label
                   htmlFor={`setting-${setting.id}`}
@@ -133,7 +138,7 @@ function SettingsPage() {
                 >
                   {settingLabels[setting.name] || setting.name}
                 </label>
-                <div className="flex flex-col gap-3 sm:flex-row">
+                <div>
                   {(() => {
                     switch (setting.name) {
                       case "bank_address":
@@ -141,7 +146,7 @@ function SettingsPage() {
                           <textarea
                             name={setting.name}
                             id={`setting-${setting.id}`}
-                            value={setting.value}
+                            value={setting.value || ""}
                             onChange={(event) =>
                               changeValue(
                                 setting.id,
@@ -149,23 +154,26 @@ function SettingsPage() {
                                 setting.name,
                               )
                             }
-                            className="w-full rounded border border-neutral-clay p-2"
+                            className="w-full rounded-lg border border-neutral-clay p-2"
                             required
                           ></textarea>
                         );
                       case "minimum_balance":
+                      case "minimum_withdrawal":
                         return (
                           <CurrencyInput
-                            className="mt-1 w-full rounded border border-neutral-clay p-2"
+                            className="w-full rounded-lg border border-neutral-clay p-2"
                             id={`setting-${setting.id}`}
                             name={setting.name}
-                            placeholder="Saldo minimal"
+                            placeholder={
+                              settingLabels[setting.name] || "Masukkan nilai"
+                            }
                             defaultValue={0}
                             intlConfig={{ locale: "id-ID", currency: "IDR" }}
                             decimalsLimit={0}
-                            value={setting.value}
-                            onValueChange={(event) => {
-                               changeValue(setting.id, event, setting.name);
+                            value={setting.value || 0}
+                            onValueChange={(val) => {
+                              changeValue(setting.id, val || "", setting.name);
                             }}
                           />
                         );
@@ -175,7 +183,7 @@ function SettingsPage() {
                             type="tel"
                             name={setting.name}
                             id={`setting-${setting.id}`}
-                            value={setting.value}
+                            value={setting.value || ""}
                             onChange={(event) =>
                               changeValue(
                                 setting.id,
@@ -184,24 +192,8 @@ function SettingsPage() {
                               )
                             }
                             placeholder="628123456789"
-                            className="w-full rounded border border-neutral-clay p-2"
+                            className="w-full rounded-lg border border-neutral-clay p-2"
                             required
-                          />
-                        );
-                      case "minimum_withdrawal":
-                        return (
-                          <CurrencyInput
-                            className="mt-1 w-full rounded border border-neutral-clay p-2"
-                            id={`setting-${setting.id}`}
-                            name={setting.name}
-                            placeholder="Batas penarikan minimal"
-                            defaultValue={0}
-                            intlConfig={{ locale: "id-ID", currency: "IDR" }}
-                            decimalsLimit={0}
-                            value={setting.value}
-                            onValueChange={(event) => {
-                               changeValue(setting.id, event, setting.name);
-                            }}
                           />
                         );
                       default:
@@ -210,7 +202,7 @@ function SettingsPage() {
                             type="text"
                             name={setting.name}
                             id={`setting-${setting.id}`}
-                            value={setting.value}
+                            value={setting.value || ""}
                             onChange={(event) =>
                               changeValue(
                                 setting.id,
@@ -218,26 +210,32 @@ function SettingsPage() {
                                 setting.name,
                               )
                             }
-                            className="w-full rounded border border-neutral-clay p-2"
+                            className="w-full rounded-lg border border-neutral-clay p-2"
                             required
                           />
                         );
                     }
                   })()}
-                  <button
-                    type="submit"
-                    disabled={savingId === setting.id}
-                    className="h-fit rounded bg-primary px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {savingId === setting.id ? "Menyimpan..." : "Simpan"}
-                  </button>
                 </div>
-              </form>
+              </div>
             ))}
-          </div>
+
+            {/* Tombol tunggal simpan di bagian bawah */}
+            <div className="flex justify-end pt-2">
+              <Button
+                type="submit"
+                text={
+                  isSaving ? "Menyimpan Semua..." : "Simpan Semua Pengaturan"
+                }
+                theme="primary"
+                disabled={isSaving}
+              />
+            </div>
+          </form>
         )}
       </section>
-      <div className="mt-6 max-w-3xl">
+
+      <div className="mt-6 max-w-3xl mx-auto">
         <VaultOpeningBalanceForm />
       </div>
     </DashboardLayout>

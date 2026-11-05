@@ -144,13 +144,13 @@ function TellerDashboard() {
 
         {shiftStatus === "open" && (
           <>
-            <div className="rounded border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
               Shift sudah dibuka.
             </div>
-            <section className="w-full rounded bg-white p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.05)]">
+            <section className="w-full rounded-lg bg-white p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.05)]">
               <h2 className="mb-3 text-lg font-semibold">Cari Nasabah</h2>
               {lookupMessage && (
-                <div className="mb-4 flex items-center justify-between rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <div className="mb-4 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                   <span>{lookupMessage}</span>
                   <button
                     type="button"
@@ -190,7 +190,7 @@ function TellerDashboard() {
 
         {message && (
           <div
-            className={`rounded border p-4 text-sm ${
+            className={`rounded-lg border p-4 text-sm ${
               shiftStatus === "error" || shiftStatus === "not-open"
                 ? "border-amber-200 bg-amber-50 text-amber-800"
                 : "border-emerald-200 bg-emerald-50 text-emerald-800"
@@ -207,7 +207,7 @@ function TellerDashboard() {
 
 function Menu({ to, title, text }) {
   return (
-    <Link className="rounded bg-white p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.05)]" to={to}>
+    <Link className="rounded-lg bg-white p-4 outline outline-neutral-clay/20 shadow-[4px_4px_12px_rgba(0,0,0,0.05)] hover:scale-101 transition-all duration-150" to={to}>
       <h2 className="text-lg font-semibold">{title}</h2>
       <p className="mt-2 text-sm text-gray-600">{text}</p>
     </Link>

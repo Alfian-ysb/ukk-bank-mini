@@ -53,14 +53,14 @@ function QrScannerModal({ onClose, onError, onAccountDetected }) {
           </h3>
           <button
             type="button"
-            className="rounded px-2 py-1 text-xl leading-none hover:bg-neutral-light"
+            className="rounded-lg px-2 py-1 text-xl leading-none hover:bg-neutral-light"
             aria-label="Tutup scanner"
             onClick={onClose}
           >
             &times;
           </button>
         </div>
-        <div className="overflow-hidden rounded border border-neutral-clay">
+        <div className="overflow-hidden rounded-lg border border-neutral-clay">
           <Scanner
             onScan={handleScan}
             onError={onError}

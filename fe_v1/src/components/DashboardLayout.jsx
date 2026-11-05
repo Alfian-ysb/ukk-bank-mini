@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { clearSession, getStoredRole } from "../context/authSession";
+import {
+  clearSession,
+  getStoredBankName,
+  getStoredRole,
+  setStoredBankName,
+} from "../context/authSession";
 import { get, post } from "../api";
 
 const DashboardLayout = ({ children, title }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
-  const [appDetails, setAppDetails] = useState();
-  const [bankName, setBankName] = useState("");
+  const [bankName, setBankName] = useState(getStoredBankName);
   const location = useLocation();
 
   const role = getStoredRole();
@@ -26,11 +30,11 @@ const DashboardLayout = ({ children, title }) => {
       const res = await get("/settings");
       const response = res.data;
 
-      setAppDetails(response);
       const foundBankName =
         response.find((item) => item.name === "bank_name")?.value ||
         "Bank Mini";
 
+      setStoredBankName(foundBankName);
       setBankName(foundBankName);
     } catch (error) {
       console.error("Error fetching app details:", error);
@@ -39,6 +43,10 @@ const DashboardLayout = ({ children, title }) => {
 
   useEffect(() => {
     getAppDetails();
+
+    const updateBankName = () => setBankName(getStoredBankName());
+    window.addEventListener("bank-name-updated", updateBankName);
+    return () => window.removeEventListener("bank-name-updated", updateBankName);
   }, []);
 
   const logout = async () => {

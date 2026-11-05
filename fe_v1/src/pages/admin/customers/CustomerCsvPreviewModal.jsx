@@ -31,7 +31,7 @@ function CustomerCsvPreviewModal({
           </div>
           <button
             type="button"
-            className="cursor-pointer rounded px-2 py-1 text-2xl leading-none hover:bg-gray-100"
+            className="cursor-pointer rounded-lg px-2 py-1 text-2xl leading-none hover:bg-gray-100"
             aria-label="Tutup pratinjau"
             disabled={isUploading}
             onClick={onClose}
@@ -42,7 +42,7 @@ function CustomerCsvPreviewModal({
 
         {error && <p className="mb-3 text-red-600">{error}</p>}
 
-        <div className="overflow-auto rounded border border-gray-200">
+        <div className="overflow-auto rounded-lg border border-gray-200">
           <table className="min-w-full border-collapse text-sm">
             <thead className="sticky top-0 bg-gray-100">
               <tr>
@@ -83,7 +83,7 @@ function CustomerCsvPreviewModal({
                             ),
                           );
                         }}
-                        className="w-full min-w-32 rounded border border-gray-300 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full min-w-32 rounded-lg border border-gray-300 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </td>
                   ))}

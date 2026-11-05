@@ -96,11 +96,11 @@ function TransactionPage() {
         </Link>
       </p>
 
-      <section className="w-full rounded bg-white p-4 shadow-sm">
+      <section className="w-full rounded-lg bg-white p-4 shadow-sm">
         <h2 className="mb-3 text-lg font-semibold print:hidden">Transaksi</h2>
 
         {message && (
-          <div className="mb-4 flex items-center justify-between rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700 print:hidden">
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 print:hidden">
             <span>{message}</span>
             <button
               type="button"
@@ -126,7 +126,7 @@ function TransactionPage() {
               />
             </div>
             
-            <div id="area-struk-cetak" className="flex-2 rounded border border-neutral-clay p-4 font-plus-jakarta-sans box-border">
+            <div id="area-struk-cetak" className="flex-2 rounded-lg border border-neutral-clay p-4 font-plus-jakarta-sans box-border">
               <h1 className="text-lg font-semibold text-neutral-dark-gray mb-6 print:hidden">
                 Struk Transaksi
               </h1>
@@ -164,7 +164,7 @@ function TransactionPage() {
                 id="tombol-cetak"
                 onClick={handleCetakStruk}
                 disabled={!ACTIVE_STATUSES.includes(transactionStatus)}
-                className="disabled:cursor-not-allowed disabled:bg-neutral-700 mt-4 w-full rounded bg-neutral-dark px-4 py-2 text-white hover:bg-neutral-dark-gray cursor-pointer"
+                className="disabled:cursor-not-allowed disabled:bg-neutral-700 mt-4 w-full rounded-lg bg-neutral-dark px-4 py-2 text-white hover:bg-neutral-dark-gray cursor-pointer"
               >
                 Cetak Struk
               </button>

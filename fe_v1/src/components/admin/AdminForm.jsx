@@ -11,14 +11,14 @@ function AdminForm({
   message,
 }) {
   return (
-    <form className="space-y-3 w-full rounded bg-white p-4 shadow-sm" onSubmit={onSubmit}>
+    <form className="space-y-3 w-full rounded-lg bg-white p-4 shadow-sm" onSubmit={onSubmit}>
       <h2 className="text-lg font-semibold">{title}</h2>
       {fields.map((field) => (
         <label className="block" key={field.name}>
           {field.label}
           {field.type === "select" ? (
             <select
-              className="mt-1 w-full rounded border-2 p-2 border-neutral-clay"
+              className="mt-1 w-full rounded-lg border-2 p-2 border-neutral-clay"
               name={field.name}
               value={values[field.name] || ""}
               onChange={onChange}
@@ -33,7 +33,7 @@ function AdminForm({
             </select>
           ) : (
             <input
-              className="mt-1 w-full rounded border-2 p-2 border-neutral-clay"
+              className="mt-1 w-full rounded-lg border-2 p-2 border-neutral-clay"
               type={field.type || "text"}
               name={field.name}
               value={values[field.name] || ""}
@@ -55,11 +55,11 @@ function AdminForm({
       {message && <p className="text-green-600">{message}</p>}
       <div className="flex justify-between gap-12 mt-12">
       {onCancel && (
-          <button className="rounded w-full border px-3 py-2 cursor-pointer" type="button" onClick={onCancel}>
+          <button className="rounded-lg w-full border px-3 py-2 cursor-pointer" type="button" onClick={onCancel}>
             Batal
           </button>
         )}
-        <button className="rounded w-full bg-primary px-3 py-2 text-white cursor-pointer" type="submit">
+        <button className="rounded-lg w-full bg-primary px-3 py-2 text-white cursor-pointer" type="submit">
           {submitLabel}
         </button>
       </div>

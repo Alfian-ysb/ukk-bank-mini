@@ -30,7 +30,7 @@ function SupervisorDashboard() {
         </h2>
         {vault ? (
           <section className="rounded-lg bg-white shadow-[4px_4px_12px_rgba(0,0,0,0.05)] font-inter">
-            <div className="grid sm:grid-cols-3 rounded outline outline-neutral-clay/20">
+            <div className="grid sm:grid-cols-3 rounded-lg outline outline-neutral-clay/20">
               <div className="border-neutral-clay p-5">
                 <p className="text-sm font-medium text-gray-500">
                   Saldo Saat Ini
@@ -89,7 +89,7 @@ function SupervisorDashboard() {
 
 function Shortcut({ to, title, text }) {
   return (
-    <Link className="rounded bg-white p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.05)]" to={to}>
+    <Link className="rounded-lg bg-white p-4 outline outline-neutral-clay/20 shadow-[4px_4px_12px_rgba(0,0,0,0.05)] hover:scale-101 transition-all duration-150" to={to}>
       <h2 className="text-lg font-semibold">{title}</h2>
       <p className="mt-2 text-sm text-gray-600">{text}</p>
     </Link>
