@@ -14,6 +14,7 @@ const ShiftActionForms = ({
   setClosing,
   openShift,
   closeShift,
+  isOpeningShift = false,
 }) => {
   const updateStaff = (index, field, value) => {
     setAssignedStaff((staff) =>
@@ -39,7 +40,7 @@ const ShiftActionForms = ({
     <div className="grid gap-6 md:grid-cols-2">
       {/* Buka Shift */}
       {canOpenShift && (
-        <div className="rounded border border-slate-200 bg-white p-6 shadow-xs">
+        <div className="rounded border border-slate-200 bg-white p-6 shadow-[4px_4px_12px_rgba(0,0,0,0.05)]">
           <div className="mb-4 border-b border-slate-100 pb-3">
             <h2 className="text-lg font-bold text-slate-900">Buka Shift (Saldo Awal)</h2>
             <p className="text-sm text-slate-500">Input data teller dan rincian fisik uang awal</p>
@@ -100,9 +101,10 @@ const ShiftActionForms = ({
 
           <Button
             onClick={openShift}
-            text="Buka Shift & Simpan Saldo Awal"
+            text={isOpeningShift ? "Membuka Shift..." : "Buka Shift & Simpan Saldo Awal"}
             theme="primary"
             customClass="mt-6 w-full"
+            disabled={isOpeningShift}
            />
         </div>
       )}

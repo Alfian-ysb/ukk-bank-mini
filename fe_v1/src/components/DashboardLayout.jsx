@@ -59,8 +59,8 @@ const DashboardLayout = ({ children, title }) => {
         { name: "Staff", path: "/admin/staff/view" },
         { name: "Nasabah", path: "/admin/customers" },
         { name: "Settings", path: "/admin/settings" },
-        { name: "Transaksi", path: "/admin/transactions" },
-        { name: "Jurnal", path: "/admin/journals" },
+        { name: "Jurnal Akuntansi", path: "/admin/journals" },
+        { name: "Log Transaksi", path: "/admin/transactions" },
       ];
     } else if (role === "supervisor") {
       return [

@@ -90,7 +90,7 @@ function SettingsPage() {
 
   return (
     <DashboardLayout title="Settings">
-      <section className="max-w-3xl rounded-lg bg-white p-5 shadow-sm">
+      <section className="max-w-3xl rounded-lg bg-white p-5 shadow-sm font-inter">
         <div className="mb-5">
           <h2 className="text-lg font-semibold text-neutral-dark-gray">
             Pengaturan bank
@@ -149,14 +149,14 @@ function SettingsPage() {
                                 setting.name,
                               )
                             }
-                            className="w-full rounded border p-2"
+                            className="w-full rounded border border-neutral-clay p-2"
                             required
                           ></textarea>
                         );
                       case "minimum_balance":
                         return (
                           <CurrencyInput
-                            className="mt-1 w-full rounded border p-2"
+                            className="mt-1 w-full rounded border border-neutral-clay p-2"
                             id={`setting-${setting.id}`}
                             name={setting.name}
                             placeholder="Saldo minimal"
@@ -184,14 +184,14 @@ function SettingsPage() {
                               )
                             }
                             placeholder="628123456789"
-                            className="w-full rounded border p-2"
+                            className="w-full rounded border border-neutral-clay p-2"
                             required
                           />
                         );
                       case "minimum_withdrawal":
                         return (
                           <CurrencyInput
-                            className="mt-1 w-full rounded border p-2"
+                            className="mt-1 w-full rounded border border-neutral-clay p-2"
                             id={`setting-${setting.id}`}
                             name={setting.name}
                             placeholder="Batas penarikan minimal"
@@ -218,7 +218,7 @@ function SettingsPage() {
                                 setting.name,
                               )
                             }
-                            className="w-full rounded border p-2"
+                            className="w-full rounded border border-neutral-clay p-2"
                             required
                           />
                         );

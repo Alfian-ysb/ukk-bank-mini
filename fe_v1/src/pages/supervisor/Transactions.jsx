@@ -86,7 +86,7 @@ const Transactions = () => {
         onReset={handleResetFilter}
       />
 
-      {message && <p className="mb-4 text-sm font-medium text-red-600">{message}</p>}
+      {/* {message && <p className="mb-4 text-sm font-medium text-red-600">{message}</p>} */}
 
       <TransactionTable transactions={transactions} loading={loading} />
     </DashboardLayout>

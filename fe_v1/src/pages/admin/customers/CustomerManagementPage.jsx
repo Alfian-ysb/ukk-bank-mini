@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../../components/DashboardLayout";
 import AdminTable from "../../../components/admin/AdminTable";
-import { get, remove as removeRequest, upload } from "../../../api";
+import { get, patch, remove as removeRequest } from "../../../api";
 import Button from "../../../components/Button";
+import CustomerCsvImport from "./CustomerCsvImport";
 
 function CustomerManagementPage() {
   const [customers, setCustomers] = useState([]);
   const [error, setError] = useState("");
-  const [csvFile, setCsvFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
 
-  // State untuk pencarian frontend
   const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
@@ -27,7 +25,14 @@ function CustomerManagementPage() {
   }
 
   useEffect(() => {
-    loadCustomers();
+    get("/admin/customers")
+      .then((response) => {
+        setError("");
+        setCustomers(response.data || []);
+      })
+      .catch((requestError) => {
+        setError(requestError.message);
+      });
   }, []);
 
   async function deleteCustomer(id) {
@@ -40,19 +45,12 @@ function CustomerManagementPage() {
     }
   }
 
-  async function importCustomers() {
-    if (!csvFile) return;
-
+  async function changeStatus(id, newStatus) {
     try {
-      setError("");
-      setIsUploading(true);
-      await upload("/admin/customers/import", csvFile);
-      setCsvFile(null);
+      await patch(`/admin/customers/${id}`, { status: newStatus });
       await loadCustomers();
     } catch (requestError) {
       setError(requestError.message);
-    } finally {
-      setIsUploading(false);
     }
   }
 
@@ -75,6 +73,7 @@ function CustomerManagementPage() {
     item.student_name,
     item.major,
     item.cohort_year,
+    item.status,
     <div className="flex gap-2" key={item.id}>
       <Button
         theme={"outline"}
@@ -95,31 +94,7 @@ function CustomerManagementPage() {
 
   return (
     <DashboardLayout title="Lihat Nasabah">
-      <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 p-3">
-        <input
-          type="file"
-          accept=".csv,.txt,text/csv"
-          onChange={(event) => setCsvFile(event.target.files?.[0] || null)}
-          disabled={isUploading}
-        />
-        <Button
-          text={isUploading ? "Mengunggah..." : "Upload CSV"}
-          onClick={importCustomers}
-          disabled={!csvFile || isUploading}
-        />
-        <Button
-          text="Unduh Template CSV"
-          theme="outline"
-          onClick={() => {
-            const link = document.createElement("a");
-            link.href = `${import.meta.env.BASE_URL}customersTemplate.csv`;
-            link.download = "template-nasabah.csv";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }}
-        />
-      </div>
+      <CustomerCsvImport onImported={loadCustomers} />
 
       <div className="flex justify-between items-center my-4 gap-4">
         <input
@@ -140,12 +115,13 @@ function CustomerManagementPage() {
 
       <AdminTable
         title="Daftar nasabah"
-        headers={["No. Rekening", "NIS", "Nama", "Jurusan", "Angkatan", "Aksi"]}
+        headers={["No. Rekening", "NIS", "Nama", "Jurusan", "Angkatan", "Status", "Aksi"]}
         rows={rows}
         emptyMessage={
           searchQuery ? "Nasabah tidak ditemukan." : "Belum ada nasabah."
         }
       />
+
     </DashboardLayout>
   );
 }

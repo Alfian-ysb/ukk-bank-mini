@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 
 const money = (value) => `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 
-
 function SupervisorDashboard() {
   const [vault, setVault] = useState(null);
   const [message, setMessage] = useState("");
@@ -26,27 +25,31 @@ function SupervisorDashboard() {
           <p className="mb-4 text-sm font-medium text-red-600">{message}</p>
         )}
 
+        <h2 className="mb-4 text-2xl font-inter font-semibold text-neutral-dark-gray">
+          Dashboard
+        </h2>
         {vault ? (
-          <section className="rounded-lg bg-white p-5 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold text-gray-700">
-              {vault.location}
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="rounded-md border bg-gray-50 p-4">
-                <p className="text-sm text-gray-500">Saldo Saat Ini</p>
-                <p className="text-xl font-bold text-gray-800">
+          <section className="rounded-lg bg-white shadow-[4px_4px_12px_rgba(0,0,0,0.05)] font-inter">
+            <div className="grid sm:grid-cols-3 rounded outline outline-neutral-clay/20">
+              <div className="border-neutral-clay p-5">
+                <p className="text-sm font-medium text-gray-500">
+                  Saldo Saat Ini
+                </p>
+                <p className="text-2xl font-bold text-gray-800">
                   {money(vault.balance)}
                 </p>
               </div>
-              <div className="rounded-md border bg-green-50 p-4">
-                <p className="text-sm text-green-600">Total Masuk</p>
-                <p className="text-xl font-bold text-green-700">
+              <div className="border-x border-neutral-clay p-5">
+                <p className="text-sm font-medium text-green-600">
+                  Total Masuk
+                </p>
+                <p className="text-2xl font-bold text-green-700">
                   {money(vault.total_in)}
                 </p>
               </div>
-              <div className="rounded-md border bg-red-50 p-4">
-                <p className="text-sm text-red-600">Total Keluar</p>
-                <p className="text-xl font-bold text-red-700">
+              <div className="border-neutral-clay p-5">
+                <p className="text-sm font-medium text-red-600">Total Keluar</p>
+                <p className="text-2xl font-bold text-red-700">
                   {money(vault.total_out)}
                 </p>
               </div>
@@ -86,7 +89,7 @@ function SupervisorDashboard() {
 
 function Shortcut({ to, title, text }) {
   return (
-    <Link className="rounded bg-white p-4 shadow" to={to}>
+    <Link className="rounded bg-white p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.05)]" to={to}>
       <h2 className="text-lg font-semibold">{title}</h2>
       <p className="mt-2 text-sm text-gray-600">{text}</p>
     </Link>

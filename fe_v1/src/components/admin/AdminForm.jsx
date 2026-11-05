@@ -11,7 +11,7 @@ function AdminForm({
   message,
 }) {
   return (
-    <form className="space-y-3 rounded bg-white p-4 shadow-sm" onSubmit={onSubmit}>
+    <form className="space-y-3 w-full rounded bg-white p-4 shadow-sm" onSubmit={onSubmit}>
       <h2 className="text-lg font-semibold">{title}</h2>
       {fields.map((field) => (
         <label className="block" key={field.name}>

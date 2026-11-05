@@ -27,7 +27,7 @@ const TransactionFilter = ({
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="cursor-pointer rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            className="cursor-pointer rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
           >
             <option value="all">Semua Data</option>
             <option value="date">Per Hari</option>
@@ -45,7 +45,7 @@ const TransactionFilter = ({
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="cursor-pointer rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              className="cursor-pointer rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
               required
             />
           </div>
@@ -59,7 +59,7 @@ const TransactionFilter = ({
               type="date"
               value={week}
               onChange={(e) => setWeek(e.target.value)}
-              className="cursor-pointer rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              className="cursor-pointer rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
               required
             />
           </div>
@@ -73,7 +73,7 @@ const TransactionFilter = ({
               type="month"
               value={month}
               onChange={(e) => setMonth(e.target.value)}
-              className="cursor-pointer rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+              className="cursor-pointer rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
               required
             />
           </div>
@@ -88,7 +88,7 @@ const TransactionFilter = ({
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
                 required
               />
             </div>
@@ -98,7 +98,7 @@ const TransactionFilter = ({
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
                 required
               />
             </div>
