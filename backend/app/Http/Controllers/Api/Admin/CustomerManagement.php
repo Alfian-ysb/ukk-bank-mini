@@ -8,10 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
 use App\Http\Resources\CustomerResource;
+use App\Imports\CustomersImport;
 use App\Models\Customer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CustomerManagement extends Controller
 {
@@ -62,6 +66,35 @@ class CustomerManagement extends Controller
             'message' => 'Customer created successfully',
             'data'    => new CustomerResource($customer),
         ], 201);
+    }
+
+    public function import(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt', 'max:5120'],
+        ]);
+
+        $import = new CustomersImport(app(CreateCustomerAction::class));
+
+        try {
+            DB::transaction(function () use ($request, $import): void {
+                Excel::import($import, $request->file('file'));
+            });
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data CSV tidak valid.',
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "{$import->importedCount()} nasabah berhasil ditambahkan.",
+            'data' => [
+                'imported' => $import->importedCount(),
+            ],
+        ]);
     }
 
     public function update(UpdateCustomerRequest $updateCustomerRequest, $id)

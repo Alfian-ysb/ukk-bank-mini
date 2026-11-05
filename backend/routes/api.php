@@ -27,6 +27,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
     Route::get('/customers', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'index']);
     Route::get('/customers/{id}', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'view']);
     Route::post('/customers', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'create']);
+    Route::post('/customers/import', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'import']);
     Route::patch('/customers/{id}', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'update']);
     Route::delete('/customers/{id}', [App\Http\Controllers\Api\Admin\CustomerManagement::class, 'delete']);
    

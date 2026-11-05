@@ -237,6 +237,26 @@ Response `200`:
 }
 ```
 
+### Import nasabah melalui CSV
+
+Admin dapat menambahkan banyak nasabah sekaligus melalui:
+
+```http
+POST /admin/customers/import
+Content-Type: multipart/form-data
+```
+
+Field upload wajib bernama `file`. File harus berformat CSV atau TXT dengan
+header berikut:
+
+```csv
+nis,student_name,major,cohort_year,pin,password
+12345,Budi Santoso,RPL,2026,123456,password123
+```
+
+Jika ada baris yang tidak valid atau NIS duplikat, seluruh import dibatalkan
+dan API mengembalikan `422` beserta nomor baris yang bermasalah.
+
 ### Persetujuan transaksi nasabah
 
 Penarikan teller dibuat sebagai `pending` dan saldo baru berubah setelah
