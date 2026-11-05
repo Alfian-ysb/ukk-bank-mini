@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "../../../components/DashboardLayout";
 import AdminTable from "../../../components/admin/AdminTable";
-import { get, remove as removeRequest } from "../../../api";
+import { get, remove as removeRequest, upload } from "../../../api";
 import Button from "../../../components/Button";
 
 function CustomerManagementPage() {
   const [customers, setCustomers] = useState([]);
   const [error, setError] = useState("");
-  
+  const [csvFile, setCsvFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   // State untuk pencarian frontend
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -38,6 +40,22 @@ function CustomerManagementPage() {
     }
   }
 
+  async function importCustomers() {
+    if (!csvFile) return;
+
+    try {
+      setError("");
+      setIsUploading(true);
+      await upload("/admin/customers/import", csvFile);
+      setCsvFile(null);
+      await loadCustomers();
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
   // Filter data nasabah di frontend secara langsung
   const filteredCustomers = customers.filter((item) => {
     const query = searchQuery.toLowerCase();
@@ -58,14 +76,50 @@ function CustomerManagementPage() {
     item.major,
     item.cohort_year,
     <div className="flex gap-2" key={item.id}>
-      <Button theme={'outline'} text="Lihat" onClick={() => navigate(`/admin/customers/${item.id}`)} />
-      <Button text="Edit" onClick={() => navigate(`/admin/customers/${item.id}/edit`)} />
-      <Button theme={'danger'} text="Hapus" onClick={() => deleteCustomer(item.id)} />
+      <Button
+        theme={"outline"}
+        text="Lihat"
+        onClick={() => navigate(`/admin/customers/${item.id}`)}
+      />
+      <Button
+        text="Edit"
+        onClick={() => navigate(`/admin/customers/${item.id}/edit`)}
+      />
+      <Button
+        theme={"danger"}
+        text="Hapus"
+        onClick={() => deleteCustomer(item.id)}
+      />
     </div>,
   ]);
 
   return (
     <DashboardLayout title="Lihat Nasabah">
+      <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 p-3">
+        <input
+          type="file"
+          accept=".csv,.txt,text/csv"
+          onChange={(event) => setCsvFile(event.target.files?.[0] || null)}
+          disabled={isUploading}
+        />
+        <Button
+          text={isUploading ? "Mengunggah..." : "Upload CSV"}
+          onClick={importCustomers}
+          disabled={!csvFile || isUploading}
+        />
+        <Button
+          text="Unduh Template CSV"
+          theme="outline"
+          onClick={() => {
+            const link = document.createElement("a");
+            link.href = `${import.meta.env.BASE_URL}customersTemplate.csv`;
+            link.download = "template-nasabah.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}
+        />
+      </div>
 
       <div className="flex justify-between items-center my-4 gap-4">
         <input
@@ -75,7 +129,11 @@ function CustomerManagementPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="flex-6 border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <Button customClass="flex-1" text="Tambah Nasabah" onClick={() => navigate("/admin/customers/create")} />
+        <Button
+          customClass="flex-1"
+          text="Tambah Nasabah"
+          onClick={() => navigate("/admin/customers/create")}
+        />
       </div>
 
       {error && <p className="mb-4 text-red-600">{error}</p>}
@@ -84,7 +142,9 @@ function CustomerManagementPage() {
         title="Daftar nasabah"
         headers={["No. Rekening", "NIS", "Nama", "Jurusan", "Angkatan", "Aksi"]}
         rows={rows}
-        emptyMessage={searchQuery ? "Nasabah tidak ditemukan." : "Belum ada nasabah."}
+        emptyMessage={
+          searchQuery ? "Nasabah tidak ditemukan." : "Belum ada nasabah."
+        }
       />
     </DashboardLayout>
   );

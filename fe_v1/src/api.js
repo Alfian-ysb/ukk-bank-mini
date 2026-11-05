@@ -3,9 +3,10 @@ import { getStoredToken } from "./context/authSession";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export async function request(path, options = {}) {
+  const isFormData = options.body instanceof FormData;
   const headers = {
     Accept: "application/json",
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...options.headers,
   };
   const token = getStoredToken();
@@ -38,6 +39,11 @@ export async function request(path, options = {}) {
 export const get = (path) => request(path);
 export const post = (path, body) =>
   request(path, { method: "POST", body: JSON.stringify(body) });
+export const upload = (path, file) => {
+  const body = new FormData();
+  body.append("file", file);
+  return request(path, { method: "POST", body });
+};
 export const patch = (path, body) =>
   request(path, { method: "PATCH", body: JSON.stringify(body) });
 export const remove = (path) => request(path, { method: "DELETE" });
