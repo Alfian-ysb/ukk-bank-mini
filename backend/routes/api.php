@@ -40,6 +40,7 @@ Route::get('/settings', [GeneralSettingController::class, 'index']);
 Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/settings', [GeneralSettingController::class, 'index']);
     Route::patch('/settings/{id}', [GeneralSettingController::class, 'update']);
+    Route::get('/settings/total-users', [GeneralSettingController::class, 'getTotalUser']);
 
     Route::get('/staff', [UserManagement::class, 'index']);
     Route::get('/staff/{id}', [UserManagement::class, 'view']);

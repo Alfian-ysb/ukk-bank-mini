@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\General;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class GeneralSettingController extends Controller
@@ -15,6 +17,21 @@ class GeneralSettingController extends Controller
             'status' => 'success',
             'data' => $settings
         ]);
+    }
+
+    public function getTotalUser()
+    {
+        $totalStaff = User::count();
+        $totalCustomer = Customer::count();
+        
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_staff' => $totalStaff,
+                'total_customer' => $totalCustomer,
+            ]
+        ]);
+        
     }
 
     public function update(Request $request, $id)
