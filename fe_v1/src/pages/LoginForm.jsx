@@ -89,7 +89,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-primary py-3 px-4 text-white font-medium hover:opacity-90 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-dark"
+            className="w-full rounded-md cursor-pointer bg-primary py-3 px-4 text-white font-medium hover:opacity-90 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-dark"
           >
             {loading ? "Memproses..." : "Masuk"}
           </button>

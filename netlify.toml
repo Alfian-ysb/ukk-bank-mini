@@ -1,0 +1,14 @@
+[build]
+  base    = "fe_v1"
+  command = "npm run build"
+  publish = "dist"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Content-Type = "text/javascript"
+    
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
