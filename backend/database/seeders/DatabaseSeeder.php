@@ -47,19 +47,19 @@ class DatabaseSeeder extends Seeder
             [
                 'username' => 'admin',
                 'full_name' => 'Administrator',
-                'password' => 'password',
+                'password' => 'adminpass12',
                 'role' => UserRoles::ADMIN->value,
             ],
             [
                 'username' => 'supervisor',
                 'full_name' => 'Supervisor',
-                'password' => 'password',
+                'password' => 'supervisorpass12',
                 'role' => UserRoles::SUPERVISOR->value,
             ],
             [
                 'username' => 'teller',
                 'full_name' => 'Teller',
-                'password' => 'password',
+                'password' => 'tellerpass12',
                 'role' => UserRoles::TELLER->value,
             ],
             // [
@@ -75,7 +75,7 @@ class DatabaseSeeder extends Seeder
                 'account_number' => '2027011501',
                 'nis' => '1501',
                 'email' => 'ayofasb@gmail.com',
-                'student_name' => 'John Doe',
+                'student_name' => 'David',
                 'major' => 'DKV',
                 "cohort_year" => "2027",
                 'pin' => Hash::make('123456'),
@@ -83,8 +83,8 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'account_number' => '2027011502',
-                'student_name' => 'Jane Smith',
-                'email' => 'kurageyoruu@gmail.com',
+                'student_name' => 'Anisa',
+                'email' => 'example@mail.com',
                 'nis' => '1502',
                 'major' => 'TKJ',
                 'cohort_year' => '2027',

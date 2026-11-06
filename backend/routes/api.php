@@ -33,8 +33,11 @@ Route::post('/customer/reset-password', [
     CustomerPinResetController::class,
     'resetPassword',
 ])->middleware('throttle:10,1');
-Route::post('/customer/logout', [AuthCustomersController::class, 'logout']);
-Route::post('/staff/logout', [AuthStaffController::class, 'logout']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/customer/logout', [AuthCustomersController::class, 'logout']);
+    Route::post('/staff/logout', [AuthStaffController::class, 'logout']);
+});
 Route::get('/settings', [GeneralSettingController::class, 'index']);
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(function () {

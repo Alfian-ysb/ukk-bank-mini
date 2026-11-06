@@ -10,17 +10,17 @@ function SupervisorDashboard() {
   const [message, setMessage] = useState("");
   const [userCountData, setUserCountData] = useState([]);
 
-  const userCount = async () => {
-    try {
-      const res = await get("/admin/settings/total-users");
-      setUserCountData(res.data);
-    } catch (error) {
-      setMessage(error.message);
-    }
-  };
+  // const userCount = async () => {
+  //   try {
+  //     const res = await get("/admin/settings/total-users");
+  //     setUserCountData(res.data);
+  //   } catch (error) {
+  //     setMessage(error.message);
+  //   }
+  // };
 
   useEffect(() => {
-    userCount();
+    // userCount();
     get("/supervisor/vault/balance")
       .then((response) => {
         setVault(response.data || null);
@@ -64,12 +64,12 @@ function SupervisorDashboard() {
                   {money(vault.total_out)}
                 </p>
               </div>
-              <div className="border-neutral-clay p-5">
+              {/* <div className="border-neutral-clay p-5">
                 <p className="text-sm font-medium ">Total Nasabah</p>
                 <p className="text-2xl font-bold ">
                   {userCountData?.total_customer || 0}
                 </p>
-              </div>
+              </div> */}
             </div>
           </section>
         ) : (
