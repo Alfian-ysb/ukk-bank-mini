@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('cash_transfers', function (Blueprint $table) {
-            $table->dropColumn('denominations');
+        Schema::table('customer_pin_reset_otps', function (Blueprint $table) {
+            $table->string('pending_email')->nullable()->after('code_hash');
         });
     }
 
     public function down(): void
     {
-        Schema::table('cash_transfers', function (Blueprint $table) {
-            $table->json('denominations')->nullable()->after('amount');
+        Schema::table('customer_pin_reset_otps', function (Blueprint $table) {
+            $table->dropColumn('pending_email');
         });
     }
 };

@@ -14,6 +14,7 @@ const ShiftActionForms = ({
   setClosing,
   openShift,
   closeShift,
+  isOpeningShift = false,
 }) => {
   const updateStaff = (index, field, value) => {
     setAssignedStaff((staff) =>
@@ -39,7 +40,7 @@ const ShiftActionForms = ({
     <div className="grid gap-6 md:grid-cols-2">
       {/* Buka Shift */}
       {canOpenShift && (
-        <div className="rounded border border-slate-200 bg-white p-6 shadow-xs">
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-[4px_4px_12px_rgba(0,0,0,0.05)]">
           <div className="mb-4 border-b border-slate-100 pb-3">
             <h2 className="text-lg font-bold text-slate-900">Buka Shift (Saldo Awal)</h2>
             <p className="text-sm text-slate-500">Input data teller dan rincian fisik uang awal</p>
@@ -54,7 +55,7 @@ const ShiftActionForms = ({
                 <div className="flex-1">
                   <label className="mb-1 block text-xs text-slate-500">Nama</label>
                   <input
-                    className="w-full rounded border border-slate-200 px-3.5 py-2 text-sm text-slate-800 focus:border-slate-800 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm text-slate-800 focus:border-slate-800 focus:outline-none"
                     placeholder="Nama petugas"
                     value={staff.name}
                     onChange={(event) => updateStaff(index, "name", event.target.value)}
@@ -63,16 +64,16 @@ const ShiftActionForms = ({
                 <div className="flex-1">
                   <label className="mb-1 block text-xs text-slate-500">Kelas</label>
                   <input
-                    className="w-full rounded border border-slate-200 px-3.5 py-2 text-sm text-slate-800 focus:border-slate-800 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-200 px-3.5 py-2 text-sm text-slate-800 focus:border-slate-800 focus:outline-none"
                     placeholder="Contoh: XI RPL 1"
                     value={staff.className}
-                    onChange={(event) => updateStaff(index, "className", event.target.value)}
+                    onChange={(event) => updateStaff(index, "className", event.target.value.toUpperCase())}
                   />
                 </div>
                 {assignedStaff.length > 1 && (
                   <button
                     type="button"
-                    className="rounded border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+                    className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
                     onClick={() => removeStaff(index)}
                     aria-label={`Hapus petugas ${index + 1}`}
                   >
@@ -100,16 +101,17 @@ const ShiftActionForms = ({
 
           <Button
             onClick={openShift}
-            text="Buka Shift & Simpan Saldo Awal"
+            text={isOpeningShift ? "Membuka Shift..." : "Buka Shift & Simpan Saldo Awal"}
             theme="primary"
             customClass="mt-6 w-full"
+            disabled={isOpeningShift}
            />
         </div>
       )}
 
       {/* Tutup Shift */}
       {canCloseShift && (
-        <div className="rounded border border-slate-200 bg-white p-6 shadow-xs">
+        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
           <div className="mb-4 border-b border-slate-100 pb-3">
             <h2 className="text-base font-bold text-slate-900">Tutup Shift (Saldo Akhir)</h2>
             <p className="text-xs text-slate-500">Hitung ulang fisik uang tunai di laci sebelum penutupan</p>

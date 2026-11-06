@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 const ShiftApproval = () => {
   const [shifts, setShifts] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState("all"); // State untuk filter status
+  const [selectedStatus, setSelectedStatus] = useState("all"); 
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
@@ -24,7 +24,6 @@ const ShiftApproval = () => {
     fetchShifts();
   }, []);
 
-  // Filter data shift berdasarkan status yang dipilih
   const filteredShifts = shifts.filter((shift) => {
     if (selectedStatus === "all") return true;
     return shift.status?.toLowerCase() === selectedStatus.toLowerCase();
@@ -50,7 +49,7 @@ const ShiftApproval = () => {
               id="status-filter"
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="rounded border-2 border-primary cursor-pointer bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs focus:border-slate-500 focus:outline-none"
+              className="rounded-lg border-2 border-primary cursor-pointer bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs focus:border-slate-500 focus:outline-none"
             >
               <option value="all">Semua Status</option>
               <option value="open">Open</option>

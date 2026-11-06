@@ -36,7 +36,7 @@ const JournalReport = () => {
         <section className="rounded-lg bg-white p-5 shadow-sm">
           <h2 className="mb-3 font-semibold text-gray-700">Jurnal Akuntansi</h2>
           {journals.length ? (
-            <pre className="overflow-auto rounded bg-gray-50 p-3 text-xs">
+            <pre className="overflow-auto rounded-lg bg-gray-50 p-3 text-xs">
               {JSON.stringify(journals, null, 2)}
             </pre>
           ) : (
@@ -47,7 +47,7 @@ const JournalReport = () => {
         <section className="rounded-lg bg-white p-5 shadow-sm">
           <h2 className="mb-3 font-semibold text-gray-700">Transaksi Ops</h2>
           {transactions.length ? (
-            <pre className="overflow-auto rounded bg-gray-50 p-3 text-xs">
+            <pre className="overflow-auto rounded-lg bg-gray-50 p-3 text-xs">
               {JSON.stringify(transactions, null, 2)}
             </pre>
           ) : (

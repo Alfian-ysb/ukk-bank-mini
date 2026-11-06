@@ -39,38 +39,38 @@ function CreateCustomerPage() {
     <DashboardLayout title="Tambah Nasabah">
       <p className="mb-4">
         <Link className="underline" to="/admin/dashboard">
-          Kembali ke dashboard
+          Kembali
         </Link>
       </p>
 
-      <form className="max-w-md space-y-3 rounded bg-white p-4" onSubmit={submit}>
+      <form className="max-w-md space-y-3 rounded-lg bg-white p-4" onSubmit={submit}>
         <label className="block">
           NIS
-          <input className="mt-1 w-full rounded border p-2" name="nis" value={form.nis} onChange={change} required />
+          <input className="mt-1 w-full rounded-lg border p-2" name="nis" value={form.nis} onChange={change} required />
         </label>
         <label className="block">
           Nama siswa
-          <input className="mt-1 w-full rounded border p-2" name="student_name" value={form.student_name} onChange={change} required />
+          <input className="mt-1 w-full rounded-lg border p-2" name="student_name" value={form.student_name} onChange={change} required />
         </label>
         <label className="block">
           Jurusan
-          <input className="mt-1 w-full rounded border p-2" name="major" value={form.major} onChange={change} required />
+          <input className="mt-1 w-full rounded-lg border p-2" name="major" value={form.major} onChange={change} required />
         </label>
         <label className="block">
           Tahun angkatan
-          <input className="mt-1 w-full rounded border p-2" name="cohort_year" value={form.cohort_year} onChange={change} required />
+          <input className="mt-1 w-full rounded-lg border p-2" name="cohort_year" value={form.cohort_year} onChange={change} required />
         </label>
         <label className="block">
           Password
-          <input className="mt-1 w-full rounded border p-2" type="password" name="password" value={form.password} onChange={change} required />
+          <input className="mt-1 w-full rounded-lg border p-2" type="password" name="password" value={form.password} onChange={change} required />
         </label>
         <label className="block">
           PIN
-          <input className="mt-1 w-full rounded border p-2" type="password" name="pin" value={form.pin} onChange={change} maxLength="6" required />
+          <input className="mt-1 w-full rounded-lg border p-2" type="password" name="pin" value={form.pin} onChange={change} maxLength="6" required />
         </label>
         {error && <p className="text-red-600">{error}</p>}
         {message && <p className="text-green-600">{message}</p>}
-        <button className="rounded bg-primary px-3 py-2 text-white">
+        <button className="rounded-lg bg-primary px-3 py-2 text-white">
           Simpan nasabah
         </button>
       </form>

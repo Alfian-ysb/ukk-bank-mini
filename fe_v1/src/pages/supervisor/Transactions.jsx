@@ -1,75 +1,96 @@
-import React, { useEffect, useState } from 'react'
-import Table from '../../components/Table';
-import { get } from '../../api';
+import { useEffect, useState } from 'react';
+import { post } from '../../api';
 import DashboardLayout from '../../components/DashboardLayout';
+import TransactionFilter from '../../components/supervisor/TransactionFilter';
+import TransactionTable from '../../components/supervisor/TransactionTable';
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    get("/supervisor/transactions")
+  // State Filter
+  const [filterType, setFilterType] = useState('all');
+  const [date, setDate] = useState('');
+  const [week, setWeek] = useState('');
+  const [month, setMonth] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const fetchTransactions = (params = {}) => {
+    setLoading(true);
+    setMessage("");
+
+    const queryParams = new URLSearchParams();
+    Object.keys(params).forEach((key) => {
+      if (params[key]) queryParams.append(key, params[key]);
+    });
+
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+
+    post(`/supervisor/transactions${queryString}`)
       .then((response) => {
         setTransactions(response.data || []);
       })
       .catch((error) => {
-        setMessage(error.message);
+        setTransactions([]);
+        setMessage(error.response?.data?.message || error.message || "Gagal mengambil data");
+      })
+      .finally(() => {
+        setLoading(false);
       });
-  }, []);
-
-  const formatRupiah = (number) => {
-    return `Rp${Number(number || 0).toLocaleString("id-ID")}`;
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleString("id-ID", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const handleFilterSubmit = (e) => {
+    e.preventDefault();
+
+    let params = {};
+    if (filterType === 'date') params = { date };
+    else if (filterType === 'week') params = { week };
+    else if (filterType === 'month') params = { month };
+    else if (filterType === 'range') params = { start_date: startDate, end_date: endDate };
+
+    fetchTransactions(params);
+  };
+
+  const handleResetFilter = () => {
+    setFilterType('all');
+    setDate('');
+    setWeek('');
+    setMonth('');
+    setStartDate('');
+    setEndDate('');
+    fetchTransactions();
   };
 
   return (
-    <DashboardLayout title="Jurnal Akuntansi / Transaksi">
-      {message && <p className="mb-4 text-sm font-medium text-red-600">{message}</p>}
+    <DashboardLayout title="Transaksi">
+      <TransactionFilter
+        filterType={filterType}
+        setFilterType={setFilterType}
+        date={date}
+        setDate={setDate}
+        week={week}
+        setWeek={setWeek}
+        month={month}
+        setMonth={setMonth}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
+        onSubmit={handleFilterSubmit}
+        onReset={handleResetFilter}
+      />
 
-      <section className="rounded-lg bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-2xl font-plus-jakarta-sans font-semibold text-gray-700">
-          Riwayat Transaksi Jurnal
-        </h2>
-        {transactions.length > 0 ? (
-          <Table
-            headers={[
-              "Waktu / Tanggal",
-              "No. Rekening",
-              "Nama Siswa",
-              "Jurusan",
-              "Jenis Transaksi",
-              "Nominal",
-              "Teller",
-            ]}
-            data={transactions.map((item) => [
-              formatDate(item.date || item.created_at),
-              item.customer?.account_number || "-",
-              item.customer?.student_name || "-",
-              item.customer?.major || "-",
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase`}
-              >
-                {item.transaction_type === "deposit" ? "Setor Tunai" : "Tarik Tunai"}
-              </span>,
-              <span className="font-semibold text-slate-800">
-                {formatRupiah(item.amount)}
-              </span>,
-              item.user?.full_name || item.user?.username || "-",
-            ])}
-          />
-        ) : (
-          <p className="text-sm text-gray-500">Tidak ada data transaksi.</p>
-        )}
-      </section>
+      {/* {message && <p className="mb-4 text-sm font-medium text-red-600">{message}</p>} */}
+
+      <TransactionTable transactions={transactions} loading={loading} />
     </DashboardLayout>
   );
 };
 
-export default Transactions
+export default Transactions;

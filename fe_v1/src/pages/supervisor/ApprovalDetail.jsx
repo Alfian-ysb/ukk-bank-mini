@@ -87,7 +87,7 @@ const ApprovalDetail = () => {
   if (!data) {
     return (
       <DashboardLayout title="Detail Laporan">
-        <div className="rounded border border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
+        <div className="rounded-lg border border-slate-300 bg-white p-6 text-center text-sm text-slate-600">
           Data laporan tidak ditemukan.
         </div>
       </DashboardLayout>
@@ -142,38 +142,40 @@ const ApprovalDetail = () => {
           <hr className="mt-2 border-t-2 border-slate-800" />
         </div>
 
-        {/* List Petugas / Assigned Staff */}
-        <div className="mb-4 text-sm text-slate-800">
-          <p className="font-semibold text-slate-900 mb-1">Petugas Teller:</p>
-          {data.assigned_staff && data.assigned_staff.length > 0 ? (
-            <ol className="list-decimal pl-5 space-y-0.5 text-slate-700">
-              {data.assigned_staff.map((staff, index) => (
-                <li key={index}>{staff}</li>
-              ))}
-            </ol>
-          ) : (
-            <p className="italic text-slate-500">-</p>
-          )}
+        <div className="mb-4 text-sm text-slate-800 flex w-full justify-between gap-6 flex-wrap">
+          <div className="w-full flex-1">
+            <p className="font-semibold text-slate-900 mb-1">Petugas Teller:</p>
+            {data.assigned_staff && data.assigned_staff.length > 0 ? (
+              <ol className="list-decimal pl-5 space-y-0.5 text-slate-700">
+                {data.assigned_staff.map((staff, index) => (
+                  <li key={index}>{staff}</li>
+                ))}
+              </ol>
+            ) : (
+              <p className="italic text-slate-500">-</p>
+            )}
+          </div>
+          <div className="w-full flex-2">
+            <GenericReportTable
+              title="Rincian lembaran: Saldo awal"
+              headers={["Nominal", "Jumlah", "Total"]}
+              data={openingDenominations}
+              renderRow={(item, idx) => (
+                <tr key={item.id || idx}>
+                  <td className="px-3 py-1.5 text-slate-800">
+                    {formatRupiah(item.denomination)}
+                  </td>
+                  <td className="px-3 py-1.5 text-center text-slate-800">
+                    {item.quantity} lembar
+                  </td>
+                  <td className="px-3 py-1.5 text-right font-medium text-slate-900">
+                    {formatRupiah(item.amount)}
+                  </td>
+                </tr>
+              )}
+            />
+          </div>
         </div>
-
-        <GenericReportTable
-          title="Rincian lembaran: Saldo awal"
-          headers={["Nominal", "Jumlah", "Total"]}
-          data={openingDenominations}
-          renderRow={(item, idx) => (
-            <tr key={item.id || idx}>
-              <td className="px-3 py-1.5 text-slate-800">
-                {formatRupiah(item.denomination)}
-              </td>
-              <td className="px-3 py-1.5 text-center text-slate-800">
-                {item.quantity} lembar
-              </td>
-              <td className="px-3 py-1.5 text-right font-medium text-slate-900">
-                {formatRupiah(item.amount)}
-              </td>
-            </tr>
-          )}
-        />
 
         {/* Rekapitulasi */}
         <div className="mb-6">

@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('shifts', function (Blueprint $table) {
             $table->id();
-            $table->date('shift_date')->unique();
+            $table->date('shift_date');
             $table->enum('status', array_column(ShiftStatus::cases(), 'value'))->default(ShiftStatus::OPEN->value);
             $table->unsignedBigInteger('opening_balance');
             $table->json('assigned_staff');

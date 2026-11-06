@@ -4,9 +4,6 @@ namespace App\Actions;
 
 use App\Enums\MajorCodes;
 use App\Models\Customer;
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Str;
 
 class CreateCustomerAction
 {
@@ -30,9 +27,9 @@ class CreateCustomerAction
         }
 
         return (string) $data['cohort_year']
-            . (string) $majorCode
-            . (string) $data['nis'];
-        
+            .(string) $majorCode
+            .(string) $data['nis'];
+
     }
 
     public function execute(array $data)
@@ -42,6 +39,7 @@ class CreateCustomerAction
         $customer = Customer::create([
             'account_number' => $accountNumber,
             'nis' => $data['nis'],
+            'email' => $data['email'] ?? null,
             'student_name' => $data['student_name'],
             'major' => $data['major'],
             'cohort_year' => $data['cohort_year'],

@@ -10,11 +10,16 @@ return new class extends Migration
     {
         Schema::create('cash_transfers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('shift_id')->constrained('shifts')->restrictOnDelete();
+            $table->foreignId('shift_id')
+                ->nullable()
+                // ->change()
+                ->constrained('shifts')
+                ->onDelete('restrict');
             $table->unsignedBigInteger('amount');
             $table->string('from_location');
             $table->string('to_location');
             $table->foreignId('transferred_by')->constrained('users')->restrictOnDelete();
+            $table->string('reference')->nullable()->unique();
             $table->timestamps();
         });
     }

@@ -17,14 +17,17 @@ return new class extends Migration
             // $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
             $table->string('account_number')->unique();
             $table->string('nis')->unique();
+            $table->string('email')->unique()->nullable();
             $table->string('student_name');
             $table->string('major')->nullable();
             $table->string('cohort_year')->nullable();
             $table->enum('status', array_column(Status::cases(), 'value'))->default(Status::ACTIVE->value);
             $table->string('pin');
             $table->string('password');
+            $table->string('fcm_token')->nullable();
             $table->integer('balance')->default(0)->unsigned();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
