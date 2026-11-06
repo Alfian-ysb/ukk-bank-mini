@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   clearSession,
@@ -8,6 +8,61 @@ import {
 } from "../context/authSession";
 import { get, post } from "../api";
 
+const routeByRole = {
+  admin: "/admin/dashboard",
+  teller: "/teller/dashboard",
+  supervisor: "/supervisor/dashboard",
+};
+
+const getMenuItems = (role) => {
+  if (role === "admin") {
+    return [
+      { name: "Dashboard", path: "/admin/dashboard" },
+      { name: "Log Transaksi", path: "/admin/transactions" },
+      { name: "Nasabah", path: "/admin/customers" },
+      { name: "Jurnal Akuntansi", path: "/admin/journals" },
+      { name: "Staff", path: "/admin/staff/view" },
+      { name: "Settings", path: "/admin/settings" },
+    ];
+  } else if (role === "supervisor") {
+    return [
+      { name: "Dashboard", path: "/supervisor/dashboard" },
+      { name: "Log Transaksi", path: "/supervisor/transactions" },
+      { name: "Nasabah", path: "/supervisor/customers" },
+      { name: "Jurnal Akuntansi", path: "/supervisor/journals" },
+      { name: "Laporan Harian", path: "/supervisor/shifts" },
+    ];
+  } else if (role === "teller") {
+    return [
+      { name: "Dashboard", path: "/teller/dashboard" },
+      { name: "Transaksi", path: "/teller/transaction" },
+      { name: "Shift", path: "/teller/shift" },
+      { name: "laporan", path: "/teller/report" },
+    ];
+  }
+  return [{ name: "Dashboard", path: routeByRole[role] || "/dashboard" }];
+};
+
+const assignMenuShortcuts = (items) => {
+  const shortcutByPath = new Map();
+  const dashboardItem = items.find((item) => item.name === "Dashboard");
+  const transactionItem = items.find((item) =>
+    /transaksi|transaction/i.test(`${item.name} ${item.path}`),
+  );
+
+  if (dashboardItem) shortcutByPath.set(dashboardItem.path, "1");
+  if (transactionItem && transactionItem !== dashboardItem) {
+    shortcutByPath.set(transactionItem.path, "2");
+  }
+
+  let nextShortcut = 3;
+  return items.map((item) => {
+    const shortcut =
+      shortcutByPath.get(item.path) || String(nextShortcut++);
+    return { ...item, shortcut };
+  });
+};
+
 const DashboardLayout = ({ children, title }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
@@ -15,11 +70,10 @@ const DashboardLayout = ({ children, title }) => {
   const location = useLocation();
 
   const role = getStoredRole();
-  const routeByRole = {
-    admin: "/admin/dashboard",
-    teller: "/teller/dashboard",
-    supervisor: "/supervisor/dashboard",
-  };
+  const menuItems = useMemo(
+    () => assignMenuShortcuts(getMenuItems(role)),
+    [role],
+  );
 
   if (!role || !routeByRole[role]) {
     navigate("/login");
@@ -49,6 +103,41 @@ const DashboardLayout = ({ children, title }) => {
     return () => window.removeEventListener("bank-name-updated", updateBankName);
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (
+        !event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        event.repeat ||
+        !/^[1-9]$/.test(event.key)
+      ) {
+        return;
+      }
+
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable || target.matches("input, textarea, select"))
+      ) {
+        return;
+      }
+
+      const selectedItem = menuItems.find(
+        (item) => item.shortcut === event.key,
+      );
+      if (!selectedItem) return;
+
+      event.preventDefault();
+      setIsSidebarOpen(false);
+      navigate(selectedItem.path);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [menuItems, navigate]);
+
   const logout = async () => {
     try {
       await post("/staff/logout");
@@ -59,37 +148,6 @@ const DashboardLayout = ({ children, title }) => {
       navigate("/login");
     }
   };
-
-  const getMenuItems = () => {
-    if (role === "admin") {
-      return [
-        { name: "Dashboard", path: "/admin/dashboard" },
-        { name: "Staff", path: "/admin/staff/view" },
-        { name: "Nasabah", path: "/admin/customers" },
-        { name: "Settings", path: "/admin/settings" },
-        { name: "Jurnal Akuntansi", path: "/admin/journals" },
-        { name: "Log Transaksi", path: "/admin/transactions" },
-      ];
-    } else if (role === "supervisor") {
-      return [
-        { name: "Dashboard", path: "/supervisor/dashboard" },
-        { name: "Nasabah", path: "/supervisor/customers" },
-        { name: "Laporan Harian", path: "/supervisor/shifts" },
-        { name: "Jurnal Akuntansi", path: "/supervisor/journals" },
-        { name: "Log Transaksi", path: "/supervisor/transactions" },
-      ];
-    } else if (role === "teller") {
-      return [
-        { name: "Dashboard", path: "/teller/dashboard" },
-        { name: "Transaksi", path: "/teller/transaction" },
-        { name: "Shift", path: "/teller/shift" },
-        { name: "laporan", path: "/teller/report" },
-      ];
-    }
-    return [{ name: "Dashboard", path: routeByRole[role] || "/dashboard" }];
-  };
-
-  const menuItems = getMenuItems();
 
   const roleSubtitle = role
     ? `${role.charAt(0).toUpperCase() + role.slice(1)} Dashboard`
@@ -117,13 +175,17 @@ const DashboardLayout = ({ children, title }) => {
                 key={item.name}
                 to={item.path}
                 onClick={() => setIsSidebarOpen(false)}
-                className={`flex items-center text-sm font-semibold transition-colors ${
+                aria-keyshortcuts={`Alt+${item.shortcut}`}
+                className={`flex items-center justify-between gap-3 text-sm font-semibold transition-colors ${
                   isActive
                     ? "border-l-4 border-[#172554] pl-3 text-[#172554]"
                     : "pl-4 text-slate-600 hover:text-slate-900"
                 }`}
               >
-                {item.name}
+                <span>{item.name}</span>
+                <kbd className="shrink-0 rounded border border-slate-300 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-500">
+                  Alt+{item.shortcut}
+                </kbd>
               </Link>
             );
           })}

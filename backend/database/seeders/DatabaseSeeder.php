@@ -47,19 +47,19 @@ class DatabaseSeeder extends Seeder
             [
                 'username' => 'admin',
                 'full_name' => 'Administrator',
-                'password' => 'password',
+                'password' => 'adminpass12',
                 'role' => UserRoles::ADMIN->value,
             ],
             [
                 'username' => 'supervisor',
                 'full_name' => 'Supervisor',
-                'password' => 'password',
+                'password' => 'supervisorpass12',
                 'role' => UserRoles::SUPERVISOR->value,
             ],
             [
                 'username' => 'teller',
                 'full_name' => 'Teller',
-                'password' => 'password',
+                'password' => 'tellerpass12',
                 'role' => UserRoles::TELLER->value,
             ],
             // [
