@@ -8,8 +8,19 @@ const money = (value) => `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 function SupervisorDashboard() {
   const [vault, setVault] = useState(null);
   const [message, setMessage] = useState("");
+  const [userCountData, setUserCountData] = useState([]);
+
+  const userCount = async () => {
+    try {
+      const res = await get("/admin/settings/total-users");
+      setUserCountData(res.data);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
 
   useEffect(() => {
+    userCount();
     get("/supervisor/vault/balance")
       .then((response) => {
         setVault(response.data || null);
@@ -47,10 +58,16 @@ function SupervisorDashboard() {
                   {money(vault.total_in)}
                 </p>
               </div>
-              <div className="border-neutral-clay p-5">
+              <div className="border-neutral-clay p-5 border-r-2 border-r-neutral-clay/30">
                 <p className="text-sm font-medium text-red-600">Total Keluar</p>
                 <p className="text-2xl font-bold text-red-700">
                   {money(vault.total_out)}
+                </p>
+              </div>
+              <div className="border-neutral-clay p-5">
+                <p className="text-sm font-medium ">Total Nasabah</p>
+                <p className="text-2xl font-bold ">
+                  {userCountData?.total_customer || 0}
                 </p>
               </div>
             </div>
@@ -89,7 +106,10 @@ function SupervisorDashboard() {
 
 function Shortcut({ to, title, text }) {
   return (
-    <Link className="rounded-lg bg-white p-4 outline outline-neutral-clay/20 shadow-[4px_4px_12px_rgba(0,0,0,0.05)] hover:scale-101 transition-all duration-150" to={to}>
+    <Link
+      className="rounded-lg bg-white p-4 outline outline-neutral-clay/20 shadow-[4px_4px_12px_rgba(0,0,0,0.05)] hover:scale-101 transition-all duration-150"
+      to={to}
+    >
       <h2 className="text-lg font-semibold">{title}</h2>
       <p className="mt-2 text-sm text-gray-600">{text}</p>
     </Link>
