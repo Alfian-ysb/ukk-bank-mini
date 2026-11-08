@@ -142,7 +142,6 @@ function TransactionPage() {
                 <section className="flex flex-col justify-between mt-4 gap-4">
                   <div>  
                     <ul>
-                      {/* <li>Id Transaksi: {transaction?.id || "N/A"}</li> */}
                       <li>Tanggal, Waktu: {new Date().toLocaleString('id-ID', {dateStyle: 'short', timeStyle: 'short'})} WIB</li>
                       <li>No Rekening: {customer?.account_number || "N/A"}</li>
                       <li>Nama: {customer?.student_name || "N/A"}</li>

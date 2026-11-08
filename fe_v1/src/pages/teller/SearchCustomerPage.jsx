@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
-import { get } from "../../api";
 import DashboardLayout from "../../components/DashboardLayout";
 import QrScannerModal from "../../components/teller/QrScannerModal";
 import CustomerSearch from "../../components/teller/CustomerSearch";
