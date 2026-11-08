@@ -86,6 +86,7 @@ Route::prefix('supervisor')->middleware(['auth:sanctum', 'role:supervisor'])->gr
     Route::get('/customers', [CustomerManagement::class, 'index']);
     Route::post('/transactions', [SupervisorController::class, 'getAllTransactions']);
     Route::get('/journals', [SupervisorController::class, 'accountingJournal']);
+    Route::get('/settings/total-users', [GeneralSettingController::class, 'getTotalUser']);
 });
 
 Route::prefix('customer')->middleware(['auth:sanctum'])->group(function () {
