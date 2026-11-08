@@ -40,7 +40,11 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'minimum_withdrawal',
                 'value' => '10000',
-            ]
+            ],
+            [
+                'name' => 'max_withdrawal',
+                'value' => '100000000',
+            ],
         ];
 
         $users = [
