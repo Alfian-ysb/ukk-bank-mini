@@ -40,11 +40,11 @@ export function getStatusEndpoint(payload) {
 export function getErrorMessage(error) {
   switch (error.status) {
     case 401:
-      return "Sesi staff tidak valid atau sudah berakhir. Silakan login kembali.";
+      return error.message || "Sesi staff tidak valid atau sudah berakhir. Silakan login kembali.";
     case 403:
       return error.message || "Anda tidak memiliki izin untuk melakukan transaksi ini.";
     case 404:
-      return "Nasabah atau transaksi tidak ditemukan.";
+      return error.message || "Nasabah atau transaksi tidak ditemukan.";
     case 409:
       return error.message || "Transaksi tidak dapat diproses karena konflik data.";
     case 422:

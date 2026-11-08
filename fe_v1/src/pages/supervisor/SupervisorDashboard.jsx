@@ -10,17 +10,17 @@ function SupervisorDashboard() {
   const [message, setMessage] = useState("");
   const [userCountData, setUserCountData] = useState([]);
 
-  // const userCount = async () => {
-  //   try {
-  //     const res = await get("/admin/settings/total-users");
-  //     setUserCountData(res.data);
-  //   } catch (error) {
-  //     setMessage(error.message);
-  //   }
-  // };
+  const userCount = async () => {
+    try {
+      const res = await get("/supervisor/settings/total-users");
+      setUserCountData(res.data);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
 
   useEffect(() => {
-    // userCount();
+    userCount();
     get("/supervisor/vault/balance")
       .then((response) => {
         setVault(response.data || null);
@@ -41,7 +41,7 @@ function SupervisorDashboard() {
         </h2>
         {vault ? (
           <section className="rounded-lg bg-white shadow-[4px_4px_12px_rgba(0,0,0,0.05)] font-inter">
-            <div className="grid sm:grid-cols-3 rounded-lg outline outline-neutral-clay/20">
+            <div className="grid sm:grid-cols-4 rounded-lg outline outline-neutral-clay/20">
               <div className="border-neutral-clay p-5">
                 <p className="text-sm font-medium text-gray-500">
                   Saldo Saat Ini
@@ -50,7 +50,7 @@ function SupervisorDashboard() {
                   {money(vault.balance)}
                 </p>
               </div>
-              <div className="border-x border-neutral-clay p-5">
+              <div className="border-x-2 border-neutral-clay/30 p-5">
                 <p className="text-sm font-medium text-green-600">
                   Total Masuk
                 </p>
@@ -64,12 +64,12 @@ function SupervisorDashboard() {
                   {money(vault.total_out)}
                 </p>
               </div>
-              {/* <div className="border-neutral-clay p-5">
+              <div className="border-neutral-clay p-5">
                 <p className="text-sm font-medium ">Total Nasabah</p>
                 <p className="text-2xl font-bold ">
                   {userCountData?.total_customer || 0}
                 </p>
-              </div> */}
+              </div>
             </div>
           </section>
         ) : (

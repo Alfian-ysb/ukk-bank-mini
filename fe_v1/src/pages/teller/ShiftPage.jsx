@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DashboardLayout from "../../components/DashboardLayout";
 import { get, post } from "../../api";
