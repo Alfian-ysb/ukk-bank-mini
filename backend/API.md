@@ -1235,6 +1235,18 @@ Response `200`:
 
 Jika tidak ada transaksi yang cocok dengan filter, response `404`.
 
+### Ekspor riwayat transaksi
+
+```http
+GET /admin/transactions/export?start_date=2026-03-01&end_date=2026-03-31
+GET /supervisor/transactions/export?start_date=2026-03-01&end_date=2026-03-31
+```
+
+Auth: endpoint admin memerlukan role `admin`, dan endpoint supervisor memerlukan
+role `supervisor`. Filter `date`, `week`, `month`, `start_date`, dan `end_date`
+sama dengan daftar transaksi. Ekspor mengabaikan paginasi dan mengunduh semua
+transaksi yang cocok sebagai file `.xlsx`.
+
 ### Daftar jurnal akuntansi
 
 ```http

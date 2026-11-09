@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\Api\Supervisor;
 
+use App\Exports\TransactionsExport;
 use App\Http\Controllers\Controller;
 use App\Models\AccountingJournal;
 use App\Models\Transaction;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SupervisorController extends Controller
 {
@@ -36,48 +40,12 @@ class SupervisorController extends Controller
 
     public function getAllTransactions(Request $request)
     {
-        $validated = $request->validate([
-            'date'       => ['sometimes', 'date'],                     // Filter hari tertentu (YYYY-MM-DD)
-            'week'       => ['sometimes', 'date'],                     // Tanggal acuan minggu (YYYY-MM-DD)
-            'month'      => ['sometimes', 'date_format:Y-m'],         // Filter bulan (YYYY-MM)
-            'start_date' => ['sometimes', 'date'],                     // Filter rentang tanggal (mulai)
-            'end_date'   => ['sometimes', 'date', 'after_or_equal:start_date'], // Filter rentang tanggal (selesai)
-            'page'       => ['sometimes', 'integer', 'min:1'],
-            'per_page'   => ['sometimes', 'integer', 'min:1', 'max:100'],
-        ]);
+        $validated = $request->validate(array_merge($this->transactionFilterRules(), [
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+        ]));
 
-        $query = Transaction::with(['customer', 'user', 'shift'])
-            ->latest('created_at')
-            ->latest('id');
-
-        // 1. Filter Hari Specific (misal: 2026-05-20)
-        if ($request->filled('date')) {
-            $query->whereDate('created_at', $request->date);
-        }
-
-        // 2. Filter Minggu Specific (mengambil rentang awal & akhir minggu dari tanggal yang dikirim)
-        if ($request->filled('week')) {
-            $startOfWeek = \Carbon\Carbon::parse($request->week)->startOfWeek();
-            $endOfWeek   = \Carbon\Carbon::parse($request->week)->endOfWeek();
-            $query->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
-        }
-
-        // 3. Filter Bulan Specific (misal: 2026-05)
-        if ($request->filled('month')) {
-            $date = \Carbon\Carbon::parse($request->month);
-            $query->whereYear('created_at', $date->year)
-                ->whereMonth('created_at', $date->month);
-        }
-
-        // 4. Filter Rentang Tanggal (Custom Range)
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $query->whereBetween('created_at', [
-                \Carbon\Carbon::parse($request->start_date)->startOfDay(),
-                \Carbon\Carbon::parse($request->end_date)->endOfDay()
-            ]);
-        }
-
-        $transactions = $query->paginate($validated['per_page'] ?? 15);
+        $transactions = $this->transactionQuery($validated)->paginate($validated['per_page'] ?? 15);
 
         if ($transactions->total() === 0) {
             return response()->json([
@@ -98,5 +66,58 @@ class SupervisorController extends Controller
                 'to' => $transactions->lastItem(),
             ],
         ]);
+    }
+
+    public function exportTransactions(Request $request)
+    {
+        $filters = $request->validate($this->transactionFilterRules());
+
+        return Excel::download(
+            new TransactionsExport($this->transactionQuery($filters)),
+            'laporan-transaksi-'.now()->format('Ymd-His').'.xlsx'
+        );
+    }
+
+    private function transactionFilterRules(): array
+    {
+        return [
+            'date' => ['sometimes', 'date'],
+            'week' => ['sometimes', 'date'],
+            'month' => ['sometimes', 'date_format:Y-m'],
+            'start_date' => ['sometimes', 'date'],
+            'end_date' => ['sometimes', 'date', 'after_or_equal:start_date'],
+        ];
+    }
+
+    private function transactionQuery(array $filters): Builder
+    {
+        $query = Transaction::with(['customer', 'user', 'shift'])
+            ->latest('created_at')
+            ->latest('id');
+
+        if (! empty($filters['date'])) {
+            $query->whereDate('created_at', $filters['date']);
+        }
+
+        if (! empty($filters['week'])) {
+            $startOfWeek = Carbon::parse($filters['week'])->startOfWeek();
+            $endOfWeek = Carbon::parse($filters['week'])->endOfWeek();
+            $query->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
+        }
+
+        if (! empty($filters['month'])) {
+            $date = Carbon::parse($filters['month']);
+            $query->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month);
+        }
+
+        if (! empty($filters['start_date']) && ! empty($filters['end_date'])) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($filters['start_date'])->startOfDay(),
+                Carbon::parse($filters['end_date'])->endOfDay(),
+            ]);
+        }
+
+        return $query;
     }
 }

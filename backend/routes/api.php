@@ -63,6 +63,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
     Route::get('/vault/opening-balance', [VaultController::class, 'getOpeningBalance']);
     Route::post('/vault/opening-balance', [VaultController::class, 'setupOpeningBalance']);
 
+    Route::get('/transactions/export', [SupervisorController::class, 'exportTransactions']);
     Route::get('/transactions', [SupervisorController::class, 'getAllTransactions']);
     Route::get('/journals', [SupervisorController::class, 'accountingJournal']);
 });
@@ -84,6 +85,7 @@ Route::prefix('supervisor')->middleware(['auth:sanctum', 'role:supervisor'])->gr
     Route::get('/shifts/{shift}', [ShiftApprovalController::class, 'ShiftDetails']);
     Route::get('/vault/balance', [ShiftApprovalController::class, 'vaultBalance']);
     Route::get('/customers', [CustomerManagement::class, 'index']);
+    Route::get('/transactions/export', [SupervisorController::class, 'exportTransactions']);
     Route::post('/transactions', [SupervisorController::class, 'getAllTransactions']);
     Route::get('/journals', [SupervisorController::class, 'accountingJournal']);
     Route::get('/settings/total-users', [GeneralSettingController::class, 'getTotalUser']);

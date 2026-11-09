@@ -217,9 +217,9 @@ const DashboardLayout = ({ children, title }) => {
   );
 
   return (
-    <div className="min-h-screen w-full bg-[#f4f5f7] flex flex-col lg:flex-row">
+    <div className="min-h-screen w-full bg-[#f4f5f7] flex flex-col lg:flex-row print:block print:min-h-0 print:bg-white">
       {/* Header Mobile */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden print:hidden">
         <button
           type="button"
           onClick={() => setIsSidebarOpen(true)}
@@ -233,13 +233,13 @@ const DashboardLayout = ({ children, title }) => {
       </header>
 
       {/* Sidebar Desktop (Fixed di Kiri) */}
-      <aside className="hidden lg:block fixed left-0 top-0 h-screen w-64 border-r border-slate-200 bg-[#f8f9fa] z-20">
+      <aside className="hidden lg:block fixed left-0 top-0 h-screen w-64 border-r border-slate-200 bg-[#f8f9fa] z-20 print:hidden">
         {sidebarContent}
       </aside>
 
       {/* Sidebar Mobile Overlay */}
       {isSidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className="fixed inset-0 z-40 lg:hidden print:hidden">
           <button
             type="button"
             aria-label="Close sidebar"
@@ -253,7 +253,7 @@ const DashboardLayout = ({ children, title }) => {
       )}
 
       {/* Main Content Area (Diberikan Margin Kiri sebesar lebar Sidebar di Desktop) */}
-      <main className="flex-1 p-4 sm:p-6 lg:ml-64 min-h-screen overflow-y-auto">
+      <main className="flex-1 p-4 sm:p-6 lg:ml-64 min-h-screen overflow-y-auto print:ml-0 print:min-h-0 print:overflow-visible">
         {children}
       </main>
     </div>

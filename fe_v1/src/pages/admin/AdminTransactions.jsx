@@ -95,7 +95,12 @@ const AdminTransactions = () => {
       />
 
       {message && <p className="mb-4 text-sm font-medium text-red-600">{message}</p>}
-      <TransactionTable transactions={transactions} loading={loading} />
+      <TransactionTable
+        transactions={transactions}
+        loading={loading}
+        exportUrl="/admin/transactions/export"
+        filters={filters}
+      />
       <Pagination
         pagination={pagination}
         onPageChange={setPage}
