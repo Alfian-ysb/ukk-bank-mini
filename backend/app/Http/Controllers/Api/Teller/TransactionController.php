@@ -61,18 +61,18 @@ class TransactionController extends Controller
     public function StoreTransaction(Request $request, int $id)
     {
         $minimumWithdrawal = (int) (General::where('name', 'minimum_withdrawal')->value('value') ?? 10000);
-        $minimumWithdrawal = (int) (General::where('name', 'max_withdrawal')->value('value') ?? 1000000);
+        $maximumWithdrawal = (int) (General::where('name', 'max_withdrawal')->value('value') ?? 1000000);
         $validated = $request->validate([
             'transaction_type' => ['required', 'in:deposit,withdrawal'],
             'amount' => [
                 'required',
                 'integer',
                 Rule::when($request->transaction_type === 'withdrawal', ['min:' . $minimumWithdrawal]),
-                Rule::when($request->transaction_type === 'withdrawal', ['max:' . $minimumWithdrawal]),
+                Rule::when($request->transaction_type === 'withdrawal', ['max:' . $maximumWithdrawal]),
             ],
         ], [
-            'amount.min' => 'Jumlah penarikan harus lebih besar dari jumlah minimum penarikan yang ditetapkan senilai Rp' . (General::where('name', 'minimum_withdrawal')->value('value') ?? 10000) . '.',
-            'amount.max' => 'Jumlah penarikan melewati batas penarikan yang ditetapkan senilai Rp' . (General::where('name', 'max_withdrawal')->value('value') ?? 1000000) . '.',
+            'amount.min' => 'Jumlah penarikan minimal adalah Rp' . $minimumWithdrawal . '.',
+            'amount.max' => 'Jumlah penarikan maksimal adalah Rp' . $maximumWithdrawal . '.',
         ]);
 
         $shift = Shift::where('status', ShiftStatus::OPEN)

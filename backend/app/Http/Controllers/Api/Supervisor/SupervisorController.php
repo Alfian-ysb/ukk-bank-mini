@@ -9,20 +9,28 @@ use Illuminate\Http\Request;
 
 class SupervisorController extends Controller
 {
-    public function accountingJournal()
+    public function accountingJournal(Request $request)
     {
-        $journals = AccountingJournal::with(['transaction', 'transaction.customer', 'transaction.user', 'transaction.shift'])->latest()->get();
-
-        if (!$journals) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No accounting journals found',
-            ], 404);
-        }
+        $validated = $request->validate([
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+        ]);
+        $journals = AccountingJournal::with(['transaction', 'transaction.customer', 'transaction.user', 'transaction.shift'])
+            ->latest('created_at')
+            ->latest('id')
+            ->paginate($validated['per_page'] ?? 15);
 
         return response()->json([
             'status' => 'success',
-            'data' => $journals,
+            'data' => $journals->items(),
+            'pagination' => [
+                'current_page' => $journals->currentPage(),
+                'per_page' => $journals->perPage(),
+                'total' => $journals->total(),
+                'last_page' => $journals->lastPage(),
+                'from' => $journals->firstItem(),
+                'to' => $journals->lastItem(),
+            ],
         ]);
     }
 
@@ -34,9 +42,13 @@ class SupervisorController extends Controller
             'month'      => ['sometimes', 'date_format:Y-m'],         // Filter bulan (YYYY-MM)
             'start_date' => ['sometimes', 'date'],                     // Filter rentang tanggal (mulai)
             'end_date'   => ['sometimes', 'date', 'after_or_equal:start_date'], // Filter rentang tanggal (selesai)
+            'page'       => ['sometimes', 'integer', 'min:1'],
+            'per_page'   => ['sometimes', 'integer', 'min:1', 'max:100'],
         ]);
 
-        $query = Transaction::with(['customer', 'user', 'shift'])->latest();
+        $query = Transaction::with(['customer', 'user', 'shift'])
+            ->latest('created_at')
+            ->latest('id');
 
         // 1. Filter Hari Specific (misal: 2026-05-20)
         if ($request->filled('date')) {
@@ -65,10 +77,9 @@ class SupervisorController extends Controller
             ]);
         }
 
-        // Mengambil data (jika tidak ada parameter di atas yang diisi, otomatis mengambil semua data)
-        $transactions = $query->get();
+        $transactions = $query->paginate($validated['per_page'] ?? 15);
 
-        if ($transactions->isEmpty()) {
+        if ($transactions->total() === 0) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'No transactions found',
@@ -77,7 +88,15 @@ class SupervisorController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'data' => $transactions,
+            'data' => $transactions->items(),
+            'pagination' => [
+                'current_page' => $transactions->currentPage(),
+                'per_page' => $transactions->perPage(),
+                'total' => $transactions->total(),
+                'last_page' => $transactions->lastPage(),
+                'from' => $transactions->firstItem(),
+                'to' => $transactions->lastItem(),
+            ],
         ]);
     }
 }

@@ -19,9 +19,12 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class CustomerManagement extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-// #[Fillable('user_id', 'account_number', 'nis', 'student_name', 'major', 'cohort_year', 'pin', 'password', 'status', 'balance')]
+        $validated = $request->validate([
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+        ]);
         $customers = Customer::select([
                 'id',
                 'account_number',
@@ -32,10 +35,21 @@ class CustomerManagement extends Controller
                 'password',
                 'status',
                 'balance'
-            ])->get();
+            ])
+            ->orderBy('id')
+            ->paginate($validated['per_page'] ?? 15);
+
         return response()->json([
             'status' => 'success',
-            'data' => $customers,
+            'data' => $customers->items(),
+            'pagination' => [
+                'current_page' => $customers->currentPage(),
+                'per_page' => $customers->perPage(),
+                'total' => $customers->total(),
+                'last_page' => $customers->lastPage(),
+                'from' => $customers->firstItem(),
+                'to' => $customers->lastItem(),
+            ],
         ]);
     }
 

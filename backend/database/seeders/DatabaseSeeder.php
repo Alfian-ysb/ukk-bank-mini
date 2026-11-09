@@ -93,7 +93,7 @@ class DatabaseSeeder extends Seeder
                 'major' => 'TKJ',
                 'cohort_year' => '2027',
                 'pin' => Hash::make('123456'),
-                'password' => Hash::make('password'),
+                'password' => Hash::make('rahasia'),
             ],
         ];
 

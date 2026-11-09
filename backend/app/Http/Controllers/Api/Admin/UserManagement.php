@@ -14,12 +14,25 @@ use Illuminate\Validation\ValidationException;
 
 class UserManagement extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $user = User::all();
+        $validated = $request->validate([
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+        ]);
+        $users = User::orderBy('id')->paginate($validated['per_page'] ?? 15);
+
         return response()->json([
             'status' => 'success',
-            'data' => $user,
+            'data' => $users->items(),
+            'pagination' => [
+                'current_page' => $users->currentPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+                'last_page' => $users->lastPage(),
+                'from' => $users->firstItem(),
+                'to' => $users->lastItem(),
+            ],
         ]);
     }
 

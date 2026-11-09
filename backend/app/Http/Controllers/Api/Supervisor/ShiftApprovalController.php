@@ -6,6 +6,7 @@ use App\Enums\ShiftStatus;
 use App\Http\Controllers\Controller;
 use App\Models\CashTransfer;
 use App\Models\Shift;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -14,13 +15,34 @@ use Throwable;
 
 class ShiftApprovalController extends Controller
 {
-    public function getAllShifts()
+    public function getAllShifts(Request $request)
     {
-        $shifts = Shift::with(['denominations', 'cashTransfers'])->latest('shift_date')->get();
+        $validated = $request->validate([
+            'page' => ['sometimes', 'integer', 'min:1'],
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'status' => ['sometimes', 'in:open,closed,approved'],
+        ]);
+        $query = Shift::with(['denominations', 'cashTransfers'])
+            ->latest('shift_date')
+            ->latest('id');
+
+        if (isset($validated['status'])) {
+            $query->where('status', $validated['status']);
+        }
+
+        $shifts = $query->paginate($validated['per_page'] ?? 15);
 
         return response()->json([
             'status' => 'success',
-            'data' => $shifts,
+            'data' => $shifts->items(),
+            'pagination' => [
+                'current_page' => $shifts->currentPage(),
+                'per_page' => $shifts->perPage(),
+                'total' => $shifts->total(),
+                'last_page' => $shifts->lastPage(),
+                'from' => $shifts->firstItem(),
+                'to' => $shifts->lastItem(),
+            ],
         ]);
     }
 
