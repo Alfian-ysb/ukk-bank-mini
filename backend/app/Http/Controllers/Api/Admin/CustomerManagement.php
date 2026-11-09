@@ -71,7 +71,7 @@ class CustomerManagement extends Controller
     public function import(Request $request): JsonResponse
     {
         $request->validate([
-            'file' => ['required', 'file', 'mimes:csv,txt', 'max:5120'],
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx', 'max:5120'],
         ]);
 
         $import = new CustomersImport(app(CreateCustomerAction::class));
