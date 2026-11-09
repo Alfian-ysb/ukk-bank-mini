@@ -15,7 +15,22 @@ const emptyForm = {
 const fields = [
   { name: "nis", label: "NIS", required: true },
   { name: "student_name", label: "Nama siswa", required: true },
-  { name: "major", label: "Jurusan", required: true },
+  {
+    name: "major",
+    label: "Jurusan",
+    type: "select",
+    required: true,
+    options: [
+      { value: "RPL", label: "RPL" },
+      { value: "TKJ", label: "TKJ" },
+      { value: "DKV", label: "DKV" },
+      { value: "AKL", label: "AKL" },
+      { value: "MP", label: "MP" },
+      { value: "LPS", label: "LPS" },
+      { value: "BD", label: "BD" },
+      { value: "BR", label: "BR" },
+    ],
+  },
   { name: "cohort_year", label: "Tahun angkatan", required: true },
   {
     name: "pin",
@@ -48,24 +63,26 @@ function CustomerCreatePage() {
   }
 
   async function submit(event) {
-  event.preventDefault();
-  
-  const isConfirmed = window.confirm("Apakah Anda yakin ingin menambahkan nasabah ini?");
-  if (!isConfirmed) {
-    return; 
-  }
+    event.preventDefault();
 
-  setError("");
-  setMessage("");
-  
-  try {
-    const response = await post("/admin/customers", form);
-    setMessage(response.message || "Nasabah berhasil ditambahkan.");
-    setForm(emptyForm);
-  } catch (requestError) {
-    setError(requestError.message);
+    const isConfirmed = window.confirm(
+      "Apakah Anda yakin ingin menambahkan nasabah ini?",
+    );
+    if (!isConfirmed) {
+      return;
+    }
+
+    setError("");
+    setMessage("");
+
+    try {
+      const response = await post("/admin/customers", form);
+      setMessage(response.message || "Nasabah berhasil ditambahkan.");
+      setForm(emptyForm);
+    } catch (requestError) {
+      setError(requestError.message);
+    }
   }
-}
 
   return (
     <DashboardLayout title="Tambah Nasabah">

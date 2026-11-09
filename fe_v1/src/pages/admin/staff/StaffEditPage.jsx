@@ -144,7 +144,7 @@ function StaffEditPage() {
 
           <div className="mt-7 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
             <Button type="submit" text="Simpan" theme="primary" />
-            <Button text="Batal" theme="outline" onClick={() => navigate(`/admin/customers/${id}`)} />
+            <Button type="button" text="Batal" theme="outline" onClick={() => navigate("/admin/staff")} />
           </div>
         </form>
       </div>

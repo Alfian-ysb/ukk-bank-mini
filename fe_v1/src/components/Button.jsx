@@ -1,6 +1,6 @@
 import React from "react";
 
-const Button = ({ text, onClick, theme, customClass, disabled }) => {
+const Button = ({ text, onClick, theme, customClass, disabled, type}) => {
   const themeClasses = {
     primary:
       "bg-primary hover:bg-secondary text-sm text-white font-bold px-4 py-2 rounded-lg transition duration-300 cursor-pointer",
@@ -18,6 +18,7 @@ const Button = ({ text, onClick, theme, customClass, disabled }) => {
 
   return (
     <button
+      type={type || "button"}
       onClick={onClick}
       className={`${themeClasses[theme] || themeClasses.primary} ${customClass || ""}`}
       disabled={disabled}

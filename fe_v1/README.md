@@ -1,16 +1,39 @@
-# React + Vite
+# Frontend UKK Bank Mini
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplikasi web untuk operasional admin, teller, dan supervisor. Frontend menggunakan React, React Router, dan Vite, serta berkomunikasi dengan backend Laravel melalui REST API.
 
-Currently, two official plugins are available:
+Panduan sistem dan cara menjalankan backend tersedia di [README utama](../README.md).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Persiapan lokal
 
-## React Compiler
+Persyaratan: Node.js dan npm yang kompatibel dengan Vite 8, serta backend yang sudah berjalan.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```powershell
+npm install
+Copy-Item .env.example .env
+```
 
-## Expanding the ESLint configuration
+Atur `VITE_API_URL` di `.env` ke URL dasar backend, tanpa akhiran `/api`:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```dotenv
+VITE_API_URL=http://localhost:8000
+```
+
+Jalankan server pengembangan:
+
+```powershell
+npm run dev
+```
+
+## Validasi dan build
+
+```powershell
+npm run lint
+npm run build
+```
+
+Build produksi dibuat di direktori `dist`. Konfigurasi Netlify di repository mengatur direktori ini sebagai hasil publikasi dan mengarahkan navigasi SPA ke `index.html`. Atur `VITE_API_URL` di environment build hosting ke URL backend produksi.
+
+## Referensi API
+
+Lihat dokumentasi API bersama di [backend/API.md](../backend/API.md).

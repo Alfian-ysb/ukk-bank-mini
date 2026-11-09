@@ -40,7 +40,11 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'minimum_withdrawal',
                 'value' => '10000',
-            ]
+            ],
+            [
+                'name' => 'max_withdrawal',
+                'value' => '1000000',
+            ],
         ];
 
         $users = [
@@ -82,9 +86,9 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password'),
             ],
             [
-                'account_number' => '2027011502',
+                'account_number' => '2027021502',
                 'student_name' => 'Anisa',
-                'email' => 'example@mail.com',
+                'email' => '',
                 'nis' => '1502',
                 'major' => 'TKJ',
                 'cohort_year' => '2027',
@@ -114,7 +118,7 @@ class DatabaseSeeder extends Seeder
                 ['username' => $user['username']],
                 [
                     'full_name' => $user['full_name'],
-                    'password' => 'password',
+                    'password' => Hash::make($user['password']),
                     'role' => $user['role'],
                 ]
             );
