@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Customer;
+use App\Models\General;
 use App\Models\Shift;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,6 +12,38 @@ use Tests\TestCase;
 class TransactionApprovalTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function test_withdrawal_below_minimum_is_rejected(): void
+    {
+        $teller = $this->createUser('teller');
+        $customer = $this->createCustomer(200000);
+        $this->setWithdrawalLimits();
+
+        $response = $this->actingAs($teller, 'sanctum')->postJson(
+            "/api/teller/customer/{$customer->id}/transaction",
+            ['transaction_type' => 'withdrawal', 'amount' => 9999],
+        );
+
+        $response->assertUnprocessable()
+            ->assertJsonPath('errors.amount.0', 'Jumlah penarikan minimal adalah Rp10000.');
+        $this->assertDatabaseCount('transaction_requests', 0);
+    }
+
+    public function test_withdrawal_above_maximum_is_rejected(): void
+    {
+        $teller = $this->createUser('teller');
+        $customer = $this->createCustomer(2000000);
+        $this->setWithdrawalLimits();
+
+        $response = $this->actingAs($teller, 'sanctum')->postJson(
+            "/api/teller/customer/{$customer->id}/transaction",
+            ['transaction_type' => 'withdrawal', 'amount' => 1000001],
+        );
+
+        $response->assertUnprocessable()
+            ->assertJsonPath('errors.amount.0', 'Jumlah penarikan maksimal adalah Rp1000000.');
+        $this->assertDatabaseCount('transaction_requests', 0);
+    }
 
     public function test_teller_processes_deposit_without_customer_approval(): void
     {
@@ -161,5 +194,11 @@ class TransactionApprovalTest extends TestCase
             'assigned_staff' => [$teller->id],
             'opened_by' => $teller->id,
         ]);
+    }
+
+    private function setWithdrawalLimits(): void
+    {
+        General::create(['name' => 'minimum_withdrawal', 'value' => '10000']);
+        General::create(['name' => 'max_withdrawal', 'value' => '1000000']);
     }
 }

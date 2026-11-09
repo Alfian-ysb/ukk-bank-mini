@@ -4,30 +4,55 @@ import { get } from "../../api";
 import Table from "../../components/Table";
 import Button from "../../components/Button";
 import { useNavigate } from "react-router-dom";
+import Pagination from "../../components/Pagination";
 
 const ShiftApproval = () => {
   const [shifts, setShifts] = useState([]);
+  const [pagination, setPagination] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("all"); 
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
 
-  const fetchShifts = async () => {
-    try {
-      const response = await get("/supervisor/shifts");
-      setShifts(response.data || []);
-    } catch (error) {
-      setMessage(error.message);
-    }
-  };
-
   useEffect(() => {
-    fetchShifts();
-  }, []);
+    let active = true;
+    setLoading(true);
+    setMessage("");
 
-  const filteredShifts = shifts.filter((shift) => {
-    if (selectedStatus === "all") return true;
-    return shift.status?.toLowerCase() === selectedStatus.toLowerCase();
-  });
+    const queryParams = new URLSearchParams({
+      page: String(page),
+      per_page: "15",
+    });
+    if (selectedStatus !== "all") {
+      queryParams.set("status", selectedStatus);
+    }
+
+    get(`/supervisor/shifts?${queryParams.toString()}`)
+      .then((response) => {
+        if (!active) return;
+        const pageCount = Number(response.pagination?.last_page) || 1;
+        if (page > pageCount) {
+          setPage(pageCount);
+          return;
+        }
+        setShifts(response.data || []);
+        setPagination(response.pagination || null);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setShifts([]);
+        setPagination(null);
+        setMessage(error.message || "Gagal mengambil laporan harian.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [page, selectedStatus]);
 
   return (
     <DashboardLayout title="Approve Shift">
@@ -48,7 +73,10 @@ const ShiftApproval = () => {
             <select
               id="status-filter"
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
+              onChange={(e) => {
+                setSelectedStatus(e.target.value);
+                setPage(1);
+              }}
               className="rounded-lg border-2 border-primary cursor-pointer bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-xs focus:border-slate-500 focus:outline-none"
             >
               <option value="all">Semua Status</option>
@@ -59,7 +87,9 @@ const ShiftApproval = () => {
           </div>
         </div>
 
-        {filteredShifts.length ? (
+        {loading ? (
+          <p className="py-4 text-center text-sm text-gray-500">Memuat laporan harian...</p>
+        ) : shifts.length ? (
           <Table
             headers={[
               "Tanggal",
@@ -69,7 +99,7 @@ const ShiftApproval = () => {
               "Status",
               "Aksi",
             ]}
-            data={filteredShifts.map((shift) => {
+            data={shifts.map((shift) => {
               const rawDate = shift.shift_date || shift.date;
               const parsedDate = rawDate ? new Date(rawDate) : null;
               const formattedDate =
@@ -109,11 +139,16 @@ const ShiftApproval = () => {
           />
         ) : (
           <p className="py-4 text-center text-sm text-gray-500">
-            {shifts.length === 0
+            {shifts.length === 0 && selectedStatus === "all"
               ? "Tidak ada data shift."
               : `Tidak ada shift dengan status "${selectedStatus}".`}
           </p>
         )}
+        <Pagination
+          pagination={pagination}
+          onPageChange={setPage}
+          disabled={loading}
+        />
       </section>
     </DashboardLayout>
   );

@@ -2,20 +2,38 @@ import { useEffect, useState } from "react";
 import DashboardLayout from "../../components/DashboardLayout";
 import { get } from "../../api";
 import Table from "../../components/Table";
+import Pagination from "../../components/Pagination";
 
 const CustomerList = () => {
   const [customers, setCustomers] = useState([]);
+  const [pagination, setPagination] = useState(null);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    get("/supervisor/customers")
+    let active = true;
+    setLoading(true);
+    get(`/supervisor/customers?page=${page}&per_page=15`)
       .then((response) => {
+        if (!active) return;
         setCustomers(response.data || []);
+        setPagination(response.pagination || null);
+        setMessage("");
       })
       .catch((error) => {
-        setMessage(error.message);
+        if (!active) return;
+        setCustomers([]);
+        setPagination(null);
+        setMessage(error.message || "Gagal mengambil daftar nasabah.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [page]);
 
   return (
     <DashboardLayout title="Daftar Nasabah">
@@ -23,7 +41,9 @@ const CustomerList = () => {
 
       <section className="rounded-lg bg-white p-5 shadow-sm">
         <h2 className="mb-3 text-2xl font-plus-jakarta-sans font-semibold text-gray-700">Daftar Nasabah</h2>
-        {customers.length > 0 ? (
+        {loading ? (
+          <p className="text-sm text-gray-500">Memuat daftar nasabah...</p>
+        ) : customers.length > 0 ? (
         <Table
           headers={[
             "No. Rekening",
@@ -53,6 +73,11 @@ const CustomerList = () => {
       ) : (
         <p className="text-sm text-gray-500">Tidak ada data customer.</p>
       )}
+      <Pagination
+        pagination={pagination}
+        onPageChange={setPage}
+        disabled={loading}
+      />
       </section>
     </DashboardLayout>
   );

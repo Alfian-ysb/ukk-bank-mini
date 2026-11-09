@@ -1,28 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Table from '../../components/Table';
 import { get } from '../../api';
 import DashboardLayout from '../../components/DashboardLayout';
+import Pagination from '../../components/Pagination';
 
 const AdminAccountingJournals = () => {
   const [journals, setJournals] = useState([]);
+  const [pagination, setPagination] = useState(null);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    get("/admin/journals") // atau endpoint jurnal Anda
+    let active = true;
+    setLoading(true);
+    get(`/admin/journals?page=${page}&per_page=15`)
       .then((response) => {
+        if (!active) return;
         setJournals(response.data || []);
+        setPagination(response.pagination || null);
+        setMessage("");
       })
       .catch((error) => {
-        setMessage(error.message);
+        if (!active) return;
+        setJournals([]);
+        setPagination(null);
+        setMessage(error.message || "Gagal mengambil data jurnal.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
       });
-  }, []);
+    return () => {
+      active = false;
+    };
+  }, [page]);
 
-  // Helper format Rupiah
   const formatRupiah = (number) => {
     return `Rp${Number(number || 0).toLocaleString("id-ID")}`;
   };
 
-  // Helper format tanggal
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     return new Date(dateString).toLocaleString("id-ID", {
@@ -39,7 +55,9 @@ const AdminAccountingJournals = () => {
         <h2 className="mb-3 text-2xl font-plus-jakarta-sans font-semibold text-gray-700">
           Jurnal Umum / Transaksi
         </h2>
-        {journals.length > 0 ? (
+        {loading ? (
+          <p className="text-sm text-gray-500">Memuat data jurnal...</p>
+        ) : journals.length > 0 ? (
           <Table
             headers={[
               "Waktu / Tanggal",
@@ -89,6 +107,11 @@ const AdminAccountingJournals = () => {
         ) : (
           <p className="text-sm text-gray-500">Tidak ada data jurnal akuntansi.</p>
         )}
+        <Pagination
+          pagination={pagination}
+          onPageChange={setPage}
+          disabled={loading}
+        />
       </section>
     </DashboardLayout>
   );

@@ -152,6 +152,238 @@ Response `200`:
 }
 ```
 
+### Lupa password customer
+
+Alur lupa password tidak memerlukan login. Nasabah mengirim NIS dan email terdaftar, memverifikasi OTP dari email, lalu menetapkan password baru.
+
+#### Meminta OTP
+
+```http
+POST /customer/forgot-password
+```
+
+Auth: tidak diperlukan.
+
+Request body:
+
+```json
+{
+  "nis": "123456",
+  "email": "nasabah@example.com"
+}
+```
+
+Response `202` menggunakan pesan generik baik data cocok maupun tidak:
+
+```json
+{
+  "status": "success",
+  "message": "Jika NIS dan email cocok, kode OTP akan dikirim atau masih dalam masa tunggu.",
+  "data": {
+    "challenge_id": "id-tantangan-opaque"
+  }
+}
+```
+
+Jika NIS dan email cocok, OTP 4 digit dikirim ke email terdaftar. Kode berlaku 5 menit, maksimal 3 percobaan, dengan jeda kirim ulang 30 detik. Endpoint dibatasi hingga 5 permintaan per menit per IP. Untuk melanjutkan, aplikasi Flutter tetap menggunakan `challenge_id` dari response; challenge yang tidak cocok akan gagal diverifikasi.
+
+#### Memverifikasi OTP
+
+```http
+POST /customer/verify-password-reset-otp
+```
+
+Auth: tidak diperlukan.
+
+Request body:
+
+```json
+{
+  "challenge_id": "id-tantangan-dari-request",
+  "otp": "0123"
+}
+```
+
+Response `200` jika OTP benar:
+
+```json
+{
+  "status": "success",
+  "message": "Kode OTP berhasil diverifikasi.",
+  "data": {
+    "reset_token": "token-otorisasi-reset-password",
+    "expires_in_minutes": 10
+  }
+}
+```
+
+OTP salah, kedaluwarsa, sudah dipakai, melewati batas percobaan, atau challenge tidak valid menghasilkan `422`. Endpoint dibatasi hingga 10 permintaan per menit per IP.
+
+#### Menetapkan password baru
+
+```http
+POST /customer/reset-password
+```
+
+Auth: tidak diperlukan.
+
+Request body:
+
+```json
+{
+  "reset_token": "token-otorisasi-reset-password",
+  "new_password": "password-baru"
+}
+```
+
+Password baru minimal 6 karakter. Reset token berlaku 10 menit dan hanya dapat digunakan sekali. Response sukses berisi `"message": "Password berhasil diperbarui."`; token tidak valid, kedaluwarsa, atau telah digunakan menghasilkan `422`. Endpoint dibatasi hingga 10 permintaan per menit per IP.
+
+Urutan layar Flutter: masukkan NIS + email, masukkan OTP dari email, lalu setelah verifikasi sukses masukkan password baru dan konfirmasinya. Jangan simpan atau log OTP maupun `reset_token`.
+
+### Mengubah email dengan OTP
+
+Semua endpoint pada alur ini mengharuskan nasabah login. Kode OTP dikirim ke
+email baru yang diminta. Email akun baru berubah hanya setelah OTP berhasil
+diverifikasi. Setelah berhasil, seluruh token login nasabah dicabut sehingga
+nasabah harus login kembali.
+
+#### Meminta OTP
+
+```http
+POST /customer/change-email/request-otp
+```
+
+Request body:
+
+```json
+{
+  "new_email": "email-baru@example.com"
+}
+```
+
+Response sukses `202` berisi `challenge_id`. Email harus valid, berbeda dari
+email saat ini, dan belum digunakan nasabah lain. Kode OTP 4 digit berlaku
+selama 5 menit, maksimal 3 percobaan, dengan jeda permintaan ulang 30 detik.
+Endpoint dibatasi hingga 5 permintaan per menit per IP.
+
+#### Memverifikasi OTP dan mengganti email
+
+```http
+POST /customer/change-email/verify-otp
+```
+
+Request body:
+
+```json
+{
+  "challenge_id": "id-tantangan-dari-request",
+  "otp": "0123"
+}
+```
+
+Response sukses:
+
+```json
+{
+  "status": "success",
+  "message": "Email berhasil diperbarui. Silakan login kembali."
+}
+```
+
+Jika OTP benar, email nasabah diperbarui dan semua token akses nasabah dicabut.
+Nasabah harus kembali ke halaman login. OTP salah, kedaluwarsa, atau sudah
+digunakan menghasilkan `422`. Endpoint dibatasi hingga 10 permintaan per menit
+per IP.
+
+### Ubah PIN dengan OTP
+
+Semua endpoint pada alur ini mengharuskan nasabah login. Sertakan token Sanctum:
+
+```http
+Authorization: Bearer <customer-token>
+```
+
+Email tujuan diambil dari akun nasabah yang sedang login; aplikasi tidak mengirim NIS atau email.
+
+#### Meminta kode OTP
+
+```http
+POST /customer/change-pin/request-otp
+```
+
+Auth: `auth:sanctum`.
+
+Tidak memerlukan request body. Kode OTP 4 digit dikirim ke email terdaftar milik nasabah.
+
+```json
+{
+  "status": "success",
+  "message": "Kode OTP telah dikirim ke email terdaftar.",
+  "data": {
+    "challenge_id": "id-tantangan-acak"
+  }
+}
+```
+
+Jika akun belum memiliki email, endpoint menghasilkan `422`. OTP berlaku 5 menit dan dapat dicoba maksimal 3 kali. Permintaan ulang dalam 30 detik menghasilkan `429` beserta `challenge_id` yang sama, tanpa mengirim kode baru. Endpoint dibatasi hingga 5 permintaan per menit per IP.
+
+#### Memverifikasi kode OTP
+
+Setelah nasabah memasukkan OTP pada aplikasi Flutter, kirim:
+
+```http
+POST /customer/change-pin/verify-otp
+```
+
+Auth: `auth:sanctum`.
+
+Request body:
+
+```json
+{
+  "challenge_id": "id-tantangan-dari-request",
+  "otp": "0123"
+}
+```
+
+Response `200` jika OTP benar:
+
+```json
+{
+  "status": "success",
+  "message": "Kode OTP berhasil diverifikasi.",
+  "data": {
+    "reset_token": "token-otorisasi-reset",
+    "expires_in_minutes": 10
+  }
+}
+```
+
+Challenge hanya berlaku bagi nasabah yang meminta OTP. OTP salah, kedaluwarsa, sudah dipakai, atau melewati batas percobaan menghasilkan `422`. Endpoint dibatasi hingga 10 permintaan per menit per IP. Aplikasi hanya menampilkan form PIN baru setelah endpoint ini berhasil.
+
+#### Menyimpan PIN baru
+
+Setelah verifikasi OTP berhasil, Flutter mengirim token otorisasi dan PIN baru:
+
+```http
+POST /customer/change-pin/reset
+```
+
+Auth: `auth:sanctum`.
+
+Request body:
+
+```json
+{
+  "reset_token": "token-otorisasi-reset",
+  "new_pin": "654321"
+}
+```
+
+PIN baru harus terdiri dari 4 sampai 6 digit. Token reset hanya dapat digunakan oleh nasabah yang sama, berlaku 10 menit, dan hanya dapat digunakan sekali. Token tidak valid, kedaluwarsa, sudah digunakan, atau milik nasabah lain menghasilkan response `422`. Endpoint dibatasi hingga 10 permintaan per menit per IP.
+
+Urutan layar Flutter: nasabah login, memilih ubah PIN, meminta OTP, memasukkan OTP, lalu setelah verifikasi sukses memasukkan PIN baru dan konfirmasinya. Jangan simpan atau log OTP maupun `reset_token`. Atur konfigurasi `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, dan `MAIL_FROM_ADDRESS` di `.env` agar email benar-benar terkirim. `MAIL_MAILER=log` hanya menulis email ke log aplikasi.
+
 ### Logout customer
 
 ```http
@@ -237,10 +469,34 @@ Response `200`:
 }
 ```
 
+### Import nasabah melalui CSV
+
+Admin dapat menambahkan banyak nasabah sekaligus melalui:
+
+```http
+POST /admin/customers/import
+Content-Type: multipart/form-data
+```
+
+Field upload wajib bernama `file`. File harus berformat CSV atau TXT dengan
+header berikut:
+
+```csv
+nis,student_name,email,major,cohort_year,pin,password
+12345,Budi Santoso,budi@example.com,RPL,2026,123456,password123
+```
+
+Kolom `email` opsional. Kolom tersebut boleh dihilangkan dari header atau
+dibiarkan kosong. Jika diisi, email harus valid dan belum digunakan nasabah lain.
+
+Jika ada baris yang tidak valid atau NIS duplikat, seluruh import dibatalkan
+dan API mengembalikan `422` beserta nomor baris yang bermasalah.
+
 ### Persetujuan transaksi nasabah
 
-Transaksi teller sekarang dibuat sebagai `pending`. Saldo dan transaksi final
-baru dibuat setelah nasabah menyetujui dengan PIN.
+Penarikan teller dibuat sebagai `pending` dan saldo baru berubah setelah
+nasabah menyetujui dengan PIN. Setoran langsung diproses oleh backend tanpa
+notifikasi dan tanpa approval nasabah.
 
 ```http
 GET /customer/transaction-requests/{request_id}
@@ -248,13 +504,16 @@ POST /customer/transaction-requests/{request_id}/approve
 POST /customer/transaction-requests/{request_id}/reject
 ```
 
-Persetujuan:
+Endpoint persetujuan hanya digunakan untuk penarikan:
 
 ```json
 {
   "pin": "123456"
 }
 ```
+
+Setoran tidak membuat approval request yang menunggu nasabah; endpoint teller
+langsung mengembalikan status `completed`.
 
 Status yang mungkin dikembalikan:
 
@@ -266,7 +525,7 @@ Status yang mungkin dikembalikan:
 | `expired` | Melewati waktu kedaluwarsa |
 | `completed` | Saldo, transaksi, dan jurnal sudah berhasil dibuat |
 
-Verifikasi PIN dibatasi maksimal 3 percobaan untuk setiap permintaan transaksi.
+Verifikasi PIN penarikan dibatasi maksimal 3 percobaan untuk setiap permintaan transaksi.
 Percobaan PIN yang salah menambah `verification_attempts`; setelah percobaan
 ketiga, status menjadi `rejected`, transaksi dibatalkan, dan saldo tidak
 berubah. Percobaan pertama dan kedua mengembalikan `422`, sedangkan percobaan
@@ -311,8 +570,10 @@ oleh role `admin`. Jika sudah pernah digunakan, response `422`.
 ### Daftar staff
 
 ```http
-GET /admin/staff
+GET /admin/staff?page=1&per_page=15
 ```
+
+`page` default `1`; `per_page` default `15` dan dibatasi maksimum `100`.
 
 Response `200`:
 
@@ -326,7 +587,15 @@ Response `200`:
       "full_name": "Teller Satu",
       "role": "teller"
     }
-  ]
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 1,
+    "last_page": 1,
+    "from": 1,
+    "to": 1
+  }
 }
 ```
 
@@ -439,8 +708,10 @@ Response `200`:
 ### Daftar nasabah
 
 ```http
-GET /admin/customers
+GET /admin/customers?page=1&per_page=15
 ```
+
+`page` default `1`; `per_page` default `15` dan dibatasi maksimum `100`.
 
 Response `200`:
 
@@ -457,7 +728,15 @@ Response `200`:
       "status": "active",
       "balance": 500000
     }
-  ]
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 1,
+    "last_page": 1,
+    "from": 1,
+    "to": 1
+  }
 }
 ```
 
@@ -880,13 +1159,15 @@ Jika shift belum `closed`, response `422`.
 ### Daftar shift dan laporan harian
 
 ```http
-GET /supervisor/shifts
+GET /supervisor/shifts?page=1&per_page=15&status=closed
 ```
 
 Auth: `auth:sanctum` dan `role:supervisor`.
 
 Laporan harian sekarang merupakan data pada tabel `shifts`, sehingga response berisi
 saldo, total transaksi, status, dan rincian denominasi shift.
+Parameter `page` default `1`, sedangkan `per_page` default `15` dan dibatasi maksimum
+`100`. Parameter `status` opsional menerima `open`, `closed`, atau `approved`.
 
 Response `200`:
 
@@ -905,36 +1186,64 @@ Response `200`:
       "closing_physical_balance": 950000,
       "difference": 0
     }
-  ]
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 1,
+    "last_page": 1,
+    "from": 1,
+    "to": 1
+  }
 }
 ```
 
 ### Daftar transaksi
 
 ```http
-GET /supervisor/transactions
+GET /admin/transactions?page=1&per_page=15
+POST /supervisor/transactions?page=1&per_page=15
 ```
 
-Auth: `auth:sanctum` dan `role:supervisor`.
+Auth: `/admin/transactions` menggunakan role `admin`, sedangkan
+`/supervisor/transactions` menggunakan role `supervisor`.
+`page` default `1`; `per_page` default `15` dan dibatasi maksimum `100`.
+Filter tanggal yang tersedia tetap dapat digabung dengan parameter paginasi.
 
 Response `200`:
 
 ```json
 {
   "status": "success",
-  "data": []
+  "data": [
+    {
+      "id": 1,
+      "transaction_type": "deposit",
+      "amount": 100000
+    }
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 1,
+    "last_page": 1,
+    "from": 1,
+    "to": 1
+  }
 }
 ```
 
-Jika tidak ada transaksi, response `404`.
+Jika tidak ada transaksi yang cocok dengan filter, response `404`.
 
 ### Daftar jurnal akuntansi
 
 ```http
-GET /supervisor/journals
+GET /admin/journals?page=1&per_page=15
+GET /supervisor/journals?page=1&per_page=15
 ```
 
-Auth: `auth:sanctum` dan `role:supervisor`.
+Auth: masing-masing endpoint memerlukan role `admin` atau `supervisor`.
+`page` default `1`; `per_page` default `15` dan dibatasi maksimum `100`.
 
 Response `200`:
 
@@ -949,7 +1258,15 @@ Response `200`:
       "position": "debit",
       "amount": 100000
     }
-  ]
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 1,
+    "last_page": 1,
+    "from": 1,
+    "to": 1
+  }
 }
 ```
 
@@ -961,7 +1278,7 @@ GET /supervisor/customers
 
 Auth: `auth:sanctum` dan `role:supervisor`.
 
-Response mengikuti endpoint `GET /admin/customers`.
+Response mengikuti endpoint `GET /admin/customers`, termasuk parameter `page` dan `per_page`.
 
 ## 6. Status dan kode HTTP
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class OpenShiftRequest extends FormRequest
 {
@@ -20,6 +21,31 @@ class OpenShiftRequest extends FormRequest
             'opening_denominations' => ['required', 'array', 'min:1'],
             'opening_denominations.*.denomination' => ['required', 'integer', 'min:1'],
             'opening_denominations.*.quantity' => ['required', 'integer', 'min:0'],
+        ];
+    }
+
+    public function after(): array
+    {
+        return [
+            function (Validator $validator): void {
+                $denominations = $this->input('opening_denominations', []);
+
+                if ($validator->errors()->any()) {
+                    return;
+                }
+
+                if (
+                    is_array($denominations)
+                    && collect($denominations)->every(
+                        fn (array $item): bool => (int) $item['quantity'] === 0
+                    )
+                ) {
+                    $validator->errors()->add(
+                        'opening_denominations',
+                        'Form rincian lembaran saldo awal harus diisi dengan jumlah lembaran yang valid.'
+                    );
+                }
+            },
         ];
     }
 }

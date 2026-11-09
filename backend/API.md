@@ -570,8 +570,10 @@ oleh role `admin`. Jika sudah pernah digunakan, response `422`.
 ### Daftar staff
 
 ```http
-GET /admin/staff
+GET /admin/staff?page=1&per_page=15
 ```
+
+`page` default `1`; `per_page` default `15` dan dibatasi maksimum `100`.
 
 Response `200`:
 
@@ -585,7 +587,15 @@ Response `200`:
       "full_name": "Teller Satu",
       "role": "teller"
     }
-  ]
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 1,
+    "last_page": 1,
+    "from": 1,
+    "to": 1
+  }
 }
 ```
 
@@ -698,8 +708,10 @@ Response `200`:
 ### Daftar nasabah
 
 ```http
-GET /admin/customers
+GET /admin/customers?page=1&per_page=15
 ```
+
+`page` default `1`; `per_page` default `15` dan dibatasi maksimum `100`.
 
 Response `200`:
 
@@ -716,7 +728,15 @@ Response `200`:
       "status": "active",
       "balance": 500000
     }
-  ]
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 1,
+    "last_page": 1,
+    "from": 1,
+    "to": 1
+  }
 }
 ```
 
@@ -1139,13 +1159,15 @@ Jika shift belum `closed`, response `422`.
 ### Daftar shift dan laporan harian
 
 ```http
-GET /supervisor/shifts
+GET /supervisor/shifts?page=1&per_page=15&status=closed
 ```
 
 Auth: `auth:sanctum` dan `role:supervisor`.
 
 Laporan harian sekarang merupakan data pada tabel `shifts`, sehingga response berisi
 saldo, total transaksi, status, dan rincian denominasi shift.
+Parameter `page` default `1`, sedangkan `per_page` default `15` dan dibatasi maksimum
+`100`. Parameter `status` opsional menerima `open`, `closed`, atau `approved`.
 
 Response `200`:
 
@@ -1164,36 +1186,64 @@ Response `200`:
       "closing_physical_balance": 950000,
       "difference": 0
     }
-  ]
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 1,
+    "last_page": 1,
+    "from": 1,
+    "to": 1
+  }
 }
 ```
 
 ### Daftar transaksi
 
 ```http
-GET /supervisor/transactions
+GET /admin/transactions?page=1&per_page=15
+POST /supervisor/transactions?page=1&per_page=15
 ```
 
-Auth: `auth:sanctum` dan `role:supervisor`.
+Auth: `/admin/transactions` menggunakan role `admin`, sedangkan
+`/supervisor/transactions` menggunakan role `supervisor`.
+`page` default `1`; `per_page` default `15` dan dibatasi maksimum `100`.
+Filter tanggal yang tersedia tetap dapat digabung dengan parameter paginasi.
 
 Response `200`:
 
 ```json
 {
   "status": "success",
-  "data": []
+  "data": [
+    {
+      "id": 1,
+      "transaction_type": "deposit",
+      "amount": 100000
+    }
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 1,
+    "last_page": 1,
+    "from": 1,
+    "to": 1
+  }
 }
 ```
 
-Jika tidak ada transaksi, response `404`.
+Jika tidak ada transaksi yang cocok dengan filter, response `404`.
 
 ### Daftar jurnal akuntansi
 
 ```http
-GET /supervisor/journals
+GET /admin/journals?page=1&per_page=15
+GET /supervisor/journals?page=1&per_page=15
 ```
 
-Auth: `auth:sanctum` dan `role:supervisor`.
+Auth: masing-masing endpoint memerlukan role `admin` atau `supervisor`.
+`page` default `1`; `per_page` default `15` dan dibatasi maksimum `100`.
 
 Response `200`:
 
@@ -1208,7 +1258,15 @@ Response `200`:
       "position": "debit",
       "amount": 100000
     }
-  ]
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 15,
+    "total": 1,
+    "last_page": 1,
+    "from": 1,
+    "to": 1
+  }
 }
 ```
 
@@ -1220,7 +1278,7 @@ GET /supervisor/customers
 
 Auth: `auth:sanctum` dan `role:supervisor`.
 
-Response mengikuti endpoint `GET /admin/customers`.
+Response mengikuti endpoint `GET /admin/customers`, termasuk parameter `page` dan `per_page`.
 
 ## 6. Status dan kode HTTP
 
