@@ -11,7 +11,8 @@ const settingLabels = {
   bank_address: "Alamat bank",
   minimum_balance: "Batas saldo minimal",
   bank_contact: "Kontak bank (621234567890)",
-  minimum_withdrawal: "Batas penarikan minimal",
+  minimum_withdrawal: "Batas minimal penarikan",
+  max_withdrawal: "Batas maksimal penarikan",
 };
 
 function formatPhoneNumber(value) {
@@ -160,6 +161,7 @@ function SettingsPage() {
                         );
                       case "minimum_balance":
                       case "minimum_withdrawal":
+                      case "max_withdrawal":
                         return (
                           <CurrencyInput
                             className="w-full rounded-lg border border-neutral-clay p-2"
