@@ -1,37 +1,49 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../../components/DashboardLayout";
 import AdminTable from "../../../components/admin/AdminTable";
 import { get, remove as removeRequest } from "../../../api";
 import Button from "../../../components/Button";
+import Pagination from "../../../components/Pagination";
 
 function StaffManagementPage() {
   const [staff, setStaff] = useState([]);
+  const [pagination, setPagination] = useState(null);
   const [error, setError] = useState("");
-  
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
 
-  async function loadStaff() {
+  const loadStaff = useCallback(async (pageNumber) => {
     try {
       setError("");
-      const response = await get("/admin/staff");
+      setLoading(true);
+      const response = await get(`/admin/staff?page=${pageNumber}&per_page=15`);
       setStaff(response.data || []);
+      setPagination(response.pagination || null);
+      if (response.pagination?.last_page && pageNumber > response.pagination.last_page) {
+        setPage(response.pagination.last_page);
+      }
     } catch (requestError) {
       setError(requestError.message);
+      setStaff([]);
+      setPagination(null);
+    } finally {
+      setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    loadStaff();
-  }, []);
+    loadStaff(page);
+  }, [loadStaff, page]);
 
   async function deleteStaff(id) {
     if (!window.confirm("Hapus staff ini?")) return;
     try {
       await removeRequest(`/admin/staff/${id}`);
-      await loadStaff();
+      await loadStaff(page);
     } catch (requestError) {
       setError(requestError.message);
     }
@@ -67,7 +79,10 @@ function StaffManagementPage() {
           type="text"
           placeholder="Cari staff..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(1);
+          }}
           className="flex-6 border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <Button customClass="flex-1" text="Tambah Staff" onClick={() => navigate("/admin/staff/create")} />
@@ -78,6 +93,11 @@ function StaffManagementPage() {
         headers={["Username", "Nama", "Role", "Aksi"]}
         rows={rows}
         emptyMessage={searchQuery ? "Staff tidak ditemukan." : "Belum ada staff."}
+      />
+      <Pagination
+        pagination={pagination}
+        onPageChange={setPage}
+        disabled={loading}
       />
     </DashboardLayout>
   );

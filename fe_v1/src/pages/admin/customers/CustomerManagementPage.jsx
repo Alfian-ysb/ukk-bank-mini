@@ -1,45 +1,50 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../../components/DashboardLayout";
 import AdminTable from "../../../components/admin/AdminTable";
 import { get, patch, remove as removeRequest } from "../../../api";
 import Button from "../../../components/Button";
+import Pagination from "../../../components/Pagination";
 import CustomerCsvImport from "./CustomerCsvImport";
 
 function CustomerManagementPage() {
   const [customers, setCustomers] = useState([]);
+  const [pagination, setPagination] = useState(null);
   const [error, setError] = useState("");
-
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
 
   const navigate = useNavigate();
 
-  async function loadCustomers() {
+  const loadCustomers = useCallback(async (pageNumber) => {
     try {
       setError("");
-      const response = await get("/admin/customers");
+      setLoading(true);
+      const response = await get(`/admin/customers?page=${pageNumber}&per_page=15`);
       setCustomers(response.data || []);
+      setPagination(response.pagination || null);
+      if (response.pagination?.last_page && pageNumber > response.pagination.last_page) {
+        setPage(response.pagination.last_page);
+      }
     } catch (requestError) {
       setError(requestError.message);
+      setCustomers([]);
+      setPagination(null);
+    } finally {
+      setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    get("/admin/customers")
-      .then((response) => {
-        setError("");
-        setCustomers(response.data || []);
-      })
-      .catch((requestError) => {
-        setError(requestError.message);
-      });
-  }, []);
+    loadCustomers(page);
+  }, [loadCustomers, page]);
 
   async function deleteCustomer(id) {
     if (!window.confirm("Hapus nasabah ini?")) return;
     try {
       await removeRequest(`/admin/customers/${id}`);
-      await loadCustomers();
+      await loadCustomers(page);
     } catch (requestError) {
       setError(requestError.message);
     }
@@ -48,7 +53,7 @@ function CustomerManagementPage() {
   async function changeStatus(id, newStatus) {
     try {
       await patch(`/admin/customers/${id}`, { status: newStatus });
-      await loadCustomers();
+      await loadCustomers(page);
     } catch (requestError) {
       setError(requestError.message);
     }
@@ -94,14 +99,17 @@ function CustomerManagementPage() {
 
   return (
     <DashboardLayout title="Lihat Nasabah">
-      <CustomerCsvImport onImported={loadCustomers} />
+      <CustomerCsvImport onImported={() => loadCustomers(page)} />
 
       <div className="flex justify-between items-center my-4 gap-4">
         <input
           type="text"
           placeholder="Cari nasabah..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(1);
+          }}
           className="flex-6 border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <Button
@@ -121,7 +129,11 @@ function CustomerManagementPage() {
           searchQuery ? "Nasabah tidak ditemukan." : "Belum ada nasabah."
         }
       />
-
+      <Pagination
+        pagination={pagination}
+        onPageChange={setPage}
+        disabled={loading}
+      />
     </DashboardLayout>
   );
 }
