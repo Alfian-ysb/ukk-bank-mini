@@ -13,7 +13,7 @@ const emptyForm = {
   password: "",
 };
 const fields = [
-  { name: "nis", label: "NIS", required: true },
+  { name: "nis", label: "NIS", type: "number", required: true },
   { name: "student_name", label: "Nama siswa", required: true },
   {
     name: "major",
@@ -31,7 +31,7 @@ const fields = [
       { value: "BR", label: "BR" },
     ],
   },
-  { name: "cohort_year", label: "Tahun angkatan", required: true },
+  { name: "cohort_year", label: "Tahun angkatan", type: "number", required: true },
   {
     name: "pin",
     label: "PIN",

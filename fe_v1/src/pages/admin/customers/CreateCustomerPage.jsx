@@ -46,7 +46,7 @@ function CreateCustomerPage() {
       <form className="max-w-md space-y-3 rounded-lg bg-white p-4" onSubmit={submit}>
         <label className="block">
           NIS
-          <input className="mt-1 w-full rounded-lg border p-2" name="nis" value={form.nis} onChange={change} required />
+          <input type="number" className="mt-1 w-full rounded-lg border p-2" name="nis" value={form.nis} onChange={change} required />
         </label>
         <label className="block">
           Nama siswa
