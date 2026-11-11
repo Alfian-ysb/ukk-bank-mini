@@ -12,10 +12,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('shift_id')
                 ->nullable()
-                // ->change()
                 ->constrained('shifts')
                 ->onDelete('restrict');
-            $table->unsignedBigInteger('amount');
+            $table->decimal('amount', 15, 2);
             $table->string('from_location');
             $table->string('to_location');
             $table->foreignId('transferred_by')->constrained('users')->restrictOnDelete();

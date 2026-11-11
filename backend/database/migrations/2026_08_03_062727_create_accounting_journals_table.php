@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('transaction_id')->constrained('transactions')->onDelete('restrict');
             $table->enum('account_code', ['101', '201']);
             $table->string('position');
-            $table->integer('amount')->unsigned();
+            $table->decimal('amount', 15, 2)->unsigned();
             $table->timestamps();
         });
 

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('shift_id')->nullable()->constrained('shifts')->onDelete('restrict');
             $table->dateTime('date');
             $table->enum('transaction_type', array_column(TransactionTypes::cases(), 'value'));
-            $table->integer('amount')->unsigned();
+            $table->decimal('amount', 15, 2)->unsigned();
             $table->timestamps();
         });
         // DB::statement('ALTER TABLE transactions ADD CONSTRAINT check_amount CHECK (amount > 0)');

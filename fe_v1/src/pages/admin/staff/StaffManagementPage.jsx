@@ -74,7 +74,7 @@ function StaffManagementPage() {
       <h1 className="text-2xl font-bold">Daftar Staff</h1>
       {error && <p className="mb-4 text-red-600">{error}</p>}
       
-      <div className="flex justify-between items-center my-4 gap-4">
+      <div className="flex justify-between items-center my-4 gap-4 flex-col sm:flex-row">  
         <input
           type="text"
           placeholder="Cari staff..."
@@ -83,9 +83,9 @@ function StaffManagementPage() {
             setSearchQuery(e.target.value);
             setPage(1);
           }}
-          className="flex-6 border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-6 border border-gray-300 rounded-lg px-4 py-2 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <Button customClass="flex-1" text="Tambah Staff" onClick={() => navigate("/admin/staff/create")} />
+        <Button customClass="flex-1 text-nowrap w-full" text="Tambah Staff" onClick={() => navigate("/admin/staff/create")} />
       </div>
       
       <AdminTable
