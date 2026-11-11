@@ -97,7 +97,7 @@ const AdminAccountingJournals = () => {
               </span>,
               <ul>
                 {item.transaction?.shift?.assigned_staff?.map((staff) => (
-                  <li key={staff} className="font-semibold text-sm">
+                  <li key={staff} className="font-semibold text-sm text-nowrap">
                     {staff}
                   </li>
                 )) || "-"}

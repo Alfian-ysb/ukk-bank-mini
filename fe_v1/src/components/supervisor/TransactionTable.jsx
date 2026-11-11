@@ -42,7 +42,7 @@ const TransactionTable = ({
   return (
     <section className="rounded-lg bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-2xl font-plus-jakarta-sans font-semibold text-gray-700">
+        <h2 className="text-xl md:text-2xl font-plus-jakarta-sans font-semibold text-gray-700">
           Riwayat Transaksi
         </h2>
         <Button
@@ -79,7 +79,7 @@ const TransactionTable = ({
             item.customer?.major || "-",
             <span
               key={item.id}
-              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase ${
+              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase text-nowrap ${
                 item.transaction_type === "deposit"
                   ? "bg-green-100 text-green-700"
                   : "bg-red-100 text-red-700"
@@ -97,7 +97,7 @@ const TransactionTable = ({
             </span>,
             <ul key={`staff-${item.id}`}>
               {item.shift?.assigned_staff?.map((staff) => (
-                <li key={staff} className="font-semibold text-sm">
+                <li key={staff} className="font-semibold text-sm text-nowrap">
                   {staff}
                 </li>
               )) || "-"}

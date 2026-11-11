@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->restrictOnDelete();
             $table->foreignId('shift_id')->constrained('shifts')->restrictOnDelete();
             $table->enum('transaction_type', array_column(TransactionTypes::cases(), 'value'));
-            $table->unsignedInteger('amount');
+            $table->decimal('amount', 15, 2);
             $table->enum('status', array_column(TransactionRequestStatus::cases(), 'value'))
                 ->default(TransactionRequestStatus::PENDING->value);
             $table->unsignedTinyInteger('verification_attempts')->default(0);

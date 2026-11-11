@@ -51,7 +51,7 @@ const ShiftActionForms = ({
               Input data teller dan rincian fisik uang awal
             </p>
           </div>
-          <section className="flex w-full gap-4">
+          <section className="flex w-full gap-4 flex-col md:flex-row">
             <div className="mb-5 space-y-3 flex-1 flex flex-col justify-between">
               <div>
                 <label className="block text-sm font-semibold uppercase tracking-wider text-slate-500">

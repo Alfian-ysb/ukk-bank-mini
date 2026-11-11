@@ -101,7 +101,7 @@ function CustomerManagementPage() {
     <DashboardLayout title="Lihat Nasabah">
       <CustomerCsvImport onImported={() => loadCustomers(page)} />
 
-      <div className="flex justify-between items-center my-4 gap-4">
+      <div className="flex justify-between items-center my-4 gap-4 flex-col sm:flex-row">
         <input
           type="text"
           placeholder="Cari nasabah..."
@@ -110,10 +110,10 @@ function CustomerManagementPage() {
             setSearchQuery(e.target.value);
             setPage(1);
           }}
-          className="flex-6 border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-6 border w-full border-gray-300 rounded-lg px-4 py-2 md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <Button
-          customClass="flex-1"
+          customClass="flex-1 text-nowrap w-full"
           text="Tambah Nasabah"
           onClick={() => navigate("/admin/customers/create")}
         />

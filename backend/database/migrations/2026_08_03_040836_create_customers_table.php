@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('pin');
             $table->string('password');
             $table->string('fcm_token')->nullable();
-            $table->integer('balance')->default(0)->unsigned();
+            $table->decimal('balance', 15, 2)->default(0);
             $table->timestamps();
             $table->softDeletes();
         });
