@@ -14,7 +14,7 @@ const STATUS_STYLES = {
   completed: "border-emerald-200 bg-emerald-50 text-emerald-800",
 };
 
-function TransactionStatus({ status, message }) {
+function TransactionStatus({ status, message, children }) {
   if (!status) return null;
 
   return (
@@ -28,6 +28,7 @@ function TransactionStatus({ status, message }) {
         Status transaksi: {STATUS_LABELS[status] || status}
       </p>
       {message && <p className="mt-1">{message}</p>}
+      {children && <div className="mt-3">{children}</div>}
     </div>
   );
 }

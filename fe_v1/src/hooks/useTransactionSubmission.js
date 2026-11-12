@@ -1,4 +1,5 @@
 import { post } from "../api";
+import { useDialog } from "../context/dialogContext";
 import {
   getErrorMessage,
   getStatusEndpoint,
@@ -13,12 +14,14 @@ function useTransactionSubmission({
   onCustomerBalanceChange,
   onReset,
 }) {
+  const { confirmDialog } = useDialog();
+
   async function saveTransaction(event) {
     event.preventDefault();
 
     const isDeposit = transaction.transaction_type === "deposit";
     const typeLabel = isDeposit ? "SETOR TUNAI (Deposit)" : "PENARIKAN TUNAI";
-    const isConfirmed = window.confirm(
+    const isConfirmed = await confirmDialog(
       `Apakah Anda yakin ingin memproses transaksi berikut?\n\n` +
         `Nasabah: ${customer.student_name}\n` +
         `Jenis: ${typeLabel}\n` +
@@ -33,10 +36,13 @@ function useTransactionSubmission({
         amount: Number(transaction.amount),
       });
 
-      const nextStatus = onTransactionStarted({
-        ...response,
-        statusEndpoint: getStatusEndpoint(response),
-      });
+      const nextStatus = onTransactionStarted(
+        {
+          ...response,
+          statusEndpoint: getStatusEndpoint(response),
+        },
+        { ...transaction },
+      );
 
       if (
         ["approved", "completed"].includes(nextStatus) &&

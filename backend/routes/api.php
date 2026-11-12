@@ -50,7 +50,9 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
 
     Route::post('/staff', [UserManagement::class, 'create']);
     Route::patch('/staff/{id}', [UserManagement::class, 'update']);
-    Route::delete('/staff/{id}', [UserManagement::class, 'delete']);
+    Route::patch('/staff/{id}/activate', [UserManagement::class, 'activate']);
+    Route::patch('/staff/{id}/deactivate', [UserManagement::class, 'deactivate']);
+    Route::delete('/staff/{id}', [UserManagement::class, 'deactivate']);
 
     Route::get('/customers', [CustomerManagement::class, 'index']);
     Route::get('/customers/{id}', [CustomerManagement::class, 'view']);
@@ -64,6 +66,7 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
     Route::post('/vault/opening-balance', [VaultController::class, 'setupOpeningBalance']);
 
     Route::get('/transactions/export', [SupervisorController::class, 'exportTransactions']);
+    Route::get('/transactions/export/pdf', [SupervisorController::class, 'exportTransactionsPdf']);
     Route::get('/transactions', [SupervisorController::class, 'getAllTransactions']);
     Route::get('/journals', [SupervisorController::class, 'accountingJournal']);
 });
@@ -86,6 +89,7 @@ Route::prefix('supervisor')->middleware(['auth:sanctum', 'role:supervisor'])->gr
     Route::get('/vault/balance', [ShiftApprovalController::class, 'vaultBalance']);
     Route::get('/customers', [CustomerManagement::class, 'index']);
     Route::get('/transactions/export', [SupervisorController::class, 'exportTransactions']);
+    Route::get('/transactions/export/pdf', [SupervisorController::class, 'exportTransactionsPdf']);
     Route::post('/transactions', [SupervisorController::class, 'getAllTransactions']);
     Route::get('/journals', [SupervisorController::class, 'accountingJournal']);
     Route::get('/settings/total-users', [GeneralSettingController::class, 'getTotalUser']);
@@ -100,6 +104,7 @@ Route::prefix('customer')->middleware(['auth:sanctum'])->group(function () {
     Route::post('/change-pin/reset', [CustomerPinResetController::class, 'reset'])->middleware('throttle:10,1');
     Route::get('/history', [CustomerController::class, 'history']);
     Route::get('/history/latest', [CustomerController::class, 'latestHistory']);
+    Route::get('/history/{id}', [CustomerController::class, 'detailHistory']);
     Route::post('/fcm-token', [CustomerController::class, 'updateFcmToken']);
     Route::get('/transaction-requests/{transactionRequest}', [CustomerController::class, 'transactionRequest']);
     Route::post('/transaction-requests/{transactionRequest}/approve', [CustomerController::class, 'approveTransactionRequest']);

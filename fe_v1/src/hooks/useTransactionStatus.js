@@ -3,7 +3,6 @@ import { get } from "../api";
 import {
   getErrorMessage,
   getTransactionStatus,
-  ACTIVE_STATUSES,
 } from "../pages/teller/transactionUtils";
 
 const POLL_INTERVAL = 3000;
@@ -17,7 +16,7 @@ function useTransactionStatus({ onCustomerBalanceChange }) {
   const transactionStartedAt = useRef(0);
 
   useEffect(() => {
-    if (!ACTIVE_STATUSES.includes(status)) return undefined;
+    if (status !== "pending") return undefined;
 
     let cancelled = false;
     let timeoutId;

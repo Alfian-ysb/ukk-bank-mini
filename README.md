@@ -105,4 +105,6 @@ npm run build
 
 ## Dokumentasi API
 
+Panduan operasional untuk admin, teller, dan supervisor tersedia di [Panduan Penggunaan](./PANDUAN_PENGGUNA.md).
+
 Lihat [referensi endpoint API](./backend/API.md) untuk autentikasi, role, format respons, serta rincian request dan response.

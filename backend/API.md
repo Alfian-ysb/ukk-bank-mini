@@ -469,6 +469,45 @@ Response `200`:
 }
 ```
 
+### Detail transaksi customer
+
+```http
+GET /customer/history/{id}
+```
+
+Auth: `auth:sanctum`.
+
+Mengembalikan satu transaksi milik nasabah yang sedang login. Jika ID tidak ditemukan atau bukan milik nasabah ini, backend akan mengembalikan `404`.
+
+Response `200`:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "id": 10,
+    "customer_id": 1,
+    "user_id": 2,
+    "shift_id": 4,
+    "transaction_type": "deposit",
+    "amount": 100000,
+    "date": "2026-10-30 09:00:00",
+    "created_at": "2026-10-30T09:00:00.000000Z",
+    "updated_at": "2026-10-30T09:00:00.000000Z"
+  }
+}
+```
+
+### 5 transaksi terbaru customer
+
+```http
+GET /customer/history/latest
+```
+
+Auth: `auth:sanctum`.
+
+Mengembalikan maksimal 5 transaksi terbaru milik nasabah yang sedang login.
+
 ### Import nasabah melalui CSV
 
 Admin dapat menambahkan banyak nasabah sekaligus melalui:
@@ -585,7 +624,8 @@ Response `200`:
       "id": 2,
       "username": "teller01",
       "full_name": "Teller Satu",
-      "role": "teller"
+      "role": "teller",
+      "is_active": true
     }
   ],
   "pagination": {
@@ -690,10 +730,10 @@ Response `200`:
 }
 ```
 
-### Hapus staff
+### Nonaktifkan staff
 
 ```http
-DELETE /admin/staff/{id}
+PATCH /admin/staff/{id}/deactivate
 ```
 
 Response `200`:
@@ -701,9 +741,37 @@ Response `200`:
 ```json
 {
   "status": "success",
-  "message": "User deleted successfully"
+  "message": "Staff berhasil dinonaktifkan."
 }
 ```
+
+Penonaktifan menggunakan soft delete sehingga data historis tetap tersimpan dan akun tidak dapat login. Admin tidak dapat menonaktifkan dirinya sendiri. Admin lain hanya dapat dinonaktifkan jika masih ada admin aktif lain yang akan tetap mengelola sistem. Endpoint lama `DELETE /admin/staff/{id}` tetap tersedia sementara sebagai alias nonaktifasi; endpoint tersebut juga tidak menghapus data permanen.
+
+### Aktifkan kembali staff
+
+```http
+PATCH /admin/staff/{id}/activate
+```
+
+Mengaktifkan kembali staff yang sebelumnya dinonaktifkan tanpa menghapus atau mengubah histori datanya. Staff perlu login kembali setelah diaktifkan.
+
+Response `200`:
+
+```json
+{
+  "status": "success",
+  "message": "Staff berhasil diaktifkan kembali.",
+  "data": {
+    "id": 2,
+    "username": "teller01",
+    "full_name": "Teller Satu",
+    "role": "teller",
+    "is_active": true
+  }
+}
+```
+
+Endpoint daftar staff juga mencantumkan staff nonaktif dengan properti `is_active: false`.
 
 ### Daftar nasabah
 

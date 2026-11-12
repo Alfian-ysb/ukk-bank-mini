@@ -48,10 +48,14 @@ export async function request(path, options = {}) {
   return response.json().catch(() => ({}));
 }
 
-export async function downloadFile(path, fallbackFilename) {
+export async function downloadFile(
+  path,
+  fallbackFilename,
+  accept = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+) {
   const options = {
     headers: {
-      Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      Accept: accept,
     },
   };
   const response = await fetch(getApiUrl(path), {

@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { get, post } from "../../api";
+import { useDialog } from "../../context/dialogContext";
 import CurrencyInput from "react-currency-input-field";
 
 function VaultOpeningBalanceForm() {
+  const { confirmDialog } = useDialog();
   const [balance, setBalance] = useState("");
   const [hasBalance, setHasBalance] = useState("");
   const [message, setMessage] = useState("");
@@ -50,7 +52,7 @@ function VaultOpeningBalanceForm() {
     }
 
     const formattedBalance = `Rp ${Number(balance).toLocaleString("id-ID")}`;
-    const isConfirmed = window.confirm(
+    const isConfirmed = await confirmDialog(
       `Apakah Anda yakin ingin menyimpan saldo awal brankas sebesar ${formattedBalance}?`,
     );
 

@@ -60,13 +60,16 @@ class TransactionController extends Controller
 
     public function StoreTransaction(Request $request, int $id)
     {
+        $currentOpeningBalance = Shift::where('status', ShiftStatus::OPEN)
+            ->whereDate('shift_date', now()->toDateString())
+            ->value('opening_balance');
         $minimumWithdrawal = (int) (General::where('name', 'minimum_withdrawal')->value('value') ?? 10000);
         $maximumWithdrawal = (int) (General::where('name', 'max_withdrawal')->value('value') ?? 1000000);
         $validated = $request->validate([
             'transaction_type' => ['required', 'in:deposit,withdrawal'],
             'amount' => [
                 'required',
-                'integer',
+                'decimal:0,2',
                 Rule::when($request->transaction_type === 'withdrawal', ['min:' . $minimumWithdrawal]),
                 Rule::when($request->transaction_type === 'withdrawal', ['max:' . $maximumWithdrawal]),
             ],
@@ -93,6 +96,13 @@ class TransactionController extends Controller
                 'status' => 'error',
                 'message' => 'Rekening nasabah tidak aktif. Transaksi tidak dapat diproses.',
             ], 403);
+        }
+
+        if ($validated['transaction_type'] === 'withdrawal' && $currentOpeningBalance < $validated['amount']) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Saldo kas teller tidak mencukupi untuk melakukan penarikan.',
+            ], 409);
         }
 
         $customer = Customer::find($id);

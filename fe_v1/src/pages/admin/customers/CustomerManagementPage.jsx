@@ -2,18 +2,27 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../../components/DashboardLayout";
 import AdminTable from "../../../components/admin/AdminTable";
-import { get, patch, remove as removeRequest } from "../../../api";
+import { get, patch } from "../../../api";
 import Button from "../../../components/Button";
 import Pagination from "../../../components/Pagination";
+import { useDialog } from "../../../context/dialogContext";
 import CustomerCsvImport from "./CustomerCsvImport";
 
+const customerStatusLabels = {
+  active: "Aktif",
+  inactive: "Nonaktif",
+  blocked: "Diblokir",
+};
+
 function CustomerManagementPage() {
+  const { confirmDialog } = useDialog();
   const [customers, setCustomers] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [updatingCustomerId, setUpdatingCustomerId] = useState(null);
 
   const navigate = useNavigate();
 
@@ -40,22 +49,26 @@ function CustomerManagementPage() {
     loadCustomers(page);
   }, [loadCustomers, page]);
 
-  async function deleteCustomer(id) {
-    if (!window.confirm("Hapus nasabah ini?")) return;
-    try {
-      await removeRequest(`/admin/customers/${id}`);
-      await loadCustomers(page);
-    } catch (requestError) {
-      setError(requestError.message);
-    }
-  }
+  async function changeStatus(customer, newStatus) {
+    const isConfirmed = await confirmDialog(
+      `Ubah status ${customer.student_name} dari ${customerStatusLabels[customer.status]} menjadi ${customerStatusLabels[newStatus]}?`,
+      {
+        title: "Konfirmasi perubahan status",
+        confirmLabel: "Ubah status",
+        tone: newStatus === "blocked" ? "danger" : "primary",
+      },
+    );
 
-  async function changeStatus(id, newStatus) {
+    if (!isConfirmed) return;
+
+    setUpdatingCustomerId(customer.id);
     try {
-      await patch(`/admin/customers/${id}`, { status: newStatus });
+      await patch(`/admin/customers/${customer.id}`, { status: newStatus });
       await loadCustomers(page);
     } catch (requestError) {
       setError(requestError.message);
+    } finally {
+      setUpdatingCustomerId(null);
     }
   }
 
@@ -79,7 +92,7 @@ function CustomerManagementPage() {
     item.major,
     item.cohort_year,
     item.status,
-    <div className="flex gap-2" key={item.id}>
+    <div className="flex flex-wrap gap-2" key={item.id}>
       <Button
         theme={"outline"}
         text="Lihat"
@@ -89,11 +102,17 @@ function CustomerManagementPage() {
         text="Edit"
         onClick={() => navigate(`/admin/customers/${item.id}/edit`)}
       />
-      <Button
-        theme={"danger"}
-        text="Hapus"
-        onClick={() => deleteCustomer(item.id)}
-      />
+      <select
+        aria-label={`Ubah status ${item.student_name}`}
+        value={item.status}
+        disabled={loading || updatingCustomerId === item.id}
+        onChange={(event) => changeStatus(item, event.target.value)}
+        className="min-h-10 cursor-pointer rounded-lg border border-primary font-medium bg-white px-3 py-2 text-sm text-neutral-dark-gray focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <option value="active">Aktif</option>
+        <option value="inactive">Nonaktif</option>
+        <option value="blocked">Diblokir</option>
+      </select>
     </div>,
   ]);
 

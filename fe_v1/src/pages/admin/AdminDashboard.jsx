@@ -82,20 +82,20 @@ function AdminDashboard() {
       </div>
       <div className="grid gap-4 md:grid-cols-2 mt-4">
         <Shortcut
-          to="/admin/vault"
-          title="Saldo Brankas"
-          text="Lihat saldo, uang masuk, dan uang keluar dari brankas."
+          to="/admin/transactions"
+          title="Log Transaksi"
+          text="Lihat semua transaksi yang dilakukan oleh staff dan nasabah."
         />
 
         <Shortcut
           to="/admin/customers"
           title="Kelola Nasabah"
-          text="Lihat saldo, uang masuk, dan uang keluar dari brankas."
+          text="Kelola data nasabah"
         />
         <Shortcut
           to="/admin/staff"
           title="Kelola Staff"
-          text="Lihat data, uang masuk, dan uang keluar dari staff."
+          text="Kelola data staff"
         />
         <Shortcut
           to="/admin/settings"

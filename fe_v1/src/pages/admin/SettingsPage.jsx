@@ -3,6 +3,7 @@ import DashboardLayout from "../../components/DashboardLayout";
 import VaultOpeningBalanceForm from "../../components/admin/VaultOpeningBalanceForm";
 import { get, patch } from "../../api";
 import { setStoredBankName } from "../../context/authSession";
+import { useDialog } from "../../context/dialogContext";
 import CurrencyInput from "react-currency-input-field";
 import Button from "../../components/Button";
 
@@ -26,6 +27,7 @@ function formatPhoneNumber(value) {
 }
 
 function SettingsPage() {
+  const { confirmDialog } = useDialog();
   const [settings, setSettings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -59,7 +61,7 @@ function SettingsPage() {
     setError("");
     setMessage("");
 
-    const isConfirmed = window.confirm(
+    const isConfirmed = await confirmDialog(
       "Apakah Anda yakin ingin menyimpan semua perubahan pengaturan bank?",
     );
 

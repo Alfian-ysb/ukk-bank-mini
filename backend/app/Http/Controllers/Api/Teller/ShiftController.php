@@ -135,7 +135,7 @@ class ShiftController extends Controller
                 $physicalBalance = $this->calculateDenominations($request->input('closing_denominations'));
                 $difference = $physicalBalance - $digitalBalance;
 
-                if ($difference !== 0) {
+                if ((float) $difference !== 0.0) {
                     throw ValidationException::withMessages([
                         'closing_denominations' => [
                             'Saldo fisik tidak sama dengan saldo digital.',

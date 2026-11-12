@@ -19,6 +19,7 @@ class StaffResource extends JsonResource
             'username' => $this->username,
             'full_name' => $this->full_name,
             'role' => $this->role,
+            'is_active' => ! $this->trashed(),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }
