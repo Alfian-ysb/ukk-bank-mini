@@ -624,7 +624,8 @@ Response `200`:
       "id": 2,
       "username": "teller01",
       "full_name": "Teller Satu",
-      "role": "teller"
+      "role": "teller",
+      "is_active": true
     }
   ],
   "pagination": {
@@ -729,10 +730,10 @@ Response `200`:
 }
 ```
 
-### Hapus staff
+### Nonaktifkan staff
 
 ```http
-DELETE /admin/staff/{id}
+PATCH /admin/staff/{id}/deactivate
 ```
 
 Response `200`:
@@ -740,9 +741,37 @@ Response `200`:
 ```json
 {
   "status": "success",
-  "message": "User deleted successfully"
+  "message": "Staff berhasil dinonaktifkan."
 }
 ```
+
+Penonaktifan menggunakan soft delete sehingga data historis tetap tersimpan dan akun tidak dapat login. Admin tidak dapat menonaktifkan dirinya sendiri. Admin lain hanya dapat dinonaktifkan jika masih ada admin aktif lain yang akan tetap mengelola sistem. Endpoint lama `DELETE /admin/staff/{id}` tetap tersedia sementara sebagai alias nonaktifasi; endpoint tersebut juga tidak menghapus data permanen.
+
+### Aktifkan kembali staff
+
+```http
+PATCH /admin/staff/{id}/activate
+```
+
+Mengaktifkan kembali staff yang sebelumnya dinonaktifkan tanpa menghapus atau mengubah histori datanya. Staff perlu login kembali setelah diaktifkan.
+
+Response `200`:
+
+```json
+{
+  "status": "success",
+  "message": "Staff berhasil diaktifkan kembali.",
+  "data": {
+    "id": 2,
+    "username": "teller01",
+    "full_name": "Teller Satu",
+    "role": "teller",
+    "is_active": true
+  }
+}
+```
+
+Endpoint daftar staff juga mencantumkan staff nonaktif dengan properti `is_active: false`.
 
 ### Daftar nasabah
 

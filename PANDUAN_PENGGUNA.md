@@ -1,94 +1,173 @@
-# Panduan Penggunaan UKK Bank Mini
+# Panduan Penggunaan Bank Mini
 
-Panduan ini menjelaskan penggunaan aplikasi web untuk staff bank mini. Panduan instalasi dan menjalankan aplikasi ada di [README utama](./README.md). Detail endpoint untuk integrasi customer atau aplikasi lain ada di [dokumentasi API](./backend/API.md).
+Panduan ini membantu admin, teller, dan supervisor menggunakan aplikasi Bank Mini. Ikuti bagian sesuai tugas Anda.
 
+## Mulai menggunakan aplikasi
 
-## Masuk dan navigasi
+1. Buka alamat aplikasi yang diberikan oleh sekolah atau admin.
+2. Masukkan username dan password, lalu pilih **Masuk**.
+3. Anda akan masuk ke halaman utama sesuai tugas Anda. Menu yang tersedia juga bergantung pada tugas Anda.
+4. Untuk berpindah halaman, pilih menu di sisi layar. Pada HP, pilih **Menu** terlebih dahulu.
+5. Setelah selesai, pilih **Logout**.
 
-1. Buka URL frontend, lalu masuk dengan username dan password staff.
-2. Setelah berhasil, aplikasi membuka dashboard sesuai role akun.
-3. Gunakan menu navigasi untuk berpindah halaman. Menu `Keluar` mengakhiri sesi dan kembali ke halaman login.
-
-Pada halaman dashboard, tombol angka dengan Alt dapat digunakan sebagai pintasan menu; pintasan tidak aktif saat fokus berada di kolom input.
+Jika belum memiliki akun atau tidak bisa masuk, hubungi admin. Jangan memakai akun milik orang lain.
 
 ## Admin
 
-### Menyiapkan bank
+### Mengatur informasi bank
 
-1. Buka menu `Settings`.
-2. Perbarui nama dan alamat bank, kontak, batas saldo minimal, serta batas minimum dan maksimum penarikan sesuai kebijakan bank.
-3. Klik `Simpan Semua Pengaturan` dan konfirmasi penyimpanan.
-4. Pada bagian saldo awal brankas di halaman yang sama, masukkan saldo pembukaan kas sesuai formulir.
+1. Buka menu **Settings**.
+2. Isi atau periksa nama bank, alamat, nomor kontak, batas saldo minimal nasabah, serta batas minimal dan maksimal penarikan.
+3. Pastikan semua angka sudah benar. Pengaturan batas ini digunakan saat transaksi.
+4. Pilih **Simpan Semua Pengaturan**, lalu konfirmasi.
 
-Periksa kembali nilai sebelum disimpan karena pengaturan batas akan digunakan dalam operasional.
+### Mengisi saldo awal brankas
 
-### Mengelola staff
+Saldo awal brankas adalah jumlah uang yang tersedia saat pencatatan dimulai. Pengisian ini hanya bisa dilakukan satu kali.
 
-1. Buka menu `Staff`, lalu pilih `Tambah Staff`.
-2. Isi identitas login staff dan pilih role yang sesuai dengan tugasnya.
-3. Simpan, lalu pastikan akun muncul pada daftar staff.
-4. Gunakan pencarian untuk menemukan akun. Pilih `Lihat` atau `Edit` untuk memeriksa dan memperbarui data. `Hapus` menghapus akun setelah konfirmasi.
+1. Di halaman **Settings**, cari bagian **Setup saldo awal brankas**.
+2. Masukkan jumlah saldo awal yang sudah disepakati.
+3. Periksa jumlahnya, lalu pilih **Simpan saldo awal** dan konfirmasi.
 
-Berikan kredensial kepada pemilik akun melalui saluran yang aman.
+Jika saldo awal sudah pernah disimpan, bagian ini akan menunjukkan bahwa pengaturan sudah selesai.
 
-### Mengelola nasabah
+### Membuat dan mengatur akun petugas
 
-- Untuk menambahkan satu nasabah, buka `Nasabah` lalu pilih `Tambah Nasabah` dan lengkapi formulir.
-- Untuk memasukkan banyak data, unduh `Template CSV`, isi kolom sesuai template, lalu unggah file. Tinjau dan koreksi pratinjau sebelum mengonfirmasi impor.
-- Gunakan pencarian untuk mencari nasabah berdasarkan nomor rekening, NIS, nama, jurusan, atau angkatan. Dari daftar, admin dapat melihat, mengedit, atau menghapus data.
+1. Buka menu **Staff**, lalu pilih **Tambah Staff**.
+2. Isi username, nama lengkap, password, dan tugas akun: admin, teller, atau supervisor.
+3. Pilih **Tambah staff**, lalu konfirmasi.
+4. Untuk mencari akun, gunakan kolom pencarian. Pilih **Lihat** untuk memeriksa akun atau **Edit** untuk mengubah data.
+5. Untuk mencabut akses login, ubah status akun menjadi **Nonaktif**. Untuk memberikan akses kembali, ubah status menjadi **Aktif**.
 
-Jangan mengubah nama atau urutan kolom pada template CSV. Pastikan data sensitif seperti PIN dan password hanya diberikan kepada pihak yang berwenang.
+Berikan username dan password langsung kepada pemilik akun. Jangan membagikan password kepada orang lain.
 
-### Memantau aktivitas
+### Mengelola data nasabah
 
-Gunakan `Log Transaksi` untuk meninjau transaksi dan `Jurnal Akuntansi` untuk melihat pencatatan akuntansi. Dashboard admin juga menyediakan ringkasan operasional.
+#### Menambahkan atau mengubah data
+
+1. Buka menu **Nasabah**, lalu pilih **Tambah Nasabah**.
+2. Isi NIS, nama siswa, jurusan, tahun angkatan, PIN, dan password.
+3. PIN harus terdiri dari 6 karakter. Password harus terdiri dari sedikitnya 6 karakter.
+4. Periksa kembali isian, lalu pilih **Tambah nasabah** dan konfirmasi.
+5. Untuk mengubah data, cari nasabah di daftar, buka detailnya, lalu pilih **Edit**.
+
+#### Menambahkan banyak nasabah sekaligus
+
+1. Di halaman **Nasabah**, pilih **Unduh Template CSV**.
+2. Buka file template dan isi satu baris untuk setiap nasabah. Jangan mengubah judul atau urutan kolom.
+3. Simpan file, lalu pilih file tersebut di halaman **Nasabah** dan tekan **Upload CSV**.
+4. Periksa data pada pratinjau. Perbaiki jika ada kesalahan, lalu lanjutkan impor.
+5. Jika muncul pesan kesalahan, perbaiki data sesuai pesan tersebut dan unggah kembali.
+
+File ini memuat PIN dan password. Simpan dengan aman dan jangan membagikannya melalui grup atau tempat umum.
+
+### Memeriksa aktivitas
+
+- Buka **Log Transaksi** untuk melihat transaksi dan statusnya.
+- Buka **Jurnal Akuntansi** untuk memeriksa catatan transaksi.
+- Periksa **Dashboard** untuk melihat ringkasan.
+
+Jika menemukan angka yang tidak sesuai, catat tanggal dan transaksi terkait, lalu laporkan kepada supervisor.
 
 ## Teller
 
 ### Membuka shift
 
-1. Buka menu `Shift`.
+Shift adalah giliran kerja teller. Sebelum melayani transaksi, buka shift dan catat uang yang ada di laci.
+
+1. Buka menu **Shift**.
 2. Masukkan nama dan kelas 1 sampai 3 petugas teller.
-3. Hitung uang tunai awal dan masukkan jumlah lembar/keping untuk setiap pecahan yang ditampilkan.
-4. Pilih `Buka Shift & Simpan Saldo Awal` setelah data diperiksa.
+3. Hitung uang di laci. Masukkan **jumlah lembar**, bukan jumlah rupiah, untuk setiap pecahan yang ditampilkan.
+4. Periksa jumlah keseluruhan yang dihitung aplikasi. Pastikan sama dengan uang di laci.
+5. Pilih **Buka Shift & Simpan Saldo Awal**.
 
-### Melayani transaksi
+Jika jumlahnya berbeda, hitung kembali sebelum membuka shift.
 
-1. Buka menu `Transaksi`.
-2. Cari nasabah dengan nomor rekening, atau gunakan pemindai QR dan izinkan akses kamera pada browser jika diminta.
-3. Pastikan identitas nasabah yang tampil benar.
-4. Pilih jenis transaksi setoran atau penarikan, masukkan nominal, lalu kirim transaksi.
-5. Periksa status transaksi pada layar. Cetak struk setelah tombol `Cetak Struk` tersedia.
+### Melayani setoran dan penarikan
 
-Pastikan nomor rekening dan nominal benar sebelum mengirim transaksi.
+1. Buka menu **Transaksi**.
+2. Masukkan nomor rekening nasabah, atau pindai kode QR. Jika diminta, izinkan aplikasi menggunakan kamera.
+3. Pastikan nama nasabah yang muncul sudah benar.
+4. Pilih **Deposit** untuk setoran atau **Penarikan** untuk mengambil uang.
+5. Masukkan jumlah uang, lalu pilih **Lanjutkan transaksi**.
+6. Tunggu sampai status transaksi muncul. Jika tertulis **Menunggu persetujuan**, minta nasabah menyetujui transaksi dan tunggu hasilnya. Jangan mengirim transaksi yang sama berulang kali.
+7. Setelah status **Disetujui** atau **Selesai**, cetak struk jika diperlukan dan berikan kepada nasabah.
 
-### Menutup shift dan melihat laporan
+Sebelum melanjutkan, pastikan kembali nomor rekening dan jumlah uang bersama nasabah.
 
-1. Setelah kegiatan transaksi selesai, kembali ke `Shift`.
-2. Hitung uang fisik di laci dan isi jumlah untuk setiap pecahan pada bagian saldo akhir.
-3. Pilih `Tutup Shift & Ajukan Laporan`. Laporan akan tersedia untuk ditinjau supervisor.
-4. Buka menu `Laporan` untuk memuat laporan berdasarkan tanggal dan memeriksa saldo sistem, saldo fisik, serta selisih kas.
+### Menutup shift
+
+Tutup shift setelah semua pelayanan selesai. Uang di laci harus dihitung kembali.
+
+1. Buka menu **Shift**.
+2. Hitung uang yang ada di laci.
+3. Masukkan jumlah lembar atau keping untuk setiap pecahan yang tersedia.
+4. Periksa jumlah keseluruhan di layar dan pastikan sesuai dengan hasil hitung.
+5. Pilih **Tutup Shift & Ajukan Laporan**. Laporan akan dikirim kepada supervisor untuk diperiksa.
+
+Jika jumlah uang berbeda, jangan mengubah hitungan agar terlihat sesuai. Hitung ulang dan beri tahu supervisor jika selisih tetap ada.
+
+### Melihat laporan teller
+
+1. Buka menu **laporan**.
+2. Pilih tanggal, lalu pilih **Muat Laporan**. Hari ini dipilih secara otomatis jika tanggal belum diubah.
+3. Periksa jumlah uang awal, setoran, penarikan, uang akhir, dan selisih.
+4. Jika laporan tidak muncul, periksa tanggal dan pastikan shift sudah ditutup.
 
 ## Supervisor
 
-### Meninjau dan menyetujui laporan shift
+### Memeriksa laporan shift
 
-1. Buka menu `Laporan Harian`.
-2. Filter daftar berdasarkan status. Laporan berstatus `closed` menunggu persetujuan.
-3. Pilih `Lihat` pada laporan untuk memeriksa petugas, rincian uang awal/akhir, transaksi, dan rekap saldo.
-4. Jika data sudah sesuai, pilih `Setujui Laporan` dan konfirmasi. Laporan yang sudah disetujui berstatus `approved`.
-5. Gunakan `Cetak / Print` bila diperlukan untuk mencetak detail laporan.
+1. Buka menu **Laporan Harian**.
+2. Pilih status **Closed (Menunggu Approval)** untuk mencari laporan yang perlu diperiksa.
+3. Pilih **Lihat** pada laporan.
+4. Periksa tanggal, nama petugas, jumlah uang awal dan akhir, transaksi, serta selisih uang.
+5. Jika ada data yang kurang jelas atau jumlah uang berbeda, tanyakan kepada teller sebelum menyetujui.
+6. Jika semua sudah sesuai, pilih **Setujui Laporan** dan konfirmasi.
+7. Untuk mencetak laporan, pilih **Cetak / Print**.
 
-### Pemantauan
+Status **Approved** berarti laporan sudah disetujui.
 
-Supervisor dapat menggunakan `Log Transaksi`, `Nasabah`, `Jurnal Akuntansi`, dan dashboard untuk meninjau aktivitas. Halaman `Vault` menampilkan saldo brankas.
+### Memantau kegiatan
 
-## Jika mengalami kendala
+- **Dashboard** menampilkan ringkasan saldo dan kegiatan.
+- **Log Transaksi** menampilkan daftar transaksi.
+- **Nasabah** menampilkan data nasabah.
+- **Jurnal Akuntansi** menampilkan catatan transaksi.
+- **Laporan Harian** menampilkan laporan shift untuk diperiksa.
 
-- Tidak bisa masuk: pastikan username dan password benar; minta admin memeriksa akun dan role.
-- Menu tidak tersedia: akses menu dibatasi berdasarkan role akun.
-- Data tidak termuat atau muncul pesan koneksi: pastikan frontend dan backend aktif serta konfigurasi URL API benar.
-- CSV ditolak: gunakan template yang disediakan, periksa kolom dan data wajib, lalu tinjau pesan validasi pada layar.
-- QR tidak terbaca: izinkan akses kamera pada browser atau masukkan nomor rekening secara manual.
+Hubungi admin jika ada masalah pada akun, pengaturan, atau aplikasi.
 
-Untuk endpoint dan alur autentikasi customer, lihat [dokumentasi API](./backend/API.md). Aplikasi web staff ini menggunakan login staff; dokumentasi API memuat layanan customer yang dapat dipakai oleh aplikasi customer terpisah.
+## Arti status
+
+| Status | Artinya |
+|---|---|
+| **Open** | Shift sedang berjalan. |
+| **Closed** | Shift sudah ditutup dan laporannya menunggu pemeriksaan supervisor. |
+| **Approved** | Laporan shift sudah disetujui supervisor. |
+| **Menunggu persetujuan** | Transaksi belum selesai. Tunggu persetujuan nasabah. |
+| **Disetujui** atau **Selesai** | Transaksi berhasil. |
+| **Ditolak** | Transaksi tidak disetujui. |
+| **Kedaluwarsa** | Waktu untuk menyetujui transaksi sudah habis. Periksa statusnya sebelum mencoba lagi. |
+| **Selisih** | Jumlah uang yang dihitung berbeda dari jumlah yang tercatat. Hitung kembali dan laporkan kepada supervisor. |
+
+## Jika mengalami masalah
+
+- **Tidak bisa masuk:** periksa kembali username dan password. Jika tetap gagal, hubungi admin.
+- **Menu tidak terlihat:** menu yang tersedia bergantung pada tugas akun. Minta admin memeriksa akun Anda.
+- **Data tidak muncul:** periksa koneksi internet, lalu muat ulang halaman. Jika belum berhasil, hubungi admin.
+- **CSV tidak bisa diunggah:** gunakan template dari halaman Nasabah dan perbaiki data sesuai pesan yang muncul.
+- **Kode QR tidak terbaca:** izinkan akses kamera atau masukkan nomor rekening secara manual.
+- **Transaksi masih menunggu:** tunggu hasil persetujuan. Jangan mengirim transaksi yang sama lagi.
+- **Laporan belum muncul:** periksa tanggal. Pastikan teller sudah menutup shift.
+- **Uang di laci berbeda dari laporan:** hitung kembali uang per pecahan, lalu laporkan kepada supervisor.
+- **Tidak bisa mencetak:** periksa printer atau pilih opsi simpan sebagai PDF pada jendela cetak.
+
+## Jaga keamanan data
+
+- Jangan berikan password atau PIN kepada orang lain.
+- Jangan tinggalkan akun dalam keadaan terbuka pada komputer bersama. Pilih **Logout** setelah selesai.
+- Periksa nama nasabah dan jumlah uang sebelum melanjutkan transaksi.
+- Simpan struk, laporan, dan file data nasabah di tempat yang aman.
+
+Untuk bantuan lebih lanjut, hubungi admin atau supervisor.

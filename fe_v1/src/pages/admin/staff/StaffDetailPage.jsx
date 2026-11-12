@@ -60,6 +60,7 @@ function StaffDetailPage() {
                 { label: "Username", value: staff.username },
                 { label: "Nama lengkap", value: staff.full_name },
                 { label: "Role", value: staff.role },
+                { label: "Status", value: staff.is_active ? "Aktif" : "Nonaktif" },
               ].map(({ label, value }) => (
                 <div key={label} className="min-w-0">
                   <dt className="mb-1.5 text-xs font-medium text-slate-700">
@@ -73,11 +74,13 @@ function StaffDetailPage() {
             </dl>
 
             <div className="mt-7 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
-              <Button
-                text="Edit"
-                onClick={() => navigate(`/admin/staff/${staff.id}/edit`)}
-                customClass="min-w-24"
-              />
+              {staff.is_active && (
+                <Button
+                  text="Edit"
+                  onClick={() => navigate(`/admin/staff/${staff.id}/edit`)}
+                  customClass="min-w-24"
+                />
+              )}
               <Button
                 theme="outline"
                 text="Kembali"

@@ -50,7 +50,9 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'role:admin'])->group(functi
 
     Route::post('/staff', [UserManagement::class, 'create']);
     Route::patch('/staff/{id}', [UserManagement::class, 'update']);
-    Route::delete('/staff/{id}', [UserManagement::class, 'delete']);
+    Route::patch('/staff/{id}/activate', [UserManagement::class, 'activate']);
+    Route::patch('/staff/{id}/deactivate', [UserManagement::class, 'deactivate']);
+    Route::delete('/staff/{id}', [UserManagement::class, 'deactivate']);
 
     Route::get('/customers', [CustomerManagement::class, 'index']);
     Route::get('/customers/{id}', [CustomerManagement::class, 'view']);

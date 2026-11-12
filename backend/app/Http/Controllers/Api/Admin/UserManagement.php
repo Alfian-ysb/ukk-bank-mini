@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class UserManagement extends Controller
@@ -20,11 +21,13 @@ class UserManagement extends Controller
             'page' => ['sometimes', 'integer', 'min:1'],
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
         ]);
-        $users = User::orderBy('id')->paginate($validated['per_page'] ?? 15);
+        $users = User::withTrashed()
+            ->orderBy('id')
+            ->paginate($validated['per_page'] ?? 15);
 
         return response()->json([
             'status' => 'success',
-            'data' => $users->items(),
+            'data' => StaffResource::collection($users->items())->resolve(),
             'pagination' => [
                 'current_page' => $users->currentPage(),
                 'per_page' => $users->perPage(),
@@ -80,10 +83,10 @@ class UserManagement extends Controller
 
     public function view($id){
         try{
-            $user = User::findOrFail($id);
+            $user = User::withTrashed()->findOrFail($id);
             return response()->json([
                 'status' => 'success',
-                'data' => $user,
+                'data' => (new StaffResource($user))->resolve(),
             ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
@@ -95,7 +98,7 @@ class UserManagement extends Controller
 
     public function update(Request $request, $id){
         try{
-            $request->validate([
+            $validated = $request->validate([
                 'username' => 'sometimes|required|string|unique:users,username,'.$id,
                 'full_name' => 'sometimes|required|string',
                 'password' => 'sometimes|required|string|min:6',
@@ -103,7 +106,27 @@ class UserManagement extends Controller
             ]);
 
             $user = User::findOrFail($id);
-            $user->update($request->all());
+            if (
+                ($validated['role'] ?? null) !== null
+                && $validated['role'] !== 'admin'
+                && $user->role === 'admin'
+            ) {
+                if ((int) $user->id === (int) $request->user()->id) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Admin tidak dapat mengubah role akunnya sendiri.',
+                    ], 403);
+                }
+
+                if (User::where('role', 'admin')->count() <= 1) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Minimal harus ada satu admin aktif.',
+                    ], 409);
+                }
+            }
+
+            $user->update($validated);
 
             return response()->json([
                 'status' => 'success',
@@ -119,20 +142,70 @@ class UserManagement extends Controller
         }
     }
 
-    public function delete($id){
-        try {
-            $user = User::findOrFail($id);
+    public function deactivate(Request $request, $id): JsonResponse
+    {
+        if ((int) $request->user()->id === (int) $id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda tidak dapat menonaktifkan akun sendiri.',
+            ], 403);
+        }
+
+        return DB::transaction(function () use ($id) {
+            $activeAdmins = User::where('role', 'admin')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get(['id']);
+            $user = User::lockForUpdate()->find($id);
+
+            if (! $user) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not found',
+                ], 404);
+            }
+
+            if ($user->role === 'admin' && $activeAdmins->count() <= 1) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Admin terakhir tidak dapat dinonaktifkan.',
+                ], 409);
+            }
+
             $user->delete();
+            $user->tokens()->delete();
+
             return response()->json([
                 'status' => 'success',
-                'message' => 'User deleted successfully',
+                'message' => 'Staff berhasil dinonaktifkan.',
             ]);
-            
-        } catch (ModelNotFoundException $e) {
+        });
+    }
+
+    public function activate($id): JsonResponse
+    {
+        $user = User::withTrashed()->find($id);
+
+        if (! $user) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'User not found',
             ], 404);
         }
+
+        if (! $user->trashed()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Staff sudah aktif.',
+            ], 409);
+        }
+
+        $user->restore();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Staff berhasil diaktifkan kembali.',
+            'data' => (new StaffResource($user->refresh()))->resolve(),
+        ]);
     }
 }

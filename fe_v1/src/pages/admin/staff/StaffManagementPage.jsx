@@ -2,19 +2,22 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../../components/DashboardLayout";
 import AdminTable from "../../../components/admin/AdminTable";
-import { get, remove as removeRequest } from "../../../api";
+import { get, patch } from "../../../api";
 import Button from "../../../components/Button";
 import Pagination from "../../../components/Pagination";
 import { useDialog } from "../../../context/dialogContext";
+import { getStoredUser } from "../../../context/authSession";
 
 function StaffManagementPage() {
   const { confirmDialog } = useDialog();
+  const currentUser = getStoredUser();
   const [staff, setStaff] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [updatingStaffId, setUpdatingStaffId] = useState(null);
 
   const navigate = useNavigate();
 
@@ -41,13 +44,31 @@ function StaffManagementPage() {
     loadStaff(page);
   }, [loadStaff, page]);
 
-  async function deleteStaff(id) {
-    if (!(await confirmDialog("Hapus staff ini?"))) return;
+  async function changeStaffStatus(item, newStatus) {
+    const isActive = newStatus === "active";
+    const confirmation = await confirmDialog(
+      `${isActive ? "Aktifkan kembali" : "Nonaktifkan"} staff ${item.full_name}?${
+        isActive ? "" : " Staff tidak dapat login lagi."
+      }`,
+      {
+        title: "Konfirmasi perubahan status",
+        confirmLabel: isActive ? "Aktifkan" : "Nonaktifkan",
+        tone: isActive ? "primary" : "danger",
+      },
+    );
+
+    if (!confirmation) return;
+
+    setUpdatingStaffId(item.id);
     try {
-      await removeRequest(`/admin/staff/${id}`);
+      await patch(
+        `/admin/staff/${item.id}/${isActive ? "activate" : "deactivate"}`,
+      );
       await loadStaff(page);
     } catch (requestError) {
       setError(requestError.message);
+    } finally {
+      setUpdatingStaffId(null);
     }
   }
 
@@ -64,10 +85,33 @@ function StaffManagementPage() {
     item.username,
     item.full_name,
     item.role,
-    <div className="flex gap-2" key={item.id}>
-      <Button theme={'outline'} text="Lihat" onClick={() => navigate(`/admin/staff/${item.id}`)} />
-      <Button text="Edit" onClick={() => navigate(`/admin/staff/${item.id}/edit`)} />
-      <Button theme={'danger'} text="Hapus" onClick={() => deleteStaff(item.id)} />
+    item.is_active ? "Aktif" : "Nonaktif",
+    <div className="flex flex-wrap gap-2" key={item.id}>
+      <Button
+        theme="outline"
+        text="Lihat"
+        onClick={() => navigate(`/admin/staff/${item.id}`)}
+      />
+      {item.is_active && (
+        <Button
+          text="Edit"
+          onClick={() => navigate(`/admin/staff/${item.id}/edit`)}
+        />
+      )}
+      <select
+        aria-label={`Ubah status ${item.full_name}`}
+        value={item.is_active ? "active" : "inactive"}
+        disabled={
+          loading ||
+          updatingStaffId === item.id ||
+          Number(item.id) === Number(currentUser?.id)
+        }
+        onChange={(event) => changeStaffStatus(item, event.target.value)}
+        className="min-h-10 cursor-pointer rounded-lg border border-primary bg-white px-3 py-2 text-sm font-medium text-neutral-dark-gray focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <option value="active">Aktif</option>
+        <option value="inactive">Nonaktif</option>
+      </select>
     </div>,
   ]);
 
@@ -92,7 +136,7 @@ function StaffManagementPage() {
       
       <AdminTable
         title="Daftar staff"
-        headers={["Username", "Nama", "Role", "Aksi"]}
+        headers={["Username", "Nama", "Role", "Status", "Aksi"]}
         rows={rows}
         emptyMessage={searchQuery ? "Staff tidak ditemukan." : "Belum ada staff."}
       />
