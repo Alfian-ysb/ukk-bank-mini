@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained('customers')->onDelete('no action');
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('restrict');
             $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
             $table->foreignId('shift_id')->nullable()->constrained('shifts')->onDelete('restrict');
             $table->dateTime('date');

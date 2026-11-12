@@ -4,11 +4,14 @@ namespace Tests\Feature;
 
 use App\Exports\TransactionsExport;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
 
 class TransactionExportTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_admin_export_includes_all_matching_transactions_without_pagination(): void
     {
         Excel::fake();
@@ -57,6 +60,19 @@ class TransactionExportTest extends TestCase
                 true
             ) && $export->query()->getQuery()->limit === null
         );
+    }
+
+    public function test_admin_can_export_transactions_as_a_pdf(): void
+    {
+        $admin = new User;
+        $admin->role = 'admin';
+
+        $response = $this->actingAs($admin, 'sanctum')
+            ->get('/api/admin/transactions/export/pdf');
+
+        $response->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
     }
 
     public function test_transaction_export_rejects_other_roles(): void

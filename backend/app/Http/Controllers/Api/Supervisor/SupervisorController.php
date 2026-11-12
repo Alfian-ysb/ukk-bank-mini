@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AccountingJournal;
 use App\Models\Transaction;
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -76,6 +78,32 @@ class SupervisorController extends Controller
             new TransactionsExport($this->transactionQuery($filters)),
             'laporan-transaksi-'.now()->format('Ymd-His').'.xlsx'
         );
+    }
+
+    public function exportTransactionsPdf(Request $request)
+    {
+        $filters = $request->validate($this->transactionFilterRules());
+        $transactions = $this->transactionQuery($filters)->get();
+        $options = new Options();
+        $options->set('defaultFont', 'DejaVu Sans');
+        $options->set('isRemoteEnabled', false);
+        $options->setTempDir(storage_path('framework/cache'));
+
+        $pdf = new Dompdf($options);
+        $pdf->loadHtml(view('exports.transactions-pdf', [
+            'transactions' => $transactions,
+            'filters' => $filters,
+            'generatedAt' => now(),
+        ])->render(), 'UTF-8');
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->render();
+
+        $filename = 'laporan-transaksi-'.now()->format('Ymd-His').'.pdf';
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
     }
 
     private function transactionFilterRules(): array

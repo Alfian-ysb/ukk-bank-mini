@@ -469,6 +469,45 @@ Response `200`:
 }
 ```
 
+### Detail transaksi customer
+
+```http
+GET /customer/history/{id}
+```
+
+Auth: `auth:sanctum`.
+
+Mengembalikan satu transaksi milik nasabah yang sedang login. Jika ID tidak ditemukan atau bukan milik nasabah ini, backend akan mengembalikan `404`.
+
+Response `200`:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "id": 10,
+    "customer_id": 1,
+    "user_id": 2,
+    "shift_id": 4,
+    "transaction_type": "deposit",
+    "amount": 100000,
+    "date": "2026-10-30 09:00:00",
+    "created_at": "2026-10-30T09:00:00.000000Z",
+    "updated_at": "2026-10-30T09:00:00.000000Z"
+  }
+}
+```
+
+### 5 transaksi terbaru customer
+
+```http
+GET /customer/history/latest
+```
+
+Auth: `auth:sanctum`.
+
+Mengembalikan maksimal 5 transaksi terbaru milik nasabah yang sedang login.
+
 ### Import nasabah melalui CSV
 
 Admin dapat menambahkan banyak nasabah sekaligus melalui:

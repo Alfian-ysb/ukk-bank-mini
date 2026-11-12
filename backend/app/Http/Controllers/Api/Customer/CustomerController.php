@@ -21,28 +21,51 @@ class CustomerController extends Controller
 
     public function history(Request $request)
     {
-        $customer = $request->user()->id;
+        $customerId = $request->user()->id;
 
-        $history = Transaction::where('customer_id', $customer)->orderBy('created_at', 'desc')->get();
+        $history = Transaction::where('customer_id', $customerId)
+            ->orderByDesc('created_at')
+            ->get();
 
         return response()->json([
             'status' => 'success',
-            'data' => $history
+            'data' => $history,
         ]);
     }
 
-    public function latestHistory(){
-        
-        // mengambil 5 transaksi terakhir dari nasabah yang sedang login
-        $customer = Auth::user();
-        $latestTransactions = Transaction::where('customer_id', $customer->id)
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
-        
+    public function detailHistory(Request $request, $id)
+    {
+        $customerId = $request->user()->id;
+
+        $transaction = Transaction::with('customer')
+            ->where('customer_id', $customerId)
+            ->find($id);
+
+        if (! $transaction) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Transaction not found for this customer',
+            ], 404);
+        }
+
         return response()->json([
             'status' => 'success',
-            'data' => $latestTransactions
+            'data' => $this->transactionDetailData($transaction),
+        ]);
+    }
+
+    public function latestHistory(Request $request)
+    {
+        $customerId = $request->user()->id;
+
+        $latestTransactions = Transaction::where('customer_id', $customerId)
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $latestTransactions,
         ]);
     }
 
@@ -201,6 +224,28 @@ class CustomerController extends Controller
     private function customerId(): int
     {
         return (int) Auth::id();
+    }
+
+    private function transactionDetailData(Transaction $transaction): array
+    {
+        return [
+            'id' => $transaction->id,
+            'customer_id' => $transaction->customer_id,
+            'customer' => [
+                'id' => $transaction->customer->id,
+                'nis' => $transaction->customer->nis,
+                'account_number' => $transaction->customer->account_number,
+                'major' => $transaction->customer->major,
+                'student_name' => $transaction->customer->student_name,
+            ],
+            'user_id' => $transaction->user_id,
+            'shift_id' => $transaction->shift_id,
+            'transaction_type' => $transaction->transaction_type,
+            'amount' => $transaction->amount,
+            'date' => $transaction->date,
+            'created_at' => $transaction->created_at,
+            'updated_at' => $transaction->updated_at,
+        ];
     }
 
     private function transactionRequestData(TransactionRequest $transactionRequest): array
