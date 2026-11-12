@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "../../../components/DashboardLayout";
 import { get, patch } from "../../../api";
 import Button from "../../../components/Button";
+import { useDialog } from "../../../context/dialogContext";
 
 const emptyForm = {
   nis: "",
@@ -14,6 +15,7 @@ const emptyForm = {
 };
 
 function CustomerEditPage() {
+  const { confirmDialog } = useDialog();
   const { id } = useParams();
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
@@ -39,7 +41,7 @@ function CustomerEditPage() {
     event.preventDefault();
 
     // Konfirmasi sebelum menyimpan data
-    const isConfirmed = window.confirm(
+    const isConfirmed = await confirmDialog(
       "Apakah Anda yakin ingin menyimpan perubahan data nasabah ini?",
     );
     if (!isConfirmed) return;

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import DashboardLayout from "../../../components/DashboardLayout";
 import AdminForm from "../../../components/admin/AdminForm";
 import { post } from "../../../api";
+import { useDialog } from "../../../context/dialogContext";
 
 const emptyForm = { username: "", full_name: "", password: "", role: "" };
 const fields = [
@@ -29,6 +30,7 @@ const fields = [
 ];
 
 function StaffCreatePage() {
+  const { confirmDialog } = useDialog();
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -43,7 +45,7 @@ function StaffCreatePage() {
   async function submit(event) {
     event.preventDefault();
 
-    const isConfirmed = window.confirm(
+    const isConfirmed = await confirmDialog(
       "Apakah Anda yakin ingin menambahkan staff ini?",
     );
     if (!isConfirmed) {

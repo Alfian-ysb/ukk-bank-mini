@@ -4,8 +4,10 @@ import { get, patch } from "../../api";
 import DashboardLayout from "../../components/DashboardLayout";
 import GenericReportTable from "../../components/supervisor/GenericReportTable";
 import Button from "../../components/Button";
+import { useDialog } from "../../context/dialogContext";
 
 const ApprovalDetail = () => {
+  const { alertDialog, confirmDialog } = useDialog();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,19 +57,22 @@ const ApprovalDetail = () => {
 
   const handleApprove = async () => {
     if (
-      !window.confirm("Apakah Anda yakin ingin menyetujui laporan harian ini?")
+      !(await confirmDialog(
+        "Apakah Anda yakin ingin menyetujui laporan harian ini?",
+      ))
     )
       return;
 
     try {
       setIsSubmitting(true);
       await patch(`/supervisor/shifts/${id}/approve`);
-      alert("Laporan berhasil disetujui!");
+      await alertDialog("Laporan berhasil disetujui!", { title: "Berhasil" });
       fetchApprovalDetail(id);
     } catch (error) {
-      alert(
+      await alertDialog(
         "Gagal menyetujui laporan: " +
           (error.response?.data?.message || error.message),
+        { title: "Gagal", tone: "danger" },
       );
     } finally {
       setIsSubmitting(false);
@@ -263,27 +268,6 @@ const ApprovalDetail = () => {
           </p>
         )}
 
-        {/* Area Tanda Tangan */}
-        {/* <div className="mt-16 grid grid-cols-2 text-center text-slate-800">
-          <div>
-            <p className="mb-16 font-semibold">Teller</p>
-            <p className="font-bold">
-              {data.assigned_staff?.join(", ") || "Teller Loket 1"}
-            </p>
-          </div>
-          <div>
-            <p className="mb-16 font-semibold">Supervisor</p>
-            <p className="font-bold">
-              {data.approved_by || "Supervisor Bank Mini"}
-            </p>
-          </div>
-        </div> */}
-
-        {/* Footer Cetak */}
-        {/* <div className="mt-12 text-xs text-slate-400">
-          Dicetak {new Date().toLocaleDateString("id-ID")}{" "}
-          {formatTime(new Date())} WIB oleh sistem E-Teller Bank Mini Sekolah.
-        </div> */}
       </div>
     </DashboardLayout>
   );

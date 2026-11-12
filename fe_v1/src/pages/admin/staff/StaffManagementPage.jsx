@@ -5,8 +5,10 @@ import AdminTable from "../../../components/admin/AdminTable";
 import { get, remove as removeRequest } from "../../../api";
 import Button from "../../../components/Button";
 import Pagination from "../../../components/Pagination";
+import { useDialog } from "../../../context/dialogContext";
 
 function StaffManagementPage() {
+  const { confirmDialog } = useDialog();
   const [staff, setStaff] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [error, setError] = useState("");
@@ -40,7 +42,7 @@ function StaffManagementPage() {
   }, [loadStaff, page]);
 
   async function deleteStaff(id) {
-    if (!window.confirm("Hapus staff ini?")) return;
+    if (!(await confirmDialog("Hapus staff ini?"))) return;
     try {
       await removeRequest(`/admin/staff/${id}`);
       await loadStaff(page);

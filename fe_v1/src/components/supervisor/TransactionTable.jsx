@@ -9,7 +9,7 @@ const TransactionTable = ({
   exportUrl,
   filters = {},
 }) => {
-  const [downloading, setDownloading] = useState(false);
+  const [downloadingFormat, setDownloadingFormat] = useState("");
   const [downloadError, setDownloadError] = useState("");
 
   const formatRupiah = (number) => {
@@ -24,18 +24,26 @@ const TransactionTable = ({
     });
   };
 
-  const handleDownload = async () => {
-    setDownloading(true);
+  const handleDownload = async (format) => {
+    setDownloadingFormat(format);
     setDownloadError("");
 
     try {
       const query = new URLSearchParams(filters).toString();
-      const path = query ? `${exportUrl}?${query}` : exportUrl;
-      await downloadFile(path, "laporan-transaksi.xlsx");
+      const basePath = format === "pdf" ? `${exportUrl}/pdf` : exportUrl;
+      const path = query ? `${basePath}?${query}` : basePath;
+      const isPdf = format === "pdf";
+      await downloadFile(
+        path,
+        isPdf ? "laporan-transaksi.pdf" : "laporan-transaksi.xlsx",
+        isPdf
+          ? "application/pdf"
+          : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      );
     } catch (error) {
       setDownloadError(error.message || "Gagal mengunduh laporan transaksi.");
     } finally {
-      setDownloading(false);
+      setDownloadingFormat("");
     }
   };
 
@@ -45,12 +53,20 @@ const TransactionTable = ({
         <h2 className="text-xl md:text-2xl font-plus-jakarta-sans font-semibold text-gray-700">
           Riwayat Transaksi
         </h2>
-        <Button
-          onClick={handleDownload}
-          theme="primary"
-          text={downloading ? "Mengunduh..." : "Unduh Excel"}
-          disabled={loading || downloading}
-        />
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button
+            onClick={() => handleDownload("excel")}
+            theme="primary"
+            text={downloadingFormat === "excel" ? "Mengunduh..." : "Unduh Excel"}
+            disabled={loading || Boolean(downloadingFormat)}
+          />
+          <Button
+            onClick={() => handleDownload("pdf")}
+            theme="outline"
+            text={downloadingFormat === "pdf" ? "Mengunduh..." : "Unduh PDF"}
+            disabled={loading || Boolean(downloadingFormat)}
+          />
+        </div>
       </div>
 
       {downloadError && (

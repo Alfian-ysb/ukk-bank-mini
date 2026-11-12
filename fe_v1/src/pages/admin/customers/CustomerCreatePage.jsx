@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import DashboardLayout from "../../../components/DashboardLayout";
 import AdminForm from "../../../components/admin/AdminForm";
 import { post } from "../../../api";
+import { useDialog } from "../../../context/dialogContext";
 
 const emptyForm = {
   nis: "",
@@ -50,6 +51,7 @@ const fields = [
 ];
 
 function CustomerCreatePage() {
+  const { confirmDialog } = useDialog();
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -65,7 +67,7 @@ function CustomerCreatePage() {
   async function submit(event) {
     event.preventDefault();
 
-    const isConfirmed = window.confirm(
+    const isConfirmed = await confirmDialog(
       "Apakah Anda yakin ingin menambahkan nasabah ini?",
     );
     if (!isConfirmed) {

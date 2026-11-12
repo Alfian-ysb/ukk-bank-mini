@@ -16,10 +16,6 @@ const Table = ({ headers, data }) => {
         <tbody>
           {data.map((row, rowIndex) => (
             <tr key={rowIndex} className="border-b
-            
-            
-            
-            
              hover:bg-gray-50">
               {Array.isArray(row) ? (
                 row.map((cell, cellIndex) => (

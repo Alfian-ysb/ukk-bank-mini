@@ -3,10 +3,12 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "../../../components/DashboardLayout";
 import { get, patch } from "../../../api";
 import Button from "../../../components/Button";
+import { useDialog } from "../../../context/dialogContext";
 
 const emptyForm = { username: "", full_name: "", password: "", role: "" };
 
 function StaffEditPage() {
+  const { confirmDialog } = useDialog();
   const { id } = useParams();
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
@@ -31,7 +33,7 @@ function StaffEditPage() {
   async function submit(event) {
     event.preventDefault();
 
-    const isConfirmed = window.confirm(
+    const isConfirmed = await confirmDialog(
       "Apakah Anda yakin ingin memperbarui staff ini?",
     );
     if (!isConfirmed) {
